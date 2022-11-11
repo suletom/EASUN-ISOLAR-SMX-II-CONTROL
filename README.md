@@ -11,16 +11,20 @@ Installation process according to the manual is the following:
 5. The app here sends the following UDP data: set>server=PHONE_WIFI_IP:8899; (This instructs the datalogger device to connect to a TCP server created by the SmartEss app) The UDP reply should be: rsp>server=1;
 6. After that if we fill the WIFI ap settings(SSID/Password) and save with "Setting" button these are sent is TCP packages through the previously initiated conenction.
 
+
+
 The same process without the app using linux utilities:
 
 1. connect to the datalogger AP, and obtain an ip address
 2. Identify IP addresses
 GET AP GateWAY IP: 
-# ip r | grep default
+ip r | grep default
 FIND your Local IP (at the same subnet)!
 3. start a local TCP server:
-# ncat -vvv -o /tmp/out -l 8899 -c 'echo -n "00010001000aff01160b0a16102d012c" |  xxd -r -p' --keep-open
+ncat -vvv -o /tmp/out -l 8899 -c 'echo -n "00010001000aff01160b0a16102d012c" |  xxd -r -p' --keep-open
 4. Instruct the device to use our local TCP server: 
-# echo "set>server=LOCAL_TCP_SERVER_IP:8899;" | nc -4u -q1 DATALOGGER_AP_GATEWAY_IP 58899
+echo "set>server=LOCAL_TCP_SERVER_IP:8899;" | nc -4u -q1 DATALOGGER_AP_GATEWAY_IP 58899
 
-EXAMPLE:# echo "set>server=192.168.1.2:8899;" | nc -4u -q1 192.168.1.129 58899
+EXAMPLE: echo "set>server=192.168.1.2:8899;" | nc -4u -q1 192.168.1.129 58899
+
+WORK in progress....
