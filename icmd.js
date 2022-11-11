@@ -82,11 +82,15 @@ function starttcp(){
 
     let port=8899;
 
-    console.log("starting tcp server(port: "+port+") to recieve data....");
+    console.log("starting TCP server(port: "+port+") to recieve data....");
 
     var server = net.createServer(function(socket) {
-        console.log("Got TCP data...");
-        socket.write("\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c");
+        console.log("Got TCP connection...");
+
+        var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
+        socket.write(cmd);
+        console.log("Ask for device info?...");
+        console.log(cmd.toString('hex'));
         socket.pipe(socket);
         socket.on('data',function(data){
             console.log(data.toString('hex'));
