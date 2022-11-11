@@ -90,7 +90,7 @@ function starttcp(){
         
         //socket.pipe(socket);
         socket.on('data',function(data){
-            consolg.log("Got TCP packet...");
+            console.log("Got TCP packet...");
             console.log(data.toString('hex'));
         });
 
