@@ -86,7 +86,7 @@ function starttcp(){
 
     var server = net.createServer(function(socket) {
 
-        console.log(`${sock.remoteAddress}:${socket.remotePort} Connected`);
+        console.log(`${socket.remoteAddress}:${socket.remotePort} Connected`);
         
         socket.pipe(socket);
         socket.on('data',function(data){
