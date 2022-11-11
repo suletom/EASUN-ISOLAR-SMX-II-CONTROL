@@ -86,7 +86,7 @@ function starttcp(){
 
     var server = net.createServer(function(socket) {
 
-        console.log(`${sock.remoteAddress}:${sock.remotePort} Connected`);
+        console.log(`${sock.remoteAddress}:${socket.remotePort} Connected`);
         
         socket.pipe(socket);
         socket.on('data',function(data){
@@ -99,12 +99,12 @@ function starttcp(){
             
         });
 
-        sock.on('error',function(error){
-            console.error(`${sock.remoteAddress}:${sock.remotePort} Connection Error ${error}`);
+        socket.on('error',function(error){
+            console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
         });
 
-        sock.on('close',function(){
-            console.log(`${sock.remoteAddress}:${sock.remotePort} Connection closed`);
+        socket.on('close',function(){
+            console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
         });
 
     });
