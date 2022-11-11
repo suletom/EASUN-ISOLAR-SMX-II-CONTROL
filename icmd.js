@@ -88,7 +88,7 @@ function starttcp(){
 
         console.log(`${socket.remoteAddress}:${socket.remotePort} Connected`);
         
-        socket.pipe(socket);
+        //socket.pipe(socket);
         socket.on('data',function(data){
             consolg.log("Got TCP packet...");
             console.log(data.toString('hex'));
