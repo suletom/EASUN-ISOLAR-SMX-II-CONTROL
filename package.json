@@ -1,0 +1,23 @@
+{
+  "name": "easun-isolar-smx-ii-control",
+  "version": "1.0.0",
+  "description": "Documentation collection about controlling an EASUN-ISOLAR-SMX-II chinese off-grid solar inverter",
+  "main": "icmd.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node icmd.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suletom/EASUN-ISOLAR-SMX-II-CONTROL.git"
+  },
+  "author": "suletom",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/suletom/EASUN-ISOLAR-SMX-II-CONTROL/issues"
+  },
+  "homepage": "https://github.com/suletom/EASUN-ISOLAR-SMX-II-CONTROL#readme",
+  "dependencies": {
+    "local-ipv4-address": "0.0.2"
+  }
+}
