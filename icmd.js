@@ -49,17 +49,26 @@ function sendudp(devip){
             let port=58899;
             let command="set>server="+ip+":8899;";
             
-            console.log("Sending udp packet(port: "+port+") to inform datalogger device to connect the TCP server:");
+            console.log("Sending UDP packet(port: "+port+") to inform datalogger device to connect the TCP server:");
             console.log(command);
 
-            client.on('message',function(msg, info){
-                console.log(msg);
+            client.on('listening', function () {
+                var address = client.address();
+                console.log('UDP Server listening on ' + address.address + ":" + address.port);
+            });
+
+            client.on('error', (err) => {
+                console.log(`server error:\n${err.stack}`);
+                client.close();
+            });
+              
+
+            client.on('message',function(message, remote){
+                console.log(remote.address + ':' + remote.port +' - ' + message);
             });
 
             client.send(command,0, command.length, port, devip);
             
-            client.close();
-
         });
 
     }catch(e){
