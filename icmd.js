@@ -85,17 +85,28 @@ function starttcp(){
     console.log("starting TCP server(port: "+port+") to recieve data....");
 
     var server = net.createServer(function(socket) {
-        console.log("Got TCP connection...");
 
-        var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
-        socket.write(cmd);
-        console.log("Ask for device info?...");
-        console.log(cmd.toString('hex'));
+        console.log(`${sock.remoteAddress}:${sock.remotePort} Connected`);
+        
         socket.pipe(socket);
         socket.on('data',function(data){
-            consolg.log("Got TCP data...");
+            consolg.log("Got TCP packet...");
             console.log(data.toString('hex'));
-        })
+            var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
+            console.log("Ask for device info?...");
+            console.log(cmd.toString('hex'));
+            socket.write(cmd);
+            
+        });
+
+        sock.on('error',function(error){
+            console.error(`${sock.remoteAddress}:${sock.remotePort} Connection Error ${error}`);
+        });
+
+        sock.on('close',function(){
+            console.log(`${sock.remoteAddress}:${sock.remotePort} Connection closed`);
+        });
+
     });
 
     server.listen(port, '0.0.0.0');
