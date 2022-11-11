@@ -49,14 +49,15 @@ function sendudp(devip){
             let port=58899;
             let command="set>server="+ip+":8899;";
             
-            console.log("Sending udp packet to inform datalogger device to connect the TCP server:");
+            console.log("Sending udp packet(port: "+port+") to inform datalogger device to connect the TCP server:");
             console.log(command);
 
-            client.send(command,0, command.length, port, devip);
             client.on('message',function(msg, info){
                 console.log(msg);
             });
 
+            client.send(command,0, command.length, port, devip);
+            
             client.close();
 
         });
