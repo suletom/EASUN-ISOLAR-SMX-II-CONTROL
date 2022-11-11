@@ -102,7 +102,8 @@ function starttcp(){
             console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
         });
 
-        var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
+        //var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
+        var cmd=Buffer.from('00010001000aff01160b0a16102d012c', 'hex');
         console.log("Ask for device info?...");
         console.log(cmd.toString('hex'));
         socket.write(cmd);
