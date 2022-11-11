@@ -93,6 +93,7 @@ function starttcp(){
         console.log(cmd.toString('hex'));
         socket.pipe(socket);
         socket.on('data',function(data){
+            consolg.log("Got TCP data...");
             console.log(data.toString('hex'));
         })
     });
