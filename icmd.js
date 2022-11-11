@@ -92,11 +92,6 @@ function starttcp(){
         socket.on('data',function(data){
             consolg.log("Got TCP packet...");
             console.log(data.toString('hex'));
-            var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
-            console.log("Ask for device info?...");
-            console.log(cmd.toString('hex'));
-            socket.write(cmd);
-            
         });
 
         socket.on('error',function(error){
@@ -106,6 +101,11 @@ function starttcp(){
         socket.on('close',function(){
             console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
         });
+
+        var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
+        console.log("Ask for device info?...");
+        console.log(cmd.toString('hex'));
+        socket.write(cmd);
 
     });
 
