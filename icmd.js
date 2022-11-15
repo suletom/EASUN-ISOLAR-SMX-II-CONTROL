@@ -141,7 +141,7 @@ function getdatacmd(data){
 
     dumpdata(obj.cmd);
 
-    console.log(obj.cmd.toString('hex'));
+    console.log("bin: ",obj.cmd.toString('hex'));
 
     return obj.cmd.toString('hex');
 }
