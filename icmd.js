@@ -99,6 +99,7 @@ function starttcp(){
         socket.on('data',function(data){
             console.log("Got TCP packet...");
             dumpdata(data);
+            console.log("Binary: ",data);
 
             let cmdstr=getcommseqcmd(command_seq);
             if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
