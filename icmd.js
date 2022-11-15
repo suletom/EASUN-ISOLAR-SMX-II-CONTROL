@@ -60,11 +60,11 @@ function sendudp(devip){
 
             client.on('listening', function () {
                 var address = client.address();
-                console.log('UDP Server listening on ' + address.address + ":" + address.port);
+                console.log('UDP server listening on ' + address.address + ":" + address.port);
             });
 
             client.on('error', (err) => {
-                console.log(`server error:\n${err.stack}`);
+                console.log(`UDP server error:\n${err.stack}`);
                 client.close();
             });
               
@@ -78,7 +78,7 @@ function sendudp(devip){
         });
 
     }catch(e){
-        console.log(e);
+        console.log("Error: ",e);
     }
 
     
