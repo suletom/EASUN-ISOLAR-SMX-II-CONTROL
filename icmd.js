@@ -4,10 +4,13 @@ let dgram = require('dgram');
 var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
 
+var commads={};
+fs.readFile('commands.json', (err, data) => {
+    if (err) throw err;
+    commads=JSON.parse(data);
+});
 
 const myArgs = process.argv.slice(2);
-
-
 
 console.log("!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
 
@@ -91,7 +94,7 @@ function starttcp(){
         //socket.pipe(socket);
         socket.on('data',function(data){
             console.log("Got TCP packet...");
-            console.log(data.toString('hex'));
+            dumpdata(data);
         });
 
         socket.on('error',function(error){
@@ -102,15 +105,41 @@ function starttcp(){
             console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
         });
 
-        //var cmd="\x00\x01\x00\x01\x00\x0a\xff\x01\x16\x0b\x0a\x16\x10\x2d\x01\x2c";
-        var cmd=Buffer.from('00010001000aff01160b0a16102d012c', 'hex');
-        console.log("Ask for device info?...");
-        console.log(cmd.toString('hex'));
-        socket.write(cmd);
+        socket.write(getdatacmd('get_device_info'));
 
     });
 
     server.listen(port, '0.0.0.0');
+
+}
+
+function getdatacmd(data){
+
+    console.log("command: "+data);
+
+    let obj=commands.find(o => o.name === data );
+
+    dumpdata(obj.cmd);
+
+    return obj.cmd.toString('hex');
+}
+
+function dumpdata(data){
+
+    let strdata=data.toString('hex');
+    let out="";
+    let i=1;
+    data.forEach(element => {
+        
+        out+=element;
+        if (i%2==0) {    
+            out+=" ";
+        }    
+        i++;
+
+    });
+
+    console.log(out);
 
 }
 
