@@ -117,7 +117,7 @@ function getdatacmd(data){
 
     console.log("command: "+data);
 
-    let obj=commands.find(o => o.name === data );
+    let obj=commands.commands.find(o => o.name === data );
 
     dumpdata(obj.cmd);
 
