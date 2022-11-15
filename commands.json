@@ -4,6 +4,7 @@
         {"name": "set_wifi_ssid","cmd": "00{SEQ}00010013ff0329{ARG2}"},
         {"name": "set_wifi_pw","cmd": "00{SEQ}0001000bff032b{ARG3}"},
         {"name": "reset_wifi","cmd": "00{SEQ}00010004ff031d31"},
+        {"name": "factory_reset_wifi","cmd": "00{SEQ}00010004ff031d32"},
         {"name": "get_device_info","cmd": "00{SEQ}00010003ff0205"},
         {"name": "query_modbus","cmd": "00{SEQ}0001000aff01160b0a16102d012c"},
         {"name": "set_modbus","cmd": "00{SEQ}0001000aff01160b0a16102d012c"}
@@ -13,3 +14,16 @@
     ]
 
 }
+
+/*
+req: 3818 0001 000a ff 04 ff03df0000046a03
+
+
+trid: 38 18 
+protocol id: 00 01
+length: 00 0a (10?)
+unit id: ff
+function: 04
+data: ff 03 df 00 00 04 6a 03
+
+*/

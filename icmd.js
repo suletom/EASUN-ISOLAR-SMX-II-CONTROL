@@ -81,7 +81,6 @@ function sendudp(devip){
     }catch(e){
         console.log("Error: ",e);
     }
-
     
 }
 
