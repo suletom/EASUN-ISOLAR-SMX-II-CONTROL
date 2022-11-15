@@ -130,7 +130,7 @@ function dumpdata(data){
     console.log(strdata);
     let out="";
     let i=1;
-    strdata.forEach(element => {
+    [...strdata].forEach(element => {
         
         out+=element;
         if (i%2==0) {     
