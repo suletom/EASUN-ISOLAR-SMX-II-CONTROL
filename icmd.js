@@ -148,7 +148,7 @@ function getdatacmd(data){
         i++;
     });
 
-    obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(1, '0'));
+    obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(2, '0'));
     global_tcp_seq++;
     
     dumpdata(obj.cmd);
