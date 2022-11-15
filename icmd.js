@@ -10,7 +10,7 @@ fs.readFile('commands.json', (err, data) => {
     commands=JSON.parse(data);
 });
 
-const myArgs = process.argv.slice(2);
+var myargs = process.argv.slice(2);
 
 console.log("!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
 
@@ -24,14 +24,14 @@ console.log("\n\n");
 
 var commandsequence="";
 
-if (myArgs.length==0){
+if (myargs.length==0){
     console.log("\n No command supplied! ");
 }else{
-    if (myArgs[0]=="setip"){
-        if (myArgs.length==4){
+    if (myargs[0]=="setip"){
+        if (myargs.length==4){
             
             commandsequence="setip";
-            sendudp(myArgs[1]);
+            sendudp(myargs[1]);
 
         }else{
             console.log("\nWrong parameters: EXAMPLE: setip 192.168.88.88 mywifi wifipassword");
@@ -104,7 +104,8 @@ function starttcp(){
             let cmdstr=getcommseqcmd(command_seq);
             if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
 
-            socket.write(getdatacmd(cmdstr));
+            getdatacmd(cmdstr);
+            //socket.write();
             
             });
 
@@ -140,6 +141,11 @@ function getdatacmd(data){
 
     let obj=commands.commands.find(o => o.name === data );
 
+    let i=0;
+    myargs.forEach(function(el){
+        obj.cmd.replace('{ARG'+i+'}',el);
+    });
+    
     dumpdata(obj.cmd);
 
     return Buffer.from(obj.cmd, 'hex');

@@ -1,12 +1,14 @@
 {
     "commands": [
+        {"name": "get_device_id","cmd": "00010001000aff01160b0a16102d012c"},
+        {"name": "set_wifi_ssid","cmd": "000200010013ff0329{ARG2}"},
+        {"name": "set_wifi_pw","cmd": "00030001000bff032b{ARG3}"},
         {"name": "get_device_info","cmd": "00010001000aff01160b0a16102d012c"},
-        {"name": "get_wifi_info","cmd": "00010001000aff01160b0a16102d012c"},
         {"name": "query_modbus","cmd": "00010001000aff01160b0a16102d012c"},
         {"name": "set_modbus","cmd": "00010001000aff01160b0a16102d012c"}
     ],
     "commandsequences": [
-        {"name": "setip", "seq":["get_device_info"]}
+        {"name": "setip", "seq":["get_device_id","get_device_info"}
     ]
 
 }
