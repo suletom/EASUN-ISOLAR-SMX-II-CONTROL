@@ -144,6 +144,7 @@ function getdatacmd(data){
     let i=0;
     myargs.forEach(function(el){
         obj.cmd.replace('{ARG'+i+'}',el);
+        i++;
     });
     
     dumpdata(obj.cmd);
