@@ -100,9 +100,12 @@ function starttcp(){
             console.log("Got TCP packet...");
             dumpdata(data);
 
-            
+            let cmdstr=getcommseqcmd(command_seq);
+            if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
 
-        });
+            socket.write(getdatacmd(cmdstr));
+            
+            });
 
         socket.on('error',function(error){
             console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
@@ -113,10 +116,10 @@ function starttcp(){
         });
 
         let cmdstr=getcommseqcmd(command_seq);
-            if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
+        if (cmdstr === undefined) { console.log("Missing command sequence, exiting..."); exit(0); }
 
-            socket.write(getdatacmd(cmdstr));
-            command_seq++;
+        socket.write(getdatacmd(cmdstr));
+        command_seq++;
 
     });
 
