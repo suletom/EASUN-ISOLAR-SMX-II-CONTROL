@@ -129,10 +129,10 @@ function dumpdata(data){
     let strdata=data.toString('hex');
     let out="";
     let i=1;
-    data.forEach(element => {
+    strdata.forEach(element => {
         
         out+=element;
-        if (i%2==0) {    
+        if (i%2==0) {     
             out+=" ";
         }    
         i++;
