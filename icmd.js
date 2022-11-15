@@ -23,6 +23,7 @@ console.log("  required options: [datalogger ip address]");
 console.log("\n\n");
 
 var commandsequence="";
+var global_tcp_seq=1; //sends the device in every command perhaps we need 2 byte: todo check
 
 if (myargs.length==0){
     console.log("\n No command supplied! ");
@@ -146,6 +147,9 @@ function getdatacmd(data){
         obj.cmd=obj.cmd.replace('{ARG'+i+'}',el);
         i++;
     });
+
+    obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(1, '0'));
+    global_tcp_seq++;
     
     dumpdata(obj.cmd);
 
