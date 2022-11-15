@@ -135,11 +135,13 @@ function getcommseqcmd(index){
 
 function getdatacmd(data){
 
-    console.log("command: "+data);
+    console.log("Command: "+data);
 
     let obj=commands.commands.find(o => o.name === data );
 
     dumpdata(obj.cmd);
+
+    console.log(obj.cmd.toString('hex'));
 
     return obj.cmd.toString('hex');
 }
