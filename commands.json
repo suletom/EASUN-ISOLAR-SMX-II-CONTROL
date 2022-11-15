@@ -1,0 +1,12 @@
+{
+    "commands": [
+        {"name": "get_device_info","cmd": "00010001000aff01160b0a16102d012c"},
+        {"name": "get_wifi_info","cmd": "00010001000aff01160b0a16102d012c"},
+        {"name": "query_modbus","cmd": "00010001000aff01160b0a16102d012c"},
+        {"name": "set_modbus","cmd": "00010001000aff01160b0a16102d012c"}
+    ],
+    "commandsequences": [
+        {"name": "setip", "seq":["get_device_info",""]}
+    ]
+
+}
