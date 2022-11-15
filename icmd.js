@@ -141,9 +141,9 @@ function getdatacmd(data){
 
     dumpdata(obj.cmd);
 
-    console.log("bin: ",obj.cmd.toString('hex'));
+    console.log("bin: ",parseInt(obj.cmd).toString(2));
 
-    return obj.cmd.toString('hex');
+    return parseInt(obj.cmd).toString(2);
 }
 
 function dumpdata(data){
