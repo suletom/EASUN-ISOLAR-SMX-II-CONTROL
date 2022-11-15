@@ -100,11 +100,7 @@ function starttcp(){
             console.log("Got TCP packet...");
             dumpdata(data);
 
-            let cmdstr=getcommseqcmd(command_seq);
-            if (cmdstr === undefined) { exit(0); }
-
-            socket.write(getdatacmd(cmdstr));
-            command_seq++;
+            
 
         });
 
@@ -116,7 +112,11 @@ function starttcp(){
             console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
         });
 
-        
+        let cmdstr=getcommseqcmd(command_seq);
+            if (cmdstr === undefined) { exit(0); }
+
+            socket.write(getdatacmd(cmdstr));
+            command_seq++;
 
     });
 
