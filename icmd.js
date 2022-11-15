@@ -93,7 +93,7 @@ function starttcp(){
 
     var server = net.createServer(function(socket) {
 
-        console.log(`${socket.remoteAddress}:${socket.remotePort} Connected`);
+        console.log(`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
         
         //socket.pipe(socket);
         socket.on('data',function(data){
@@ -113,7 +113,7 @@ function starttcp(){
         });
 
         let cmdstr=getcommseqcmd(command_seq);
-            if (cmdstr === undefined) { exit(0); }
+            if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
 
             socket.write(getdatacmd(cmdstr));
             command_seq++;
