@@ -1,29 +1,20 @@
 {
     "commands": [
-        {"name": "get_device_id","cmd": "00{SEQ}0001000aff01160b0a16102d012c"},
+        {"name": "get_wifi_device_id","cmd": "00{SEQ}0001000aff01160b0a16102d012c"},
         {"name": "set_wifi_ssid","cmd": "00{SEQ}00010013ff0329{ARG2}"},
         {"name": "set_wifi_pw","cmd": "00{SEQ}0001000bff032b{ARG3}"},
-        {"name": "reset_wifi","cmd": "00{SEQ}00010004ff031d31"},
+        {"name": "restart_wifi","cmd": "00{SEQ}00010004ff031d31"},
         {"name": "factory_reset_wifi","cmd": "00{SEQ}00010004ff031d32"},
-        {"name": "get_device_info","cmd": "00{SEQ}00010003ff0205"},
-        {"name": "query_modbus","cmd": "00{SEQ}0001000aff01160b0a16102d012c"},
+        {"name": "get_wifi_device_info","cmd": "00{SEQ}00010003ff0205"},
+        {"name": "query_modbus","cmd": "{MTRID}{MPROT}{MLEN}{MADDR}{ARG2}{MADDR}{ARG2}{ARG3}{ARG4}{MCRC}"},
         {"name": "set_modbus","cmd": "00{SEQ}0001000aff01160b0a16102d012c"}
     ],
     "commandsequences": [
-        {"name": "setip", "seq":["get_device_id","get_device_info","set_wifi_ssid","set_wifi_pw","reset_wifi"] }
+        {"name": "setwifi", "seq":["get_wifi_device_id","get_wifi_device_info","set_wifi_ssid","set_wifi_pw","restart_wifi"],"desc": "sets wifi datalogger network via wireless AP","args": "[datalogger ip address] [ssid] [password]" },
+        {"name": "factory-reset", "seq":["factory_reset_wifi"],"desc": "wifi datalogger factory reset","args": "[datalogger ip address]" },
+        {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [function_code_hex] [register_hex_address] [register_hex_length]" },
+        {"name": "set-modbus", "seq":["set_modbus"],"desc": "write modbus register","args": "[datalogger ip address] [register_hex_address]" },
+        {"name": "get-device-info", "seq":["get_device_id","get_device_info"],"desc": "gets wifi datalogger device id and other ifo","args": "[datalogger ip address]" }
     ]
-
 }
 
-/*
-req: 3818 0001 000a ff 04 ff03df0000046a03
-
-
-trid: 38 18 
-protocol id: 00 01
-length: 00 0a (10?)
-unit id: ff
-function: 04
-data: ff 03 df 00 00 04 6a 03
-
-*/

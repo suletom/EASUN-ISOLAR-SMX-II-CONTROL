@@ -5,22 +5,43 @@ var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
 
 var commands={};
-fs.readFile('commands.json', (err, data) => {
-    console.log(err);
-    commands=JSON.parse(data);
-});
+let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'})
+
+try{ 
+    commands=JSON.parse(cdata);
+}catch(e){
+    console.log(e);
+}
+
+//console.log(commands);
 
 var myargs = process.argv.slice(2);
 
 console.log("!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
+console.log("!!! On initial setup the datalogger ip address is the gateway (obtained by dhcp from the datalogger wifi AP) !!!");
 
 console.log("\nUSAGE: COMMAND [options]\n\nCOMMANDS:")
-console.log("setip => set wifi datalogger network via wireless AP");
-console.log("  required options: [datalogger ip address] [ssid] [password]");
-console.log("connect => connect to datalogger via ip to send/recive MODBUS data");
-console.log("  required options: [datalogger ip address]");
+commands.commandsequences.forEach(function(cs){
+    console.log(cs.name+" "+cs.args+" \n ("+cs.desc+")\n");
+});
+//console.log("setip => set wifi datalogger network via wireless AP");
+//console.log("  required options: [datalogger ip address] [ssid] [password]");
+//console.log("connect => connect to datalogger via ip to send/recive MODBUS data");
+//console.log("  required options: [datalogger ip address]");
+/*
+req: 3818 0001 000a ff 04 ff03df0000046a03
 
-console.log("\n\n");
+
+trid: 38 18 
+protocol id: 00 01
+length: 00 0a (10?)
+unit id: ff
+function: 04
+data: ff 03 df 00 00 04 6a 03
+
+*/
+
+console.log("\n");
 
 var commandsequence="";
 var global_tcp_seq=1; //sends the device in every command perhaps we need 2 byte: todo check
@@ -28,16 +49,36 @@ var global_tcp_seq=1; //sends the device in every command perhaps we need 2 byte
 if (myargs.length==0){
     console.log("\n No command supplied! ");
 }else{
-    if (myargs[0]=="setip"){
-        if (myargs.length==4){
-            
-            commandsequence="setip";
-            sendudp(myargs[1]);
 
-        }else{
-            console.log("\nWrong parameters: EXAMPLE: setip 192.168.88.88 mywifi wifipassword");
+    commands.commandsequences.forEach(function(cs){
+        
+        if (cs.name===myargs[0]){
+            
+            commandsequence=myargs[0];
+            console.log("Running: "+commandsequence);
+
+            argscount=[];
+            cs.seq.forEach(function(cd){
+                let nc=commands.commands.find(cdf => cdf.name === cd);
+                
+                let reg=nc.cmd.match(/\{ARG[0-9]+\}/g);
+                if (reg!=null && reg!==false && reg!=undefined ) argscount=argscount.concat(reg);
+                
+            });
+           
+            var arguniq=argscount.filter((v, i, a) => a.indexOf(v) === i);
+            
+            if (myargs.length<arguniq.length+2) {
+                console.log("Wrong number of arguments! Exiting...");
+                exit(-1);
+            }   
+
+            sendudp(myargs[1]);
         }
-    }
+    });
+
+    
+
 }
 
 
@@ -167,7 +208,7 @@ function dumpdata(data){
         out+=element;
         if (i%2==0) {     
             out+=" ";
-        }    
+        }
         i++;
 
     });
@@ -176,4 +217,33 @@ function dumpdata(data){
 
 }
 
+function handle_modbus_command(command,functioncode,start,len){
 
+    if (!command.match(/{M/)) return command;
+
+    command
+
+    let crc=crc16modbus(command);
+
+    let c=command.replace("{MCRC}",crc);
+    c=command.replace("{MLEN}",len);
+}
+
+function crc16modbus(data){
+
+    const table = [
+        0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
+        0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400
+    ];
+    
+    let crc = 0xFFFF;
+
+    for (let i = 0; i < data.length; i++) {
+        let ch = data[i];
+        crc = table[(ch ^ crc) & 15] ^ (crc >> 4);
+        crc = table[((ch >> 4) ^ crc) & 15] ^ (crc >> 4);
+    }
+
+    return crc;
+    
+}
