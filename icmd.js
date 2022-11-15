@@ -127,6 +127,7 @@ function getdatacmd(data){
 function dumpdata(data){
 
     let strdata=data.toString('hex');
+    console.log(strdata);
     let out="";
     let i=1;
     strdata.forEach(element => {
