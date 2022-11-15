@@ -4,10 +4,10 @@ let dgram = require('dgram');
 var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
 
-var commads={};
+var commands={};
 fs.readFile('commands.json', (err, data) => {
     console.log(err);
-    commads=JSON.parse(data);
+    commands=JSON.parse(data);
 });
 
 const myArgs = process.argv.slice(2);
