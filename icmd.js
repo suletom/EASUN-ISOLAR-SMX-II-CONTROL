@@ -103,11 +103,10 @@ function starttcp(){
 
             let cmdstr=getcommseqcmd(command_seq);
             if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
-
-            getdatacmd(cmdstr);
-            //socket.write();
+    
+            socket.write(getdatacmd(cmdstr));
             
-            });
+        });
 
         socket.on('error',function(error){
             console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
