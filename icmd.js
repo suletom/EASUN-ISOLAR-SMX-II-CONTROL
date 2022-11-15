@@ -22,12 +22,15 @@ console.log("  required options: [datalogger ip address]");
 
 console.log("\n\n");
 
+var commandsequence="";
+
 if (myArgs.length==0){
     console.log("\n No command supplied! ");
 }else{
     if (myArgs[0]=="setip"){
         if (myArgs.length==4){
-             
+            
+            commandsequence="setip";
             sendudp(myArgs[1]);
 
         }else{
@@ -84,6 +87,7 @@ function sendudp(devip){
 function starttcp(){
 
     let port=8899;
+    let command_seq=0;
 
     console.log("starting TCP server(port: "+port+") to recieve data....");
 
@@ -95,6 +99,13 @@ function starttcp(){
         socket.on('data',function(data){
             console.log("Got TCP packet...");
             dumpdata(data);
+
+            let cmdstr=getcommseqcmd(command_seq);
+            if (cmdstr === undefined) { exit(0); }
+
+            socket.write(getdatacmd(cmdstr));
+            command_seq++;
+
         });
 
         socket.on('error',function(error){
@@ -105,12 +116,18 @@ function starttcp(){
             console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
         });
 
-        socket.write(getdatacmd('get_device_info'));
+        
 
     });
 
     server.listen(port, '0.0.0.0');
 
+}
+
+function getcommseqcmd(index){
+
+    let obj=commands.commandsequences.find(o => o.name === commandsequence );
+    return obj[index];
 }
 
 function getdatacmd(data){
@@ -127,7 +144,7 @@ function getdatacmd(data){
 function dumpdata(data){
 
     let strdata=data.toString('hex');
-    console.log(strdata);
+    
     let out="";
     let i=1;
     [...strdata].forEach(element => {

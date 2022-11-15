@@ -6,7 +6,7 @@
         {"name": "set_modbus","cmd": "00010001000aff01160b0a16102d012c"}
     ],
     "commandsequences": [
-        {"name": "setip", "seq":["get_device_info",""]}
+        {"name": "setip", "seq":["get_device_info"]}
     ]
 
 }
