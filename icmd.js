@@ -127,7 +127,7 @@ function starttcp(){
 function getcommseqcmd(index){
 
     let obj=commands.commandsequences.find(o => o.name === commandsequence );
-    return obj[index];
+    return obj.seq[index];
 }
 
 function getdatacmd(data){
