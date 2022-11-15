@@ -6,7 +6,7 @@ const { exit } = require('process');
 
 var commads={};
 fs.readFile('commands.json', (err, data) => {
-    if (err) throw err;
+    console.log(err);
     commads=JSON.parse(data);
 });
 
