@@ -105,6 +105,7 @@ function starttcp(){
             if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
     
             socket.write(getdatacmd(cmdstr));
+            command_seq++;
             
         });
 
