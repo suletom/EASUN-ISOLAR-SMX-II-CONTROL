@@ -190,6 +190,7 @@ function getdatacmd(data){
     global_tcp_seq++;
     
     if (obj.hasOwnProperty('raw') && obj.raw===true){
+        console.log(obj.cmd);
         return obj.cmd;
     }
 
