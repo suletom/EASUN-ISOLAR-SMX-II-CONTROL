@@ -6,14 +6,12 @@
         {"name": "restart_wifi","cmd": "00{SEQ}00010004ff031d31"},
         {"name": "factory_reset_wifi","cmd": "00{SEQ}00010004ff031d32"},
         {"name": "get_wifi_device_info","cmd": "00{SEQ}00010003ff0205"},
-        {"name": "query_modbus","cmd": "{MTRID}{MPROT}{MLEN}{MADDR}{ARG2}{MADDR}{ARG2}{ARG3}{ARG4}{MCRC}"},
-        {"name": "set_modbus","cmd": "00{SEQ}0001000aff01160b0a16102d012c"}
+        {"name": "query_modbus","cmd": "{ARG2}"}
     ],
     "commandsequences": [
         {"name": "setwifi", "seq":["get_wifi_device_id","get_wifi_device_info","set_wifi_ssid","set_wifi_pw","restart_wifi"],"desc": "sets wifi datalogger network via wireless AP","args": "[datalogger ip address] [ssid] [password]" },
         {"name": "factory-reset", "seq":["factory_reset_wifi"],"desc": "wifi datalogger factory reset","args": "[datalogger ip address]" },
-        {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [function_code_hex] [register_hex_address] [register_hex_length]" },
-        {"name": "set-modbus", "seq":["set_modbus"],"desc": "write modbus register","args": "[datalogger ip address] [register_hex_address]" },
+        {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [raw_modbus_packet_hex]" },
         {"name": "get-device-info", "seq":["get_device_id","get_device_info"],"desc": "gets wifi datalogger device id and other ifo","args": "[datalogger ip address]" }
     ]
 }

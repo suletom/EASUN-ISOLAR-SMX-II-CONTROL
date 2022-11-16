@@ -81,9 +81,6 @@ if (myargs.length==0){
 
 }
 
-
-
-
 function sendudp(devip){
 
     try{
@@ -217,16 +214,17 @@ function dumpdata(data){
 
 }
 
-function handle_modbus_command(command,functioncode,start,len){
+function handle_modbus_command(transcation_id,protocol_id,unit_id,command,functioncode,start,len){
 
     if (!command.match(/{M/)) return command;
 
-    command
+    //command
 
     let crc=crc16modbus(command);
 
     let c=command.replace("{MCRC}",crc);
     c=command.replace("{MLEN}",len);
+
 }
 
 function crc16modbus(data){
