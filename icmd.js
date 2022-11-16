@@ -189,8 +189,11 @@ function getdatacmd(data){
     obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(2, '0'));
     global_tcp_seq++;
     
-    dumpdata(obj.cmd);
+    if (obj.hasOwnProperty('raw') && obj.raw===true){
+        return obj.cmd;
+    }
 
+    dumpdata(obj.cmd);
     return Buffer.from(obj.cmd, 'hex');
 }
 
