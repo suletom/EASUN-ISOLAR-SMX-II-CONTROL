@@ -6,7 +6,7 @@
         {"name": "restart_wifi","cmd": "00{SEQ}00010004ff031d31"},
         {"name": "factory_reset_wifi","cmd": "00{SEQ}00010004ff031d32"},
         {"name": "get_wifi_device_info","cmd": "00{SEQ}00010003ff0205"},
-        {"name": "query_modbus","cmd": "{ARG2}","raw": true}
+        {"name": "query_modbus","cmd": "{ARG2}","raw": true},
         {"name": "test","cmd": ""}
     ],
     "commandsequences": [
