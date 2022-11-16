@@ -181,7 +181,11 @@ function getdatacmd(data){
 
     let i=0;
     myargs.forEach(function(el){
+
         let hext=Buffer.from(el, 'utf8').toString('hex');
+        if (obj.hasOwnProperty('raw') && obj.raw===true){
+            hext=el;
+        }
         obj.cmd=obj.cmd.replace('{ARG'+i+'}',hext);
         i++;
     });
