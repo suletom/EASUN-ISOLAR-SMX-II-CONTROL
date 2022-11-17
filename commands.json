@@ -9,7 +9,7 @@
         {"name": "query_modbus","cmd": "{ARG2}","raw": true},
         {"name": "get_smx_info","cmd": "00{SEQ}00010003001100",
             "definition":[
-                {"name":"BatteryVoltage","address": 23,"type":"UInt16BE","rate":0.1,"format": 1}
+                {"name":"BatteryVoltage","address": 23,"type":"UInt16LE","rate":0.1,"format": 1}
             ]
         }
     ],
