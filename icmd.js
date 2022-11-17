@@ -223,11 +223,11 @@ function dumpdata(data){
             out+=" ";
         }
 
-        if (i%15==0) {
+        if (i%16==0) {
             out+="  ";
         }
 
-        if (i%31==0) {
+        if (i%32==0) {
             out+="\n";
         }
 
