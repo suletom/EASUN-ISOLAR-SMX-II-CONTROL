@@ -149,7 +149,7 @@ function starttcp(){
                     let val="";
                     if ( Number.isInteger(def.type) ){
                         val=data.toString('hex');
-                        val=val.substring(def.address*2,def.type);
+                        val=val.substring(def.address*2,def.address*2+def.type);
                     }else{    
                         val=data['read'+def.type](def.address);
                         val=val*def.rate;
