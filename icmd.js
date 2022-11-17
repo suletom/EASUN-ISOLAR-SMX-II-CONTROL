@@ -148,9 +148,8 @@ function starttcp(){
                 lastcmddef.definition.forEach(function(def){
                     let val="";
                     if ( Number.isInteger(def.type) ){
-                        val=data['subarray'](def.address,parseInt(def.type));
-                        console.log(val.toString('hex',0, val.length));
-                        val=val.toString('hex',0, val.length);
+                        val=data.toString('hex');
+                        val=val.substring(def.address*2,def.type);
                     }else{    
                         val=data['read'+def.type](def.address);
                         val=val*def.rate;
