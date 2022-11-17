@@ -146,7 +146,7 @@ function starttcp(){
             console.log(lastcmddef);
             if (lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
                 lastcmddef.definition.forEach(function(def){
-                    let val=data['read'+def.type]();
+                    let val=data['read'+def.type](def.address);
                     val=val*def.rate;
                     console.log(def.name+":\t "+val.toFixed(def.format));
                 });
