@@ -16,7 +16,7 @@
                 {"name":"PVVoltage","address": 30,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"},
                 {"name":"PVCurrent","address": 32,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"A"},
                 {"name":"PVPower","address": 34,"type":"UInt16BE","rate":1,"format": 1,"unit":"W"},
-                {"name":"PVStatus?","address": 66,"type":"UInt16BE","rate":1,"format": 1,"unit":""},
+                {"name":"PVStatus?","address": 66,"type":"UInt16BE","rate":1,"format": 0,"unit":""},
                 {"name":"BatteryStatus?","address": 52,"type":"UInt16BE","rate":1,"format": 0,"unit":""}, 
                 {"name":"CurrentFault?maxlen?","address": 56,"type":4,"unit":""}, 
                 {"name":"MachineState","address": 76,"type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]}, 
