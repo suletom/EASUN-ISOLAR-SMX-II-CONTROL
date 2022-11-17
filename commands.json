@@ -31,8 +31,9 @@
                 {"name":"LoadRatio","address": 110,"type":"UInt16BE","rate":1,"format": 0,"unit":"%"},
                 {"name":"Temperature DC","address": 112,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"},
                 {"name":"Temperature AC","address": 114,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"},
-                {"name":"Temperature TR","address": 116,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"}
-                
+                {"name":"Temperature TR","address": 116,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"},
+                {"name":"InverterCurrent","address": 94,"type":"Int16BE","rate":0.1,"format": 1,"unit":"A"},
+                {"name":"InverterFrequency","address": 96,"type":"Int16BE","rate":0.1,"format": 2,"unit":"Hz"}
                 
             ]
         }
