@@ -149,6 +149,7 @@ function starttcp(){
                     let val="";
                     if ( Number.isInteger(def.type) ){
                         val=data['subarray'](def.address,parseInt(def.type));
+                        console.log(val);
                         val=val.toString('hex');
                     }else{    
                         val=data['read'+def.type](def.address);
