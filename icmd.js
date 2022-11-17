@@ -139,6 +139,16 @@ function starttcp(){
             dumpdata(data);
             console.log("Binary: ",data.toString());
 
+            let lastcmdname=getcommseqcmd(command_seq-1);
+            let lastcmddef = commands.commands.find(e => e.name === lastcmdname);
+            if (lastcmddef!==undefined && lastcmddef!=null && lastcmddef.hasOwnProperty('definions')){
+                lastcmddef.definitions.forEach(function(def){
+                    let val=data['read'+def.type]();
+                    val=val*def.rate;
+                    console.log(def.name+":\t "+val.toFixed(def.format));
+                });
+            }
+
             let cmdstr=getcommseqcmd(command_seq);
             if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
     

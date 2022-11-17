@@ -7,14 +7,18 @@
         {"name": "factory_reset_wifi","cmd": "00{SEQ}00010004ff031d32"},
         {"name": "get_wifi_device_info","cmd": "00{SEQ}00010003ff0205"},
         {"name": "query_modbus","cmd": "{ARG2}","raw": true},
-        {"name": "test","cmd": "38180001000aff04ff03df0000046a03"}
+        {"name": "get_smx_info","cmd": "00{SEQ}00010003001100",
+            "definition":[
+                {"name":"PvInputVolt","type":"Int8","rate":0.1,"format": 1}
+            ]
+        }
     ],
     "commandsequences": [
         {"name": "setwifi", "seq":["get_wifi_device_id","get_wifi_device_info","set_wifi_ssid","set_wifi_pw","restart_wifi"],"desc": "sets wifi datalogger network via wireless AP","args": "[datalogger ip address] [ssid] [password]" },
         {"name": "factory-reset", "seq":["factory_reset_wifi"],"desc": "wifi datalogger factory reset","args": "[datalogger ip address]" },
         {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [raw_modbus_packet_hex]" },
         {"name": "get-device-info", "seq":["get_device_id","get_device_info"],"desc": "gets wifi datalogger device id and other ifno","args": "[datalogger ip address]" },
-        {"name": "test", "seq":["test"],"desc": "test","args": "[datalogger ip address]" }
+        {"name": "get-smx-info", "seq":["get_smx_info"],"desc": "Get ISolar SMX II 3.6 inverter full info","args": "[datalogger ip address]" }
     ]
 }
 
