@@ -146,9 +146,16 @@ function starttcp(){
             console.log(lastcmddef);
             if (lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
                 lastcmddef.definition.forEach(function(def){
-                    let val=data['read'+def.type](def.address);
-                    val=val*def.rate;
-                    console.log(def.name+":\t "+val.toFixed(def.format)+" "+(Array.isArray(def.unit)?def.unit[parseInt(val)]:def.unit));
+                    let val="";
+                    if ( Number.isInteger(def.type) ){
+                        val=data['subarray'](def.address,parseInt(def.type));
+                        val=val.toString('hex');
+                    }else{    
+                        val=data['read'+def.type](def.address);
+                        val=val*def.rate;
+                        val=val.toFixed(def.format);
+                    }
+                    console.log(def.name+":\t "+val+" "+(Array.isArray(def.unit)?def.unit[parseInt(val)]:def.unit));
                 });
             }
 
