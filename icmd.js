@@ -150,7 +150,7 @@ function starttcp(){
                     if ( Number.isInteger(def.type) ){
                         val=data['subarray'](def.address,parseInt(def.type));
                         console.log(val);
-                        val=val.toString('hex');
+                        val=val.toString('hex',0, val.length);
                     }else{    
                         val=data['read'+def.type](def.address);
                         val=val*def.rate;
