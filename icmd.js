@@ -222,6 +222,15 @@ function dumpdata(data){
         if (i%2==0) {     
             out+=" ";
         }
+
+        if (i%7==0) {
+            out+="  ";
+        }
+
+        if (i%15==0) {
+            out+="\n";
+        }
+
         i++;
 
     });

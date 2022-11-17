@@ -13,7 +13,7 @@
                 {"name":"BatteryVoltage","address": 22,"type":"UInt16BE","rate":0.1,"format": 1},
                 {"name":"BatteryCurrent","address": 24,"type":"Int16BE","rate":0.1,"format": 1},
                 {"name":"PVVoltage","address": 29,"type":"Int16BE","rate":0.1,"format": 1},
-                {"name":"PVCurrent","address": 31,"type":"UInt16BE","rate":0.1,"format": 1},
+                {"name":"PVCurrent","address": 31,"type":"Int16BE","rate":0.1,"format": 1},
                 {"name":"PVPower","address": 33,"type":"Int16BE","rate":0.1,"format": 1}
             ]
         }
