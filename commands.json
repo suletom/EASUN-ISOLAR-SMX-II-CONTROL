@@ -18,7 +18,7 @@
                 {"name":"MachineState","address": 76,"type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]}, 
                 {"name":"BatteryStatus?","address": 52,"type":"UInt16BE","rate":1,"format": 0,"unit":""}, 
                 {"name":"LoadStatus?","address": 80,"type":"UInt16BE","rate":1,"format": 0,"unit":""}, 
-                {"name":"CurrentFault?maxlen?","address": 56,"type":4,"rate":1,"format": 0,"unit":""}, 
+                {"name":"CurrentFault?maxlen?","address": 56,"type":4,"unit":""}, 
                 {"name":"LineVoltage","address": 86,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"}, 
                 {"name":"LineCurrent","address": 88,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"A"},
                 {"name":"LineFrequency","address": 90,"type":"UInt16BE","rate":0.01,"format": 2,"unit":"Hz"}
