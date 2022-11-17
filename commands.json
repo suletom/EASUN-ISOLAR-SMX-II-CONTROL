@@ -27,7 +27,9 @@
                 {"name":"LoadVoltage","address": 92,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"},
                 {"name":"LoadCurrent","address": 98,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"A"},
                 {"name":"LoadActivePower","address": 102,"type":"UInt16BE","rate":1,"format": 0,"unit":"W"},
-                {"name":"LoadApparentPower","address": 104,"type":"UInt16BE","rate":1,"format": 0,"unit":"VA"}
+                {"name":"LoadApparentPower","address": 104,"type":"UInt16BE","rate":1,"format": 0,"unit":"VA"},
+                {"name":"LoadRatio","address": 110,"type":"UInt16BE","rate":1,"format": 0,"unit":"%"}
+                
                 
                 
             ]
