@@ -138,11 +138,14 @@ function starttcp(){
             console.log("Got TCP packet...");
             dumpdata(data);
             console.log("Binary: ",data.toString());
+            console.log("\n");
 
             let lastcmdname=getcommseqcmd(command_seq-1);
+            console.log(lastcmdname);
             let lastcmddef = commands.commands.find(e => e.name === lastcmdname);
-            if (lastcmddef!==undefined && lastcmddef!=null && lastcmddef.hasOwnProperty('definions')){
-                lastcmddef.definitions.forEach(function(def){
+            console.log(lastcmddef);
+            if (lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
+                lastcmddef.definition.forEach(function(def){
                     let val=data['read'+def.type]();
                     val=val*def.rate;
                     console.log(def.name+":\t "+val.toFixed(def.format));
