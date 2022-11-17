@@ -16,6 +16,7 @@
                 {"name":"PVCurrent","address": 32,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"A"},
                 {"name":"PVPower","address": 34,"type":"UInt16BE","rate":1,"format": 1,"unit":"W"},
                 {"name":"MachineState","address": 76,"type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]}, 
+                {"name":"BatteryChargeStep","address": 80,"type":"UInt16BE","rate":1,"format": 0,"unit":["Not start","Const current","Const voltage","reserved","Float charge","reserved","Active charge","Active charge"]}, 
                 {"name":"LineVoltage","address": 86,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"}, 
                 {"name":"LineCurrent","address": 88,"type":"UInt16BE","rate":0.1,"format": 1,"unit":"A"},
                 {"name":"LineFrequency","address": 90,"type":"UInt16BE","rate":0.01,"format": 2,"unit":"Hz"}
