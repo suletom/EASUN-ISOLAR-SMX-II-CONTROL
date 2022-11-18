@@ -35,7 +35,9 @@
                 {"name":"LoadRatio","address": 110,"type":"UInt16BE","rate":1,"format": 0,"unit":"%"},
                 {"name":"Temperature DC","address": 112,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"},
                 {"name":"Temperature AC","address": 114,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"},
-                {"name":"Temperature TR","address": 116,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"}
+                {"name":"Temperature TR","address": 116,"type":"Int16BE","rate":0.1,"format": 1,"unit":"˚C"},
+                {"name":"NameBatteryType","address": 116,"type":"Int16BE","rate":1,"format": 1,"unit":["User def","SLD","FLD","GEL","LF14","LF15","LF16","LF7","LF8","LF9","NCA7","NCA8","NCA13","NCA14"]},
+                {"name":"BusVoltage","address": 84,"type":"Int16BE","rate":0.1,"format": 1,"unit":"V"},
                                 
             ]
         }
