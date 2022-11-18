@@ -3,6 +3,7 @@ let fs = require('fs');
 let dgram = require('dgram');
 var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
+const { Buffer } = require('buffer');
 
 var commands={};
 let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'})
@@ -145,18 +146,30 @@ function starttcp(){
             let lastcmddef = commands.commands.find(e => e.name === lastcmdname);
             console.log(lastcmddef);
             if (lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
+                
+                let handled=[];
+
                 lastcmddef.definition.forEach(function(def){
                     let val="";
                     if ( Number.isInteger(def.type) ){
                         val=data.toString('hex');
                         val=val.substring(def.address*2,def.address*2+def.type);
+                        handled[def.address*2]=1
+                       
                     }else{    
                         val=data['read'+def.type](def.address);
+                        handled[def.address*2]=1;
+                        handled[def.address*2+1]=1;
+                        handled[def.address*2+2]=1;
+                        handled[def.address*2+3]=1;
+
                         val=val*def.rate;
                         val=val.toFixed(def.format);
                     }
                     console.log(def.name+":\t "+val+" "+(Array.isArray(def.unit)?def.unit[parseInt(val)]:def.unit));
                 });
+                //console.log(handled);
+                dumpdata(data,handled);
             }
 
             let cmdstr=getcommseqcmd(command_seq);
@@ -217,7 +230,7 @@ function getdatacmd(data){
     return Buffer.from(obj.cmd, 'hex');
 }
 
-function dumpdata(data){
+function dumpdata(data,handled=null){
 
     let strdata=data.toString('hex');
     
@@ -225,7 +238,21 @@ function dumpdata(data){
     let i=1;
     [...strdata].forEach(element => {
         
+        bgred="\x1b[42m";
+        normal="\x1b[0m";
+
+        if (Array.isArray(handled)){
+            if (handled[i-1]==1) {
+                out+=bgred;
+            }    
+        }
         out+=element;
+        if (Array.isArray(handled)){
+            if (handled[i-1]==1) {
+                out+=normal;
+            }
+        }    
+
         if (i%2==0) {     
             out+=" ";
         }
