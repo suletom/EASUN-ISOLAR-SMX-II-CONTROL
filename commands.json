@@ -40,7 +40,9 @@
                 {"name":"BusVoltage","address": 84,"type":"Int16BE","rate":0.1,"format": 1,"unit":"V"},
                 {"name":"LoadPowerConsumptionOnTheDay","address": 254,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"},
                 {"name":"LoadPowerConsumptionOnTheDayFromMains","address": 280,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"},
-                {"name":"CumulativeCharge","address": 298,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"}
+                {"name":"PVCumulativePowerGeneration","address": 266,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"},
+                {"name":"CumulativeCharge","address": 298,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"},
+                {"name":"AccumulatedBatteryChargeHours","address": 298,"type":"Int16BE","rate":1,"format": 1,"unit":"AH"}
                                 
             ]
         }
