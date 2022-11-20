@@ -72,13 +72,13 @@ if (myargs.length==0){
             if (myargs.length<arguniq.length+2) {
                 console.log("Wrong number of arguments! Exiting...");
                 exit(-1);
-            }   
+            }
 
             sendudp(myargs[1]);
-        }
-    });
 
-    
+        }
+
+    });
 
 }
 
@@ -107,14 +107,13 @@ function sendudp(devip){
                 console.log(`UDP server error:\n${err.stack}`);
                 client.close();
             });
-              
 
             client.on('message',function(message, remote){
                 console.log(remote.address + ':' + remote.port +' - ' + message);
             });
 
             client.send(command,0, command.length, port, devip);
-            
+
         });
 
     }catch(e){
@@ -142,9 +141,9 @@ function starttcp(){
             console.log("\n");
 
             let lastcmdname=getcommseqcmd(command_seq-1);
-            console.log(lastcmdname);
+            //console.log(lastcmdname);
             let lastcmddef = commands.commands.find(e => e.name === lastcmdname);
-            console.log(lastcmddef);
+            //console.log(lastcmddef);
             if (lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
                 
                 let handled=[];
@@ -166,9 +165,9 @@ function starttcp(){
                         val=val*def.rate;
                         val=val.toFixed(def.format);
                     }
-                    console.log(def.name+":\t "+val+" "+(Array.isArray(def.unit)?def.unit[parseInt(val)]:def.unit));
+                    console.log(def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?def.unit[parseInt(val)]:def.unit));
                 });
-                //console.log(handled);
+                console.log("\nHandled values: \n");
                 dumpdata(data,handled);
             }
 
@@ -227,6 +226,7 @@ function getdatacmd(data){
     global_tcp_seq++;
 
     dumpdata(obj.cmd);
+    Buffer.from(obj.cmd, 'hex');
     return Buffer.from(obj.cmd, 'hex');
 }
 
