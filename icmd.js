@@ -216,7 +216,9 @@ function getdatacmd(data){
 
         let testdata=Buffer.from('ff03e2040001', 'hex');
         dumpdata(testdata);
-        console.log(crc16modbus(testdata));
+        let crc=crc16modbus(testdata);
+        crc=crc.toString(16);
+        console.log(crc);
         exit(0);
     }
 
