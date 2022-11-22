@@ -173,6 +173,7 @@ function starttcp(){
 
             let cmdstr=getcommseqcmd(command_seq);
             if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
+           
     
             socket.write(getdatacmd(cmdstr));
             command_seq++;
@@ -211,6 +212,14 @@ function getdatacmd(data){
 
     let obj=commands.commands.find(o => o.name === data );
 
+    if (obj.cmd=="{MBUS}"){
+
+        let testdata=Buffer.from('ff03e2040001', 'utf8').toString('hex');
+        dumpdata(testdata);
+        console.log(crc16modbus(testdata));
+        exit(0);
+    }
+
     let i=0;
     myargs.forEach(function(el){
 
@@ -226,7 +235,7 @@ function getdatacmd(data){
     global_tcp_seq++;
 
     dumpdata(obj.cmd);
-    Buffer.from(obj.cmd, 'hex');
+    
     return Buffer.from(obj.cmd, 'hex');
 }
 
@@ -287,7 +296,7 @@ function handle_modbus_command(transcation_id,protocol_id,unit_id,command,functi
 }
 
 function crc16modbus(data){
-
+    
     const table = [
         0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
         0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400
