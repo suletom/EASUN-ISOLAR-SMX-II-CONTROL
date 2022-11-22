@@ -1,14 +1,14 @@
 {
     "commands": [
         {"name": "get_wifi_device_id","cmd": "00{SEQ}0001000aff01160b0a16102d012c"},
-        {"name": "set_wifi_ssid","cmd": "00{SEQ}00010013ff0329{ARG2}"},
-        {"name": "set_wifi_pw","cmd": "00{SEQ}0001000bff032b{ARG3}"},
+        {"name": "set_wifi_ssid","cmd": "00{SEQ}0001{LEN}ff0329{ARG2}"},
+        {"name": "set_wifi_pw","cmd": "00{SEQ}0001{LEN}ff032b{ARG3}"},
         {"name": "restart_wifi","cmd": "00{SEQ}00010004ff031d31"},
         {"name": "factory_reset_wifi","cmd": "00{SEQ}00010004ff031d32"},
         {"name": "get_wifi_device_info","cmd": "00{SEQ}00010003ff0205"},
         {"name": "query_modbus","cmd": "{ARG2}","raw": true},
-        {"name": "get-smx-out-prio","cmd": "00{SEQ}0001000aff04ff03e2040001e66d", "!example form param get/set":""},
-        {"name": "get_smx_param","cmd": "{MBUS}"},
+        {"name": "get-smx-out-prio","cmd": "00{SEQ}0001000aff04ff03e2040001e66d", "/*!example form param get/set: whole modbus rtu packet in modbus tcp*/":""},
+        {"name": "get_smx_param","cmd": "00{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}"},
         {"name": "get_smx_info","cmd": "00{SEQ}00010003001100",
             "definition":[
 

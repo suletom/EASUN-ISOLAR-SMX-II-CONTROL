@@ -4,6 +4,7 @@ let dgram = require('dgram');
 var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
 const { Buffer } = require('buffer');
+const { match } = require('assert');
 
 var commands={};
 let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'})
@@ -217,7 +218,7 @@ function getdatacmd(data){
         let testdata=Buffer.from('ff03e2040001', 'hex');
         dumpdata(testdata);
         let crc=crc16modbus(testdata);
-        crc=crc.toString(16);
+        crc=crc.toString(16).padStart(4,'0');
         console.log(crc);
         exit(0);
     }
@@ -232,6 +233,11 @@ function getdatacmd(data){
         obj.cmd=obj.cmd.replace('{ARG'+i+'}',hext);
         i++;
     });
+
+    let matches=obj.cmd.match(/\{LEN\}(.+)$/);
+    if (matches) {
+        obj.cmd=obj.cmd.replace("{LEN}",(matches[1].length/2).toString(16).padStart(4, '0'));
+    }
 
     obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(2, '0'));
     global_tcp_seq++;
