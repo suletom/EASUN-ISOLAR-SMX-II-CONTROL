@@ -214,7 +214,7 @@ function getdatacmd(data){
 
     if (obj.cmd=="{MBUS}"){
 
-        let testdata=Buffer.from('ff03e2040001', 'utf8').toString('hex');
+        let testdata=Buffer.from('ff03e2040001', 'ascii').toString('hex');
         dumpdata(testdata);
         console.log(crc16modbus(testdata));
         exit(0);
