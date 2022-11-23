@@ -15,8 +15,6 @@ try{
     console.log(e);
 }
 
-//console.log(commands);
-
 var myargs = process.argv.slice(2);
 
 console.log("!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
@@ -26,27 +24,11 @@ console.log("\nUSAGE: COMMAND [options]\n\nCOMMANDS:")
 commands.commandsequences.forEach(function(cs){
     console.log(cs.name+" "+cs.args+" \n ("+cs.desc+")\n");
 });
-//console.log("setip => set wifi datalogger network via wireless AP");
-//console.log("  required options: [datalogger ip address] [ssid] [password]");
-//console.log("connect => connect to datalogger via ip to send/recive MODBUS data");
-//console.log("  required options: [datalogger ip address]");
-/*
-req: 3818 0001 000a ff 04 ff03df0000046a03
-
-
-trid: 38 18 
-protocol id: 00 01
-length: 00 0a (10?)
-unit id: ff
-function: 04
-data: ff 03 df 00 00 04 6a 03
-
-*/
 
 console.log("\n");
 
 var commandsequence="";
-var global_tcp_seq=1; //sends the device in every command perhaps we need 2 byte: todo check
+var global_tcp_seq=1; //sends the device in every command: modbus transaction id
 
 if (myargs.length==0){
     console.log("\n No command supplied! ");
@@ -83,13 +65,15 @@ if (myargs.length==0){
 
 }
 
+
 function sendudp(devip){
 
     try{
 
         localIpV4Address().then(function(ip){
             
-            console.log("Using local ip to create TCP server: "+(ip)); // err may be 'No active network interface found.' 
+            console.log("Using local ip to create TCP server: "+(ip));
+
             starttcp();
 
             var client = dgram.createSocket('udp4');
@@ -152,12 +136,20 @@ function starttcp(){
                 lastcmddef.definition.forEach(function(def){
                     let val="";
                     if ( Number.isInteger(def.type) ){
+
+                        //type with custom length
                         val=data.toString('hex');
                         val=val.substring(def.address*2,def.address*2+def.type);
+
+                        //hack: mark onyl the first char: just for debugging
                         handled[def.address*2]=1
                        
                     }else{    
+                        //basic types supported by Buffer class
+
                         val=data['read'+def.type](def.address);
+
+                        //hack: mark always 4 bytes: just for debugging
                         handled[def.address*2]=1;
                         handled[def.address*2+1]=1;
                         handled[def.address*2+2]=1;
@@ -168,14 +160,14 @@ function starttcp(){
                     }
                     console.log(def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?def.unit[parseInt(val)]:def.unit));
                 });
+
                 console.log("\nHandled values: \n");
                 dumpdata(data,handled);
             }
 
             let cmdstr=getcommseqcmd(command_seq);
             if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
-           
-    
+               
             socket.write(getdatacmd(cmdstr));
             command_seq++;
             
@@ -201,6 +193,7 @@ function starttcp(){
 
 }
 
+//get next command for the commany sequence by index
 function getcommseqcmd(index){
 
     let obj=commands.commandsequences.find(o => o.name === commandsequence );
@@ -213,16 +206,7 @@ function getdatacmd(data){
 
     let obj=commands.commands.find(o => o.name === data );
 
-    if (obj.cmd=="{MBUS}"){
-
-        let testdata=Buffer.from('ff03e2040001', 'hex');
-        dumpdata(testdata);
-        let crc=crc16modbus(testdata);
-        crc=crc.toString(16).padStart(4,'0');
-        console.log(crc);
-        exit(0);
-    }
-
+    //place input args in modbus commands
     let i=0;
     myargs.forEach(function(el){
 
@@ -234,12 +218,17 @@ function getdatacmd(data){
         i++;
     });
 
+    //custom built modbus command
+    obj.cmd=handle_modbus_command(obj.cmd);
+
+    //compute and place length where needed
     let matches=obj.cmd.match(/\{LEN\}(.+)$/);
     if (matches) {
         obj.cmd=obj.cmd.replace("{LEN}",(matches[1].length/2).toString(16).padStart(4, '0'));
     }
 
-    obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(2, '0'));
+    //add modbus tcp transaction id, just an incemental index
+    obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(4, '0'));
     global_tcp_seq++;
 
     dumpdata(obj.cmd);
@@ -247,6 +236,7 @@ function getdatacmd(data){
     return Buffer.from(obj.cmd, 'hex');
 }
 
+//hex dump
 function dumpdata(data,handled=null){
 
     let strdata=data.toString('hex');
@@ -290,16 +280,18 @@ function dumpdata(data,handled=null){
 
 }
 
-function handle_modbus_command(transcation_id,protocol_id,unit_id,command,functioncode,start,len){
+function handle_modbus_command(command,param){
 
-    if (!command.match(/{M/)) return command;
+    if (!command.match(/{CRC}/)) return command;
 
-    //command
+    command=command.replace('{PARAM}',param);
+    
+    let crc=crc16modbus(inner);
+    crc=crc.toString(16).padStart(4,'0');
 
-    let crc=crc16modbus(command);
-
-    let c=command.replace("{MCRC}",crc);
-    c=command.replace("{MLEN}",len);
+    command=command.replace("{CRC}",crc.substring(2,2)+crc.substring(0,2));
+    
+    return command;
 
 }
 
