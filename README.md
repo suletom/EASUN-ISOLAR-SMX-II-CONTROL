@@ -51,15 +51,17 @@ Example(same as above without parsing):
 These are modbus tcp commands: i suspect some commands are for the wifi plug pro(clean modbus tcp frame: 2byte transaction id, 2byte protocol id, 2byte 
 length, data: 1byte unit id, 1byte funtion code, etc. ), others are handled by the gateway and sent to the modbus rtu device on serial line.
 
-Modbus commands for the device: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, (modbus rtu packet:  1byte unit id, 1byte funtion code(for the inverter), 2byte register address, 2byte register offset, 2byte crc( crc16/MODBUS: from the beginning of the modbus rtu packet))
+Modbus commands for the inverter: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, (modbus rtu packet:  1byte unit id, 1byte funtion code(for the inverter), 2byte register address, 2byte register offset, 2byte crc( crc16/MODBUS: from the beginning of the modbus rtu packet))
 
 This one reads the inverter output priority parameter:
 >npm start query-modbus aaaa0001000aff04ff03e2040001e66d
 
-Request:            aaaa   0001     000a     ff      04        ff      03         e204                                          0001    e66d
-                    trid   prot.id  length   unit id functcode unit id functcode  register address(seen on pc software serial)  offset  CRC16/modbus   
-                                                                                  
-Response should be: aaaa   0001     0009     ff      04        01      03         02     00 01                                              79 84
-                    trid   prot.id  length   unit id functcode unit id functcode  length data(here: 0001->line out source, 0000->PV, etc.)  CRC16
+Request:
+aa aa 00 01 00 0a ff 04   ff 03 e2 04 00 01 e6 6d
+aaaa(trid)  0001(prot.id)  000a(length) ff(unit id) 04(functcode) ff(unit id) 03(functcode) e204(register address(seen on pc software serial)) 0001(offset) e66d(CRC16/modbus)
+
+Response should be:
+aa aa 00 01 00 09 ff 04   01 03 02 00 01 79 84
+aaaa(trid) 0001(prot.id)  0009(length) ff(unit id) 04(functcode) 01(unit id) 03(functcode) 02(length) 0001(data(here: 0001->line out source, 0000->PV, etc.)) 7984(CRC16/modbus)
 
 If you are interested feel free to contact me.
