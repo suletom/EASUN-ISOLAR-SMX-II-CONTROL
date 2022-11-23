@@ -286,7 +286,7 @@ function handle_modbus_command(command,param){
 
     command=command.replace('{PARAM}',param);
     
-    let matches=command.match(/\{LEN\}(.+)\{CRC\}$/);
+    let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
     let inner="";
     if (matches){
         //{CRC} -> 5 char vs 4char hex(2 byte): -1
