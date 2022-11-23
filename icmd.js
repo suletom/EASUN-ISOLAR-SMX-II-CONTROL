@@ -290,7 +290,7 @@ function handle_modbus_command(command,param){
     let inner="";
     if (matches){
         //{CRC} -> 5 char vs 4char hex(2 byte): -1
-        inner=matches[1];
+        inner=Buffer.from(matches[1],'hex');
     }
 
     let crc=crc16modbus(inner);
