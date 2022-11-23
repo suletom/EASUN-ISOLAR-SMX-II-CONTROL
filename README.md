@@ -33,7 +33,23 @@ My observations about the provided original installation process are the followi
 
 To access the device first check you network connection. You can connect directly to the WIFI AP povided by the adapter or if the device has been already set up to connect to local wifi router in this case you can connect on the device lan ip. On your local router/firewall the obtanined ip address can be found.
 
-
+```
+                       xxxxxxxx        xx
+                    xxxx      xxxxxxxxx x
+                  xxx                   xxxxx
+┌────────┐    ┌──►xx                        xx ◄─┐
+│        │    │    xx          LAN         xxx   │
+│Inverter│           xxxxx               xxx     │
+│        │    ┌┐  ◄─┐    xx              x   ┌───┴┐
+│        │ ┌──┴┴──┐ │     xx   xxxxxxxxxxxx  │    │
+│        │ │ WIFI │ │      xxxx              │    │
+│        │ │ PLUG │ │                        │ PC │
+│        │ │ PRO  │ │           OR           │    │
+└──────┬─┘ └┬─────┘ │                        └──┬─┘
+       │    │       │                           │
+       └────┘       └───────────────────────────┘
+                      CONNECTED TO ACCESS POINT
+```
 
 The utility provides info about the available functions arguments. On my test setup i was able to factory reset the device and set wifi connection data. 
 Example: 
