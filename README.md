@@ -18,7 +18,7 @@ My observations about the provided original installation process are the followi
 6. After that if we fill the WIFI AP settings(SSID/Password) and save with "Setting" button these are sent in TCP packages through the previously initiated connection.
 
 
-#CLI utility install/test
+# CLI utility install/test
 (provided commands probably work on ubuntu 20.04+ but not tested)
 
 1. install nodejs (with npm) and git
