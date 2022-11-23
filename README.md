@@ -1,30 +1,79 @@
 # EASUN-ISOLAR-SMX-II-CONTROL
-Documentation collection about controlling an EASUN-ISOLAR-SMX-II chinese off-grid solar inverter
+Documentation collection about controlling an EASUN-ISOLAR-SMX-II chinese off-grid solar inverter.
 
-The device comes with a "Wifi Plug Pro" datalogger adapter. This seem to be a kind of MODBUS TCP adapter.
+!! Work in progress, use this at your own risk!!
+My test device is an EASUN branded 3.6KW inverter with original firmware.
 
-Installation process according to the manual is the following:
-1. connect the adatpter to the inverter (rs485 port)
+The seller/manufacturer refused to provide any further information about controlling/monitoring the device on wifi and the supplied PC software is limited and has some bugs. My goal is to have the ability to control the inverter by software without any external serial/etc. device. The supplied tool is primary a helper to reverse engineer the communication.
+
+The inverter comes with a "Wifi Plug Pro" datalogger adapter. This seem to be a kind of MODBUS TCP adapter. They provided cloud service and monitoring app (SmartESS) for this device setup.
+
+My observations about the provided original installation process are the following:
+
+1. Connect the adatpter to the inverter (rj45 rs485 port)
 2. Install and open SmartESS app (Android/IOS)
-3. the device creates a wifi access point (ssid=device id) which we should connect to (according to the manual the default password is: 12345678)
+3. The device creates a wifi access point (ssid=device id) which we should connect to (according to the manual the default password is: 12345678)
 4. In SmartEss main screen Wifi configuration -> Network Setting.  (If we connected succefully to the datalogger in previous step, the apps uses the wifi gateway ip make connection)
 5. The app here sends the following UDP data: set>server=PHONE_WIFI_IP:8899; (This instructs the datalogger device to connect to a TCP server created by the SmartEss app) The UDP reply should be: rsp>server=1;
-6. After that if we fill the WIFI ap settings(SSID/Password) and save with "Setting" button these are sent is TCP packages through the previously initiated conenction.
+6. After that if we fill the WIFI AP settings(SSID/Password) and save with "Setting" button these are sent in TCP packages through the previously initiated connection.
 
 
+CLI utility install (provided commands probably work on ubuntu 20.04+ but not tested)
 
-The same process without the app using linux utilities:
+1. install nodejs (with npm) and git
+#apt install git nodejs
+2. clone the repo
+#git clone https://github.com/suletom/EASUN-ISOLAR-SMX-II-CONTROL.git
+#cd EASUN-ISOLAR-SMX-II-CONTROL
+3. install needed node modules: 
+#npm install
+4.run the utility
+#npm start
 
-1. connect to the datalogger AP, and obtain an ip address
-2. Identify IP addresses
-GET AP GateWAY IP: 
-ip r | grep default
-FIND your Local IP (at the same subnet)!
-3. start a local TCP server:
-ncat -vvv -o /tmp/out -l 8899 -c 'echo -n "00010001000aff01160b0a16102d012c" |  xxd -r -p' --keep-open
-4. Instruct the device to use our local TCP server: 
-echo "set>server=LOCAL_TCP_SERVER_IP:8899;" | nc -4u -q1 DATALOGGER_AP_GATEWAY_IP 58899
+To access the device first check you network connection. You can connect directly to the WIFI AP povided by the adapter or if the device has been already set up to connect to local wifi router in this case you can connect on the device lan ip. On your local router/firewall the obtanined ip address can be found.
 
-EXAMPLE: echo "set>server=192.168.1.2:8899;" | nc -4u -q1 192.168.1.129 58899
+                             xxxxxxxx        xx
+                          xxxx      xxxxxxxxx x
+                        xxx                   xxxxx
+┌──────────┐        ┌──►xx                        xx ◄────┐
+│          │        │    xx          LAN         xxx      │
+│ Inverter │               xxxxx               xxx        │
+│          │        ┌┐  ◄─┐    xx              x          │
+│          │     ┌──┴┴──┐ │     xx   xxxxxxxxxxxx      ┌──┴────────┐
+│          │     │ WIFI │ │      xxxx                  │           │
+│          │     │ PLUG │ │                            │    PC     │
+│          │     │ PRO  │ │           OR               │           │
+└─┬────────┘     └┬─────┘ │                            └───┬───────┘
+  │               │       │                                │
+  └───────────────┘       └────────────────────────────────┘
+                            CONNECTED TO ACCESS POINT
 
-WORK in progress....
+
+The utility provides info about the available functions arguments. On my test setup i was able to factory reset the device and set wifi connection data. 
+Example: 
+#npm start factory-reset [datalogger ip address]
+#npm start setwifi [datalogger ip address] [ssid] [password]
+
+By sniffing the network traffic i found some command (HEX: aaaa00010003001100) that requests an all in one information packet with all the information seen in the SmartESS app. I extracted lot of data from that, but not everything is obvoius for me:
+Example:
+#npm start get-smx-info [datalogger ip address]
+
+Some register addresses has connection by the ones sent on serial line but not all of them and i think this command is not a standard MODBUS TCP.
+Example(same as above without parsing): 
+#npm start query-modbus [datalogger ip address] aaaa00010003001100
+
+These are modbus tcp commands: i suspect some commands are for the wifi plug pro(clean modbus tcp frame: 2byte transaction id, 2byte protocol id, 2byte 
+length, data: 1byte unit id, 1byte funtion code, etc. ), others are handled by the gateway and sent to the modbus rtu device on serial line.
+
+Modbus commands for the device: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, (modbus rtu packet:  1byte unit id, 1byte funtion code(for the inverter), 2byte register address, 2byte register offset, 2byte crc( crc16/MODBUS: from the beginning of the modbus rtu packet))
+
+This one reads the inverter output priority parameter:
+#npm start query-modbus aaaa0001000aff04ff03e2040001e66d
+
+Request:            aaaa   0001     000a     ff      04        ff      03         e204                                          0001    e66d
+                    trid   prot.id  length   unit id functcode unit id functcode  register address(seen on pc software serial)  offset  CRC16/modbus   
+                                                                                  
+Response should be: aaaa   0001     0009     ff      04        01      03         02     00 01                                              79 84
+                    trid   prot.id  length   unit id functcode unit id functcode  length data(here: 0001->line out source, 0000->PV, etc.)  CRC16
+
+If you are interested feel free to contact me.
