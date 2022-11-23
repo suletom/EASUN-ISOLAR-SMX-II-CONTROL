@@ -294,7 +294,9 @@ function handle_modbus_command(command,param){
     }
 
     let crc=crc16modbus(inner);
+    console.log(crc);
     crc=crc.toString(16).padStart(4,'0');
+    console.log(crc);
 
     command=command.replace("{CRC}",crc.substring(2,2)+crc.substring(0,2));
     
