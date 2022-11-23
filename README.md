@@ -18,49 +18,35 @@ My observations about the provided original installation process are the followi
 6. After that if we fill the WIFI AP settings(SSID/Password) and save with "Setting" button these are sent in TCP packages through the previously initiated connection.
 
 
-CLI utility install (provided commands probably work on ubuntu 20.04+ but not tested)
+#CLI utility install/test
+(provided commands probably work on ubuntu 20.04+ but not tested)
 
 1. install nodejs (with npm) and git
-#apt install git nodejs
+> apt install git nodejs
 2. clone the repo
-#git clone https://github.com/suletom/EASUN-ISOLAR-SMX-II-CONTROL.git
-#cd EASUN-ISOLAR-SMX-II-CONTROL
+>git clone https://github.com/suletom/EASUN-ISOLAR-SMX-II-CONTROL.git
+>cd EASUN-ISOLAR-SMX-II-CONTROL
 3. install needed node modules: 
-#npm install
-4.run the utility
-#npm start
+>npm install
+4. run the utility
+>npm start
 
 To access the device first check you network connection. You can connect directly to the WIFI AP povided by the adapter or if the device has been already set up to connect to local wifi router in this case you can connect on the device lan ip. On your local router/firewall the obtanined ip address can be found.
 
-                             xxxxxxxx        xx
-                          xxxx      xxxxxxxxx x
-                        xxx                   xxxxx
-┌──────────┐        ┌──►xx                        xx ◄────┐
-│          │        │    xx          LAN         xxx      │
-│ Inverter │               xxxxx               xxx        │
-│          │        ┌┐  ◄─┐    xx              x          │
-│          │     ┌──┴┴──┐ │     xx   xxxxxxxxxxxx      ┌──┴────────┐
-│          │     │ WIFI │ │      xxxx                  │           │
-│          │     │ PLUG │ │                            │    PC     │
-│          │     │ PRO  │ │           OR               │           │
-└─┬────────┘     └┬─────┘ │                            └───┬───────┘
-  │               │       │                                │
-  └───────────────┘       └────────────────────────────────┘
-                            CONNECTED TO ACCESS POINT
 
 
 The utility provides info about the available functions arguments. On my test setup i was able to factory reset the device and set wifi connection data. 
 Example: 
-#npm start factory-reset [datalogger ip address]
-#npm start setwifi [datalogger ip address] [ssid] [password]
+>npm start factory-reset [datalogger ip address]
+>npm start setwifi [datalogger ip address] [ssid] [password]
 
 By sniffing the network traffic i found some command (HEX: aaaa00010003001100) that requests an all in one information packet with all the information seen in the SmartESS app. I extracted lot of data from that, but not everything is obvoius for me:
 Example:
-#npm start get-smx-info [datalogger ip address]
+>npm start get-smx-info [datalogger ip address]
 
 Some register addresses has connection by the ones sent on serial line but not all of them and i think this command is not a standard MODBUS TCP.
 Example(same as above without parsing): 
-#npm start query-modbus [datalogger ip address] aaaa00010003001100
+>npm start query-modbus [datalogger ip address] aaaa00010003001100
 
 These are modbus tcp commands: i suspect some commands are for the wifi plug pro(clean modbus tcp frame: 2byte transaction id, 2byte protocol id, 2byte 
 length, data: 1byte unit id, 1byte funtion code, etc. ), others are handled by the gateway and sent to the modbus rtu device on serial line.
@@ -68,7 +54,7 @@ length, data: 1byte unit id, 1byte funtion code, etc. ), others are handled by t
 Modbus commands for the device: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, (modbus rtu packet:  1byte unit id, 1byte funtion code(for the inverter), 2byte register address, 2byte register offset, 2byte crc( crc16/MODBUS: from the beginning of the modbus rtu packet))
 
 This one reads the inverter output priority parameter:
-#npm start query-modbus aaaa0001000aff04ff03e2040001e66d
+>npm start query-modbus aaaa0001000aff04ff03e2040001e66d
 
 Request:            aaaa   0001     000a     ff      04        ff      03         e204                                          0001    e66d
                     trid   prot.id  length   unit id functcode unit id functcode  register address(seen on pc software serial)  offset  CRC16/modbus   
