@@ -74,10 +74,12 @@ This one reads the inverter output priority parameter:
 
 Request:
 aa aa 00 01 00 0a ff 04   ff 03 e2 04 00 01 e6 6d
+
 aaaa(trid)  0001(prot.id)  000a(length) ff(unit id) 04(functcode) ff(unit id) 03(functcode) e204(register address(seen on pc software serial)) 0001(offset) e66d(CRC16/modbus)
 
 Response should be:
 aa aa 00 01 00 09 ff 04   01 03 02 00 01 79 84
+
 aaaa(trid) 0001(prot.id)  0009(length) ff(unit id) 04(functcode) 01(unit id) 03(functcode) 02(length) 0001(data(here: 0001->line out source, 0000->PV, etc.)) 7984(CRC16/modbus)
 
 If you are interested feel free to contact me.
