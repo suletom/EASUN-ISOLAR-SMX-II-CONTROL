@@ -219,7 +219,7 @@ function getdatacmd(data){
     });
 
     //custom built modbus command
-    obj.cmd=handle_modbus_command(obj.cmd);
+    obj.cmd=handle_modbus_command(obj.cmd,"e2040001");
 
     //compute and place length where needed
     let matches=obj.cmd.match(/\{LEN\}(.+)$/);
@@ -286,6 +286,13 @@ function handle_modbus_command(command,param){
 
     command=command.replace('{PARAM}',param);
     
+    let matches=command.match(/\{LEN\}(.+)\{CRC\}$/);
+    let inner="";
+    if (matches){
+        //{CRC} -> 5 char vs 4char hex(2 byte): -1
+        inner=matches[1];
+    }
+
     let crc=crc16modbus(inner);
     crc=crc.toString(16).padStart(4,'0');
 
