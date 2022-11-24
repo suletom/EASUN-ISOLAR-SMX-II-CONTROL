@@ -219,7 +219,8 @@ function getdatacmd(data){
     });
 
     //custom built modbus command
-    obj.cmd=handle_modbus_command(obj.cmd,"e2040001");
+    
+    obj.cmd=handle_modbus_command(obj.cmd,getparam(myargs[myargs.length-1]));
 
     //compute and place length where needed
     let matches=obj.cmd.match(/\{LEN\}(.+)$/);
@@ -234,6 +235,15 @@ function getdatacmd(data){
     dumpdata(obj.cmd);
     
     return Buffer.from(obj.cmd, 'hex');
+}
+
+function getparam(ind){
+
+    let param=commands.params.find(o => o.num === ind );
+    console.log("Requested param: "+param.name);
+    return param.address+"0001";
+    //reutrn"e2040001";
+
 }
 
 //hex dump

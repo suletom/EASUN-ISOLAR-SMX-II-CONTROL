@@ -6,7 +6,7 @@
         {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [raw_modbus_packet_hex]" },
         {"name": "get-device-info", "seq":["get_device_id","get_device_info"],"desc": "gets wifi datalogger device id and other ifno","args": "[datalogger ip address]" },
         {"name": "get-smx-info", "seq":["get_smx_info"],"desc": "Get ISolar SMX II 3.6 inverter full info","args": "[datalogger ip address]" },
-        {"name": "get-smx-param", "seq":["get_smx_param"],"desc": "Get ISolar SMX II 3.6 inverter param value","args": "[datalogger ip address]" }
+        {"name": "get-smx-param", "seq":["get_smx_param"],"desc": "Get ISolar SMX II 3.6 inverter param value","args": "[datalogger ip address] [parameter index: like on the device display]" }
     ],
     "//comment2":"Commands defines modbus tcp commands: some commands are for the wifi plug pro(clean modbus tcp frame: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, etc. ), others are handled by the gateway and sent to the modbus rtu device on serial line.",
     "//comment3":"Modbus commands for the device: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, (modbus rtu packet:  1byte unit id, 1byte funtion code(for the inverter), 2byte register address, 2byte register offset, 2byte crc( crc16/MODBUS: from the beginning of the modbus rtu packet)) ",
