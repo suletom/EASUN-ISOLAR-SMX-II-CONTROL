@@ -297,8 +297,8 @@ function handle_modbus_command(command,cmd) {
     if (!command.match(/{CRC}/)) return command;
 
     if (!Number.isInteger(param)){
-        console.log("No parameter index supplied in argument:\n");
-
+        console.log("No parameter index supplied in argument. Choose one: \n");
+        console.log(cmd.definition);
         exit(-1);
     }
 
