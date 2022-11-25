@@ -145,11 +145,10 @@ function starttcp(){
                         handled[def.address*2]=1
                        
                     }else{    
-                        //basic types supported by Buffer class
-
+                        //basic types supported by Buffer class: most seem to be 2 byte long
                         val=data['read'+def.type](def.address);
 
-                        //hack: mark always 4 bytes: just for debugging
+                        //hack: mark always 2 bytes: just for debugging
                         handled[def.address*2]=1;
                         handled[def.address*2+1]=1;
                         handled[def.address*2+2]=1;
@@ -182,7 +181,7 @@ function starttcp(){
         });
 
         let cmdstr=getcommseqcmd(command_seq);
-        if (cmdstr === undefined) { console.log("Missing command sequence, exiting..."); exit(0); }
+        if (cmdstr === undefined) { console.log("Missing command sequence, exiting..."); exit(-1); }
 
         socket.write(getdatacmd(cmdstr));
         command_seq++;
@@ -219,8 +218,7 @@ function getdatacmd(data){
     });
 
     //custom built modbus command
-    
-    obj.cmd=handle_modbus_command(obj.cmd,getparam(myargs[myargs.length-1]));
+    obj.cmd=handle_modbus_command(obj.cmd);
 
     //compute and place length where needed
     let matches=obj.cmd.match(/\{LEN\}(.+)$/);
@@ -237,16 +235,15 @@ function getdatacmd(data){
     return Buffer.from(obj.cmd, 'hex');
 }
 
-function getparam(ind){
+function getparam(cmd,ind){
 
-    let param=commands.params.find(o => o.num === ind );
+    let param=cmd.definition.find(o => o.num === ind );
     if (param!==undefined) {
         console.log("Requested param: "+param.name);
-        return param.address+"0001";
+        return param.address+"0002";
     }
     return "";    
-    //reutrn"e2040001";
-
+    //test: return "e2040001";
 }
 
 //hex dump
@@ -293,9 +290,17 @@ function dumpdata(data,handled=null){
 
 }
 
-function handle_modbus_command(command,param){
+function handle_modbus_command(command,){
+
+    let param=getparam(myargs[myargs.length-1]);
 
     if (!command.match(/{CRC}/)) return command;
+
+    if (!Number.isInteger(param)){
+        console.log("No parameter index supplied in argument:\n");
+
+        exit(-1);
+    }
 
     command=command.replace('{PARAM}',param);
     
