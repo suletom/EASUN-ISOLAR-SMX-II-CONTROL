@@ -141,6 +141,8 @@ function starttcp(){
                         def.address=11;
                     }
 
+                    //console.log(def.type);
+
                     let val="";
                     if ( Number.isInteger(def.type) ){
 
@@ -310,7 +312,7 @@ function handle_modbus_command(command,cmd) {
         exit(-1);
     }
 
-    command=command.replace('{PARAM}',param.address+"0001");
+    command=command.replace('{PARAM}',param.address+"000a");
     
     let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
     let inner="";
