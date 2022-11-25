@@ -134,6 +134,13 @@ function starttcp(){
                 let handled=[];
 
                 lastcmddef.definition.forEach(function(def){
+
+                    //modbus rtu response: fixed position to extract data
+                    //todo checking length...
+                    if (!Number.isInteger(def.address)){
+                        def.address=11;
+                    }
+
                     let val="";
                     if ( Number.isInteger(def.type) ){
 
