@@ -290,9 +290,9 @@ function dumpdata(data,handled=null){
 
 }
 
-function handle_modbus_command(command,cmd){
+function handle_modbus_command(command,cmd) {
 
-    let param=getparam(myargs[myargs.length-1],cmd.definition);
+    let param=getparam(cmd,myargs[myargs.length-1]);
 
     if (!command.match(/{CRC}/)) return command;
 
