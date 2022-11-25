@@ -54,6 +54,7 @@ To access the device first check you network connection. You can connect directl
 The utility provides info about the available functions arguments. On my test setup i was able to factory reset the device and set wifi connection data. 
 Example: 
 >npm start factory-reset [datalogger ip address]
+
 >npm start setwifi [datalogger ip address] [ssid] [password]
 
 By sniffing the network traffic i found some command (HEX: aaaa00010003001100) that requests an all in one information packet with all the information seen in the SmartESS app. I extracted lot of data from that, but not everything is obvoius for me:
