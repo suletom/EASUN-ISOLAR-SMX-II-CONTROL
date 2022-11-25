@@ -63,10 +63,10 @@
                 {"num":"40","name":"Input password","address":"E203","unit": 0},
                 {"num":"41","name":"Change password","address":"E202","unit": 0},
                 {"num":"42","name":"Customer ID","address":"E117","unit": 0},
-                {"name":"Power rate(kW)","address":"E118","num":"43","unit": 0},
-                {"name":"PV voltage rate(V)","address":"E11F","num":"44","unit": 0},
-                {"name":"Max charge current by PV(A)","address":"E120","num":"45","unit": 0},
-                {"name":"Function enable 1","address":"E11D","num":"46","unit": 0}
+                {"num":"43","name":"Power rate(kW)","address":"E118","unit": 0},
+                {"num":"44","name":"PV voltage rate(V)","address":"E11F","unit": 0},
+                {"num":"45","name":"Max charge current by PV(A)","address":"E120","unit": 0},
+                {"num":"46","name":"Function enable 1","address":"E11D","unit": 0}
             ]
         },
         {"name": "get_smx_info","cmd": "{SEQ}00010003001100",
