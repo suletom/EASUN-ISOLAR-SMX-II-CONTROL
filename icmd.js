@@ -218,7 +218,7 @@ function getdatacmd(data){
     });
 
     //custom built modbus command
-    obj.cmd=handle_modbus_command(obj.cmd);
+    obj.cmd=handle_modbus_command(obj.cmd,obj);
 
     //compute and place length where needed
     let matches=obj.cmd.match(/\{LEN\}(.+)$/);
@@ -240,7 +240,7 @@ function getparam(cmd,ind){
     let param=cmd.definition.find(o => o.num === ind );
     if (param!==undefined) {
         console.log("Requested param: "+param.name);
-        return param.address+"0002";
+        return param.address+"0001";
     }
     return "";    
     //test: return "e2040001";
@@ -290,9 +290,9 @@ function dumpdata(data,handled=null){
 
 }
 
-function handle_modbus_command(command,){
+function handle_modbus_command(command,cmd){
 
-    let param=getparam(myargs[myargs.length-1]);
+    let param=getparam(myargs[myargs.length-1],cmd.definition);
 
     if (!command.match(/{CRC}/)) return command;
 
