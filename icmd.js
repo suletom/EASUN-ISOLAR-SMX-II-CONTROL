@@ -240,7 +240,7 @@ function getparam(cmd,ind){
     let param=cmd.definition.find(o => o.num === ind );
     if (param!==undefined) {
         console.log("Requested param: "+param.name);
-        return param.address+"0001";
+        return param;
     }
     return "";    
     //test: return "e2040001";
@@ -297,13 +297,13 @@ function handle_modbus_command(command,cmd) {
 
     if (!command.match(/{CRC}/)) return command;
 
-    if (!Number.isInteger(param)){
+    if (param==""){
         console.log("No parameter index supplied in argument. Choose one: \n");
         console.log(cmd.definition);
         exit(-1);
     }
 
-    command=command.replace('{PARAM}',param);
+    command=command.replace('{PARAM}',param.address+"0001");
     
     let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
     let inner="";
