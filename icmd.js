@@ -240,8 +240,11 @@ function getdatacmd(data){
 function getparam(ind){
 
     let param=commands.params.find(o => o.num === ind );
-    console.log("Requested param: "+param.name);
-    return param.address+"0001";
+    if (param!==undefined) {
+        console.log("Requested param: "+param.name);
+        return param.address+"0001";
+    }
+    return "";    
     //reutrn"e2040001";
 
 }
