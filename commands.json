@@ -174,7 +174,7 @@
         {"name":"Max PV charger current(A)","address":"E001"},
         {"name":"Battery charge recovery(V)","address":"E00A","num":"37","value": 26},
         {"name":"Output voltage set(V)","address":"E208","num":"38","value": 230},
-        {"name":"System date time","address":"020C"},
+        {"name":"System date time","address":"020C","num":"39","value": 0},
         {"name":"Input password","address":"E203"},
         {"name":"Change password","address":"E202"},
         {"name":"Customer ID","address":"E117"},
