@@ -292,6 +292,7 @@ function dumpdata(data,handled=null){
 
 function handle_modbus_command(command,cmd) {
 
+    console.log(cmd,myargs[myargs.length-1]);
     let param=getparam(cmd,myargs[myargs.length-1]);
 
     if (!command.match(/{CRC}/)) return command;
