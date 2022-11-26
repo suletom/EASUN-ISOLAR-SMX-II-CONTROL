@@ -27,7 +27,8 @@ commands.commandsequences.forEach(function(cs){
 
 console.log("\n");
 
-var commandsequence="";
+var global_commandsequence="";
+var global_commandparam="";
 var global_tcp_seq=1; //sends the device in every command: modbus transaction id
 
 if (myargs.length==0){
@@ -38,8 +39,8 @@ if (myargs.length==0){
         
         if (cs.name===myargs[0]){
             
-            commandsequence=myargs[0];
-            console.log("Running: "+commandsequence);
+            global_commandsequence=myargs[0];
+            console.log("Running: "+global_commandsequence);
 
             argscount=[];
             cs.seq.forEach(function(cd){
@@ -47,6 +48,12 @@ if (myargs.length==0){
                 
                 let reg=nc.cmd.match(/\{ARG[0-9]+\}/g);
                 if (reg!=null && reg!==false && reg!=undefined ) argscount=argscount.concat(reg);
+
+                //console.log(nc);
+                if (nc.hasOwnProperty('definition')){
+                    global_commandparam=0;
+                    console.log("Querying param: "+nc.definition[0].name+"\n");
+                }
                 
             });
            
@@ -118,12 +125,14 @@ function starttcp(){
 
         console.log(`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
         
+        let outsum="\n";
+
         //socket.pipe(socket);
         socket.on('data',function(data){
-            console.log("Got TCP packet...");
-            dumpdata(data);
-            console.log("Binary: ",data.toString());
-            console.log("\n");
+            //console.log("Got TCP packet...");
+            //dumpdata(data);
+            //console.log("Binary: ",data.toString());
+            //console.log("\n");
 
             let lastcmdname=getcommseqcmd(command_seq-1);
             //console.log(lastcmdname);
@@ -132,49 +141,79 @@ function starttcp(){
             if (lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
                 
                 let handled=[];
+                lastcmddef.definition.forEach(function(def,ind){
 
-                lastcmddef.definition.forEach(function(def){
-
-                    //modbus rtu response: fixed position to extract data
-                    //todo checking length...
-                    if (!Number.isInteger(def.address)){
-                        def.address=11;
+                    if (global_commandparam!==""){
+                        if (ind!=global_commandparam) {
+                            return ;
+                        }
                     }
 
-                    //console.log(def.type);
+                    //modbus rtu response: fixed position to extract data from
+                    //todo checking length...
+                    
 
                     let val="";
+                    val=data.toString('hex');
+
+                    //data starts at byte 11
+                    startpos=11;
+
+                    //1 byte len
+                    lenval=data[10];
+                    console.log("Data len: "+lenval);
+                    console.log("Data type: "+def.type);
+
                     if ( Number.isInteger(def.type) ){
 
                         //type with custom length
-                        val=data.toString('hex');
-                        val=val.substring(def.address*2,def.address*2+def.type);
+                        
+                        val=val.substring(startpos*2,startpos*2+def.type);
 
                         //hack: mark onyl the first char: just for debugging
-                        handled[def.address*2]=1
+                        handled[startpos*2]=1
                        
                     }else{    
                         //basic types supported by Buffer class: most seem to be 2 byte long
-                        val=data['read'+def.type](def.address);
+                        val=data['read'+def.type](startpos);
 
                         //hack: mark always 2 bytes: just for debugging
-                        handled[def.address*2]=1;
-                        handled[def.address*2+1]=1;
-                        handled[def.address*2+2]=1;
-                        handled[def.address*2+3]=1;
+                        handled[startpos*2]=1;
+                        handled[startpos*2+1]=1;
+                        handled[startpos*2+2]=1;
+                        handled[startpos*2+3]=1;
 
-                        val=val*def.rate;
-                        val=val.toFixed(def.format);
+                        if (def.hasOwnProperty('rate')){
+                            val=val*def.rate;
+                        }    
+                        if (def.hasOwnProperty('format')){
+                            val=val.toFixed(def.format);
+                        }
                     }
-                    console.log(def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?def.unit[parseInt(val)]:def.unit));
+                    dumpdata(data,handled);
+                    let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?(" => "+def.unit[parseInt(val)]):def.unit);
+                    console.log(stmp);
+                    outsum+=stmp+"\n";
                 });
 
-                console.log("\nHandled values: \n");
-                dumpdata(data,handled);
+                //console.log("\nHandled values: \n");
+                
+
+                if (global_commandparam!=="" && lastcmddef.definition.length>global_commandparam+1){
+                    global_commandparam++;
+                    command_seq--;
+                }
+            }else{
+                process.stdout.write("Response:\n");
+                dumpdata(data);
             }
 
             let cmdstr=getcommseqcmd(command_seq);
-            if (cmdstr === undefined) { console.log("DONE, exiting"); exit(0); }
+            
+            if (cmdstr === undefined) { 
+                console.log(outsum);
+                console.log("DONE, exiting"); exit(0);
+            }
                
             socket.write(getdatacmd(cmdstr));
             command_seq++;
@@ -201,19 +240,21 @@ function starttcp(){
 
 }
 
+
 //get next command for the commany sequence by index
 function getcommseqcmd(index){
 
-    let obj=commands.commandsequences.find(o => o.name === commandsequence );
+    let obj=commands.commandsequences.find(o => o.name === global_commandsequence );
     return obj.seq[index];
 }
 
 function getdatacmd(data){
 
-    console.log("Command: "+data);
+    console.log("\nCommand: "+data);
 
     let obj=commands.commands.find(o => o.name === data );
 
+    let cmdtorun=obj.cmd;
     //place input args in modbus commands
     let i=0;
     myargs.forEach(function(el){
@@ -222,26 +263,28 @@ function getdatacmd(data){
         if (obj.hasOwnProperty('raw') && obj.raw===true){
             hext=el;
         }
-        obj.cmd=obj.cmd.replace('{ARG'+i+'}',hext);
+        cmdtorun=obj.cmd.replace('{ARG'+i+'}',hext);
         i++;
     });
 
     //custom built modbus command
-    obj.cmd=handle_modbus_command(obj.cmd,obj);
+    cmdtorun=handle_modbus_command(cmdtorun,obj);
 
     //compute and place length where needed
-    let matches=obj.cmd.match(/\{LEN\}(.+)$/);
+    let matches=cmdtorun.match(/\{LEN\}(.+)$/);
     if (matches) {
-        obj.cmd=obj.cmd.replace("{LEN}",(matches[1].length/2).toString(16).padStart(4, '0'));
+        cmdtorun=cmdtorun.replace("{LEN}",(matches[1].length/2).toString(16).padStart(4, '0'));
     }
 
     //add modbus tcp transaction id, just an incemental index
-    obj.cmd=obj.cmd.replace('{SEQ}',String(global_tcp_seq).padStart(4, '0'));
+    cmdtorun=cmdtorun.replace('{SEQ}',String(global_tcp_seq).padStart(4, '0'));
     global_tcp_seq++;
 
-    dumpdata(obj.cmd);
+    process.stdout.write("Request: ");
+    dumpdata(cmdtorun);
     
-    return Buffer.from(obj.cmd, 'hex');
+
+    return Buffer.from(cmdtorun, 'hex');
 }
 
 function getparam(cmd,ind){
@@ -301,31 +344,37 @@ function dumpdata(data,handled=null){
 
 function handle_modbus_command(command,cmd) {
 
-    console.log(cmd,myargs[myargs.length-1]);
-    let param=getparam(cmd,myargs[myargs.length-1]);
+    //console.log(cmd,myargs[myargs.length-1]);
+    //let param=getparam(cmd,index);
 
     if (!command.match(/{CRC}/)) return command;
 
+    
+    /*
     if (param==""){
-        console.log("No parameter index supplied in argument. Choose one: \n");
-        console.log(cmd.definition);
-        exit(-1);
+        console.log("No parameter index supplied in argument. Querying all parameters \n");
+        commands.commandsequences.push()
     }
+    */
+    let addr = "";
 
-    command=command.replace('{PARAM}',param.address+"000a");
+    if (global_commandparam!==""){
+        addr = cmd.definition[global_commandparam].address;
+    }
+     
+    command=command.replace('{PARAM}',addr+'0001');
     
     let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
     let inner="";
-    if (matches){
+    if (matches) {
         //{CRC} -> 5 char vs 4char hex(2 byte): -1
         inner=Buffer.from(matches[1],'hex');
     }
 
     let crc=crc16modbus(inner);
-    //console.log(crc);
+    
     crc=crc.toString(16).padStart(4,'0');
-    //console.log(crc);
-
+    
     command=command.replace("{CRC}",crc.substring(2)+crc.substring(0,2));
     
     return command;
