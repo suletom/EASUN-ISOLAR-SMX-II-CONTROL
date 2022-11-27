@@ -1,8 +1,9 @@
 {
     "//comment1":"Commandsequences defines which commands to send in a row.",
     "commandsequences": [
-        {"name": "setwifi", "seq":["get_wifi_device_id","get_wifi_device_info","set_wifi_ssid","set_wifi_pw","restart_wifi"],"desc": "sets wifi datalogger network via wireless AP","args": "[datalogger ip address] [ssid] [password]" },
-        {"name": "factory-reset", "seq":["factory_reset_wifi"],"desc": "wifi datalogger factory reset","args": "[datalogger ip address]" },
+        {"name": "set-wifi", "seq":["get_wifi_device_id","get_wifi_device_info","set_wifi_ssid","set_wifi_pw","restart_wifi"],"desc": "sets wifi datalogger network via wireless AP","args": "[datalogger ip address] [ssid] [password]" },
+        {"name": "factory-reset-wifi", "seq":["factory_reset_wifi"],"desc": "wifi datalogger factory reset","args": "[datalogger ip address]" },
+        {"name": "restart-wifi", "seq":["restart_wifi"],"desc": "wifi datalogger reset","args": "[datalogger ip address]" },
         {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [raw_modbus_packet_hex]" },
         {"name": "get-device-info", "seq":["get_device_id","get_device_info"],"desc": "gets wifi datalogger device id and other ifno","args": "[datalogger ip address]" },
         {"name": "get-smx-info", "seq":["get_smx_info"],"desc": "Get ISolar SMX II 3.6 inverter full info","args": "[datalogger ip address]" },
@@ -22,7 +23,7 @@
         {"name": "get_smx_param","cmd": "{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}", "definition":
             [
                 {"num":"1","name":"Output priority","address":"E204","type":"UInt16BE","unit": ["SOL","UTI","SBU"]},
-                {"num":"2","name":"Output Frequency(Hz)","address":"E209","type":"UInt16BE","rate": 0.01,"unit": "Hz" },
+                {"num":"2","name":"Output Frequency(Hz)","address":"E209","type":"UInt16BE","rate": 0.01,"format":1,"unit": "Hz" },
                 {"num":"3","name":"Ac Input Voltage Range","address":"E20B","type":"UInt16BE","unit": ["APL","UPS"]},
                 {"num":"4","name":"Turn to mains volt(V)","address":"E01B","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
                 {"num":"5","name":"Turn to inverter volt(V)","address":"E022","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
@@ -52,24 +53,25 @@
                 {"num":"29","name":"Split Phase","address":"E214","type":"UInt16BE","unit": ["DIS","ENA"]},
                 {"num":"30","name":"RS485 Address","address":"E200","type":"UInt16BE","unit": ""},
                 {"num":"31","name":"Parallel Mode (Not supported?)","address":"E201","type":"UInt16BE","unit": ["DIS","ENA"]},
-                {"num":"32","name":"BMS enable (Not supported?)","address":"E215","type":"UInt16BE","unit": ["DIS","ENA"]},
-                {"num":"33","name":"BMS Protocol (Not supported?)","address":"E21B","type":"UInt16BE","unit": ""},
+                {"num":"32","name":"BMS enable (Not supported?)","address":"E215","type":"UInt16BE","unit": ["DIS","485 BMS","CAN BMS"]},
+                {"num":"33","name":"BMS Protocol (Not supported?)","address":"E21B","type":"UInt16BE","unit": ["Pace","Rata","Allgrand","Oliter","PCT","Sunwoda","Dyness","WOW","Pylontech","WS Technicals","Uz Energy"]},
                 {"num":"34","name":"Reserved","address":"E114","type":"UInt16BE","unit": ""},
                 {"num":"35","name":"Battery undervoltage recovery(V)","address":"E00B","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
                 {"num":"36","name":"Max PV charger current(A)","address":"E001","type":"UInt16BE","rate":0.1,"format":1,"unit": "A"},
                 {"num":"37","name":"Battery charge recovery(V)","address":"E00A","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
                 {"num":"38","name":"Output voltage set(V)","address":"E208","type":"UInt16BE","rate": 0.1,"format":1,"unit": "V"},
-                {"num":"39","name":"System date time","address":"020C","type":"UInt16BE","unit": ""},
+                {"num":"39","name":"System date time ?len:3?","address":"020C","type":"UInt16BE","unit": ""},
                 {"num":"40","name":"Input password (Not supported?)","address":"E203","type":"UInt16BE","unit": ""},
                 {"num":"41","name":"Change password (Not supported?)","address":"E202","type":"UInt16BE","unit": ""},
                 {"num":"42","name":"Customer ID","address":"E117","type":"UInt16BE","unit": ""},
                 {"num":"43","name":"Power rate(kW)","address":"E118","type":"UInt16BE","rate": 0.1,"format":1,"unit": "kW"},
                 {"num":"44","name":"PV voltage rate(V)","address":"E11F","type":"UInt16BE","unit": "V"},
                 {"num":"45","name":"Max charge current by PV(A)","address":"E120","type":"UInt16BE","rate":0.1,"format":1,"unit": "A"},
-                {"num":"46","name":"Function enable 1","address":"E11D","type":"UInt16BE","unit": ["DIS","ENA"]},
+                {"num":"46","name":"Function enable 1 (Not supported?)","address":"E11D","type":"UInt16BE","unit": ""},
+                {"num":"47","name":"Function enable 2 (Not supported?)","address":"E11E","type":"UInt16BE","unit": ""},
                 {"num":"100","name":"APP version","address":"0014","type":"UInt16BE","rate":0.01,"format":2,"unit": ""},
                 {"num":"101","name":"Bootloader sw version","address":"0015","type":"UInt16BE","rate":0.01,"format":2,"unit": ""},
-                {"num":"102","name":"test","address":"0092","type":"UInt16BE","rate":1,"format":0,"unit": ""}
+                {"num":"102","name":"Compile time","address":"0021","type":20,"unit": ""}
             ]
         },
         {"name": "get_smx_info","cmd": "{SEQ}00010003001100",

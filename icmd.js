@@ -150,54 +150,71 @@ function starttcp(){
                     }
 
                     //modbus rtu response: fixed position to extract data from
-                    //todo checking length...
-                    
-
                     let val="";
                     val=data.toString('hex');
+
+                    process.stdout.write("Response orig:\n");
+                    dumpdata(data);
 
                     //data starts at byte 11
                     startpos=11;
 
                     //1 byte len
                     lenval=data[10];
-                    console.log("Data len: "+lenval);
-                    console.log("Data type: "+def.type);
+                    
+                    let tmpbuf=data.slice(8,data.length-2);
+                    let rcrc=data.slice(data.length-2,data.length);
+                    dumpdata(rcrc);
+                    rcrc=rcrc.readUInt16BE().toString(16).padStart(4,'0');
+                    //dumpdata(tmpbuf);
+                    let chcrc=crc16modbus(tmpbuf);
+                    chcrc=chcrc.toString(16).padStart(4,'0');
+    
+                    let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
+                    
+                    console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")");
 
-                    if ( Number.isInteger(def.type) ){
+                    if (hcrc!=rcrc){
+                        console.log((def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!");
+                    }else{
 
-                        //type with custom length
+                        if ( Number.isInteger(def.type) ){
+
+                            //type with custom length
+                            
+                            val=val.substring(startpos*2,startpos*2+def.type);
+
+                            //hack: mark onyl the first char: just for debugging
+                            handled[startpos*2]=1
                         
-                        val=val.substring(startpos*2,startpos*2+def.type);
+                        }else{    
+                            //basic types supported by Buffer class: most seem to be 2 byte long
+                            val=data['read'+def.type](startpos);
 
-                        //hack: mark onyl the first char: just for debugging
-                        handled[startpos*2]=1
-                       
-                    }else{    
-                        //basic types supported by Buffer class: most seem to be 2 byte long
-                        val=data['read'+def.type](startpos);
+                            //hack: mark always 2 bytes: just for debugging
+                            handled[startpos*2]=1;
+                            handled[startpos*2+1]=1;
+                            handled[startpos*2+2]=1;
+                            handled[startpos*2+3]=1;
 
-                        //hack: mark always 2 bytes: just for debugging
-                        handled[startpos*2]=1;
-                        handled[startpos*2+1]=1;
-                        handled[startpos*2+2]=1;
-                        handled[startpos*2+3]=1;
-
-                        if (def.hasOwnProperty('rate')){
-                            val=val*def.rate;
-                        }    
-                        if (def.hasOwnProperty('format')){
-                            val=val.toFixed(def.format);
+                            if (def.hasOwnProperty('rate')){
+                                val=val*def.rate;
+                            }    
+                            if (def.hasOwnProperty('format')){
+                                val=val.toFixed(def.format);
+                            }
                         }
-                    }
-                    dumpdata(data,handled);
-                    let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?(" => "+def.unit[parseInt(val)]):def.unit);
-                    console.log(stmp);
-                    outsum+=stmp+"\n";
-                });
 
-                //console.log("\nHandled values: \n");
-                
+                        let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?(" => "+def.unit[parseInt(val)]):def.unit);
+                        console.log(stmp);
+                        outsum+=stmp+"\n";
+                        
+                    }    
+
+                    process.stdout.write("Response:\n");
+                    dumpdata(data,handled);
+                    
+                });
 
                 if (global_commandparam!=="" && lastcmddef.definition.length>global_commandparam+1){
                     global_commandparam++;
