@@ -105,18 +105,16 @@
                 {"num":"133","name":"BatteryChargeStep","address": "010B","type":"UInt16BE","rate":1,"format": 0,"unit":["Not start","Const current","Const voltage","reserved","Float charge","reserved","Active charge","Active charge"]}, 
                 {"num":"134","name":"BusVoltage","address": "0212","type":"Int16BE","rate":0.1,"format": 1,"unit":"V"},
                 {"num":"135","name":"LoadPowerConsumptionOnTheDay","address": "F030","type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"},
-                {"num":"136","name":"LoadPowerConsumptionOnTheDayFromMains","address": 280,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"},
+                {"num":"136","name":"LoadPowerConsumptionOnTheDayFromMains","address": "F04B","type":"Int16BE","rate":0.1,"format": 1,"unit":"KW"},
                 {"num":"137","name":"PVCumulativePowerGeneration","address": "F038","type":"Int16BE","rate":0.1,"format": 1,"unit":"KWH"},
-                {"num":"138","name":"CumulativeCharge","address": 298,"type":"Int16BE","rate":0.1,"format": 1,"unit":"AH"},
-                {"num":"139","name":"AccumulatedBatteryChargeHours??","address": 262,"type":"Int16BE","rate":1,"format": 0,"unit":"AH"},
-                {"num":"140","name":"AccumulatedBatteryDischargeTime??","address": 266,"type":"Int16BE","rate":1,"format": 0,"unit":"AH"},
-                {"num":"141","name":"LoadCumulativePowerConsumption","address": 274,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KWH"},
-                {"num":"142","name":"AccumulatedLoadFromMainsConsumption","address": 302,"type":"Int16BE","rate":0.1,"format": 1,"unit":"KWH"},
+                {"num":"138","name":"CumulativeCharge","address": "F05D","type":"Int16BE","rate":0.1,"format": 1,"unit":"AH"},
+                {"num":"139","name":"AccumulatedBatteryChargeHours??","address": "F02F","type":"Int16BE","rate":1,"format": 0,"unit":"AH"},
+                {"num":"140","name":"AccumulatedBatteryDischargeTime??","address": "F03D","type":"Int16BE","rate":1,"format": 0,"unit":"AH"},
+                {"num":"141","name":"LoadCumulativePowerConsumption","address": "F045","type":"Int16BE","rate":0.1,"format": 1,"unit":"KWH"},
+                {"num":"142","name":"AccumulatedLoadFromMainsConsumption","address": "F061","type":"Int16BE","rate":0.1,"format": 1,"unit":"KWH"},
                 {"num":"143","name":"PVPowerGenerationOnTheDay","address": "F02F","type":"Int16BE","rate":0.1,"format": 1,"unit":"KWH"},
                 {"num":"144","name":"BatteryChargeOnTheDay","address": "F02B","type":"Int16BE","rate":1,"format": 0,"unit":"AH"},
                 {"num":"145","name":"BatteryDischargeOnTheDay","address": "F02D","type":"Int16BE","rate":1,"format": 0,"unit":"AH"}
-
-
             ]
         },
         {"name": "get_smx_info","cmd": "{SEQ}00010003001100",
