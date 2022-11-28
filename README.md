@@ -53,13 +53,14 @@ To access the device first check you network connection. You can connect directl
 
 The utility provides info about the available functions arguments. On my test setup i was able to factory reset the device and set wifi connection data. 
 Example: 
->npm start factory-reset [datalogger ip address]
+>npm start factory-reset-wifi [datalogger ip address]
 
->npm start setwifi [datalogger ip address] [ssid] [password]
+>npm start set-wifi [datalogger ip address] [ssid] [password]
 
-By sniffing the network traffic i found some command (HEX: aaaa00010003001100) that requests an all in one information packet with all the information seen in the SmartESS app. I extracted lot of data from that, but not everything is obvoius for me:
-Example:
->npm start get-smx-info [datalogger ip address]
+By sniffing the network traffic i found some command (HEX: aaaa00010003001100) that requests an all in one information packet with all the information seen in the SmartESS app. I extracted lot of data from that, but not everything is obvoius for me.
+
+Example to query all params one by one with crc check:
+>npm start get-smx-param [datalogger ip address]
 
 Some register addresses has connection by the ones sent on serial line but not all of them and i think this command is not a standard MODBUS TCP.
 Example(same as above without parsing): 

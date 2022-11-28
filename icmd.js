@@ -182,7 +182,7 @@ function starttcp(){
 
                             //type with custom length
                             
-                            val=val.substring(startpos*2,startpos*2+def.type);
+                            val=val.substring(startpos*2,startpos*2+lenval);
 
                             //hack: mark onyl the first char: just for debugging
                             handled[startpos*2]=1
