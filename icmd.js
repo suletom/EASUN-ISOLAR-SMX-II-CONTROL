@@ -386,9 +386,9 @@ function handle_modbus_command(command,cmd) {
     
     let reqlen='0001'; //modbus defines 16bytes, some compley data are stored on multiple registers
     if (Number.isInteger(type)){
-        //plus 1 in offset
-        type++;
-        
+        //plus 2 byte in offset
+        type+=2;
+
         reqlen=type.toString(16).padStart(4,'0');
     }
     
