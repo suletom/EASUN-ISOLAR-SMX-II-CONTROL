@@ -219,9 +219,11 @@ function starttcp(){
 
                             if (def.hasOwnProperty('rate')){
                                 val=val*def.rate;
-                            } else {
+                            }
+                             
+                            if (def.hasOwnProperty('format')){
                                 val=val.toFixed(def.format);
-                            }    
+                            }
                             
                         }
 
