@@ -207,7 +207,12 @@ function starttcp(){
                                 val=val*def.rate;
                             }    
                             if (def.hasOwnProperty('format')){
-                                val=val.toFixed(def.format);
+                                //datetime
+                                if (def.format==100){
+                                    val=data.readInt16BE(startpos+lenval-3,startpos+lenval-2)+":"+startpos+lenval-2,startpos+lenval-1)+":"+data.readInt16BE(startpos+lenval-1,startpos+lenval);
+                                }else{
+                                    val=val.toFixed(def.format);
+                                }    
                             }
                         }
 
@@ -381,10 +386,7 @@ function handle_modbus_command(command,cmd) {
     
     let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
     if (Number.isInteger(type)){
-        //plus 2 byte in offset
-        type+=2;
-        type=type/2;
-
+        
         reqlen=type.toString(16).padStart(4,'0');
     }
     
