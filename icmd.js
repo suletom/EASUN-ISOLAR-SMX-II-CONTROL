@@ -166,7 +166,7 @@ function starttcp(){
                     
                     let tmpbuf=data.slice(8,data.length-2);
                     let rcrc=data.slice(data.length-2,data.length);
-                    dumpdata(rcrc);
+                    //dumpdata(rcrc);
                     rcrc=rcrc.readUInt16BE().toString(16).padStart(4,'0');
                     //dumpdata(tmpbuf);
                     let chcrc=crc16modbus(tmpbuf);

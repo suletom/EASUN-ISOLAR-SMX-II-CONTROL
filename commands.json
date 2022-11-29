@@ -70,7 +70,7 @@
                 {"num":"47","name":"Function enable 2 (Not supported?)","address":"E11E","type":"UInt16BE","unit": ""},
                 {"num":"100","name":"APP version","address":"0014","type":"UInt16BE","rate":0.01,"format":2,"unit": ""},
                 {"num":"101","name":"Bootloader sw version","address":"0015","type":"UInt16BE","rate":0.01,"format":2,"unit": ""},
-                {"num":"102","name":"Compile time","address":"0021","type":20,"unit": ""},
+                {"num":"102","name":"Compile time","address":"0021","type":24,"unit": ""},
                 {"num":"103","name":"Product SN","address":"0035","type":20,"unit": ""},
                 {"num":"104","name":"MachineState","address":"0210","type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]},
                 {"num":"105","name":"Current fault?","address":"0204","type":4,"unit": ""},
