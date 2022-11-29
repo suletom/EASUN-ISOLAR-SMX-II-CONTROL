@@ -189,7 +189,17 @@ function starttcp(){
                                 handled[startpos*2+c]=1;
                             }
                             
+                            //default handle as string
                             let nb=data.slice(startpos,startpos+lenval);
+
+                            if (def.hasOwnProperty('format')){
+                                //datetime
+                                if (def.format===100){
+                                    nb=data.readInt16BE(startpos+lenval-3,startpos+lenval-2).toString()+":"+data.readInt16BE(startpos+lenval-2,startpos+lenval-1).toString()+":"+data.readInt16BE(startpos+lenval-1,startpos+lenval).toString();
+                                }
+                            }
+
+                            
                             val+=" -> "+nb.toString();
                         
                         }else{
@@ -206,11 +216,7 @@ function starttcp(){
                             if (def.hasOwnProperty('rate')){
                                 val=val*def.rate;
                             }    
-                            if (def.hasOwnProperty('format')){
-                                //datetime
-                                if (def.format===100){
-                                    val=data.readInt16BE(startpos+lenval-3,startpos+lenval-2).toString()+":"+data.readInt16BE(startpos+lenval-2,startpos+lenval-1).toString()+":"+data.readInt16BE(startpos+lenval-1,startpos+lenval).toString();
-                                }else{
+                            else{
                                     val=val.toFixed(def.format);
                                 }    
                             }
