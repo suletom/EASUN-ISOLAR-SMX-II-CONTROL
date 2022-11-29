@@ -202,6 +202,13 @@ function starttcp(){
                                         data.readUInt8(startpos+lenval-2).toString()+":"+
                                         data.readUInt8(startpos+lenval-1).toString();
                                 }
+                                if (def.format===101){
+                                    nb = "\nFAULT: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+"\n"+
+                                        "FAULT: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+"\n"+
+                                        "FAULT: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+"\n"+
+                                        "FAULT: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+"\n";
+                                        
+                                }
                             }
                             
                             val+=" -> "+nb.toString();

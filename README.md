@@ -84,4 +84,12 @@ aa aa 00 01 00 09 ff 04   01 03 02 00 01 79 84
 
 aaaa(trid) 0001(prot.id)  0009(length) ff(unit id) 04(functcode) 01(unit id) 03(functcode) 02(length) 0001(data(here: 0001->line out source, 0000->PV, etc.)) 7984(CRC16/modbus)
 
+
+First register write test (sets charger source priority to SNU(02)):
+
+>npm start query-modbus 00010001000dff04ff10E20F0001020002ad04
+
+Packet beginning is like the others, additional section: 10(write func.) E20F(register address to start writing at: see commands.json) 0001(write 2byte) 02(data length) 0002(data: 0->cso, 1->sub, 2->snu, 3->oso)
+
+
 If you are interested feel free to contact me.
