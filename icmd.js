@@ -52,7 +52,7 @@ if (myargs.length==0){
                 //console.log(nc);
                 if (nc.hasOwnProperty('definition')){
                     global_commandparam=0;
-                    console.log("Querying param: "+nc.definition[0].name+"\n");
+                   
                 }
                 
             });
@@ -149,6 +149,8 @@ function starttcp(){
                         }
                     }
 
+                    
+
                     //modbus rtu response: fixed position to extract data from
                     let val="";
                     val=data.toString('hex');
@@ -222,6 +224,7 @@ function starttcp(){
 
                 if (global_commandparam!=="" && lastcmddef.definition.length>global_commandparam+1){
                     global_commandparam++;
+                    //run again with another param
                     command_seq--;
                 }
             }else{
@@ -373,6 +376,7 @@ function handle_modbus_command(command,cmd) {
     if (global_commandparam!==""){
         addr = cmd.definition[global_commandparam].address;
         type = cmd.definition[global_commandparam].type;
+        console.log("Querying param: "+cmd.definition[global_commandparam].name+"\n");
     }
     
     let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
