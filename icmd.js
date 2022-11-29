@@ -184,8 +184,13 @@ function starttcp(){
                             
                             val=val.substring(startpos*2,startpos*2+lenval);
 
-                            //hack: mark onyl the first char: just for debugging
-                            handled[startpos*2]=1
+                            let strout="";
+                            for(let c=0;c<lenval;c++){
+                                handled[startpos*2+c]=1;
+                                strout=data.readUInt16BE(startpos+c).toString();
+                            }
+
+                            val=strout;
                         
                         }else{    
                             //basic types supported by Buffer class: most seem to be 2 byte long
