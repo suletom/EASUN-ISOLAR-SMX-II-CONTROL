@@ -21,7 +21,6 @@
         {"name": "get-smx-out-prio","cmd": "{SEQ}0001000aff04ff03e2040001e66d", "/*!example form param get/set: whole modbus rtu packet in modbus tcp*/":""},
         {"name": "get_smx_param","cmd": "{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}", "definition":
             [
-                {"num":"0","name":"System date time","address":"020C","type":3,"format":100,"unit": ""},
                 {"num":"1","name":"Output priority","address":"E204","type":"UInt16BE","unit": ["SOL","UTI","SBU"]},
                 {"num":"2","name":"Output Frequency(Hz)","address":"E209","type":"UInt16BE","rate": 0.01,"format":1,"unit": "Hz" },
                 {"num":"3","name":"Ac Input Voltage Range","address":"E20B","type":"UInt16BE","unit": ["APL","UPS"]},
@@ -74,7 +73,7 @@
                 {"num":"102","name":"Compile time","address":"0021","type":20,"unit": ""},
                 {"num":"103","name":"Product SN","address":"0035","type":20,"unit": ""},
                 {"num":"104","name":"MachineState","address":"0210","type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]},
-                {"num":"105","name":"Current fault?","address":"0204","type":4,"unit": ""},
+                {"num":"105","name":"Current fault?","address":"0204","type":31,"unit": ""},
                 {"num":"106","name":"PVVoltage","address":"0107","type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"},
                 {"num":"107","name":"PVCurrent","address":"0108","type":"UInt16BE","rate":0.1,"format": 1,"unit":"A"},
                 {"num":"108","name":"PVPower","address":"0109","type":"UInt16BE","rate":1,"format": 1,"unit":"W"},
