@@ -187,7 +187,7 @@ function starttcp(){
                                 handled[startpos*2+c]=1;
                             }
                             
-                            let nb=data.slice(startpos,startpos+lenval);
+                            let nb=data.slice(startpos,startpos+lenval-1);
                             val+=" -> "+nb.toString();
                         
                         }else{
@@ -365,18 +365,8 @@ function dumpdata(data,handled=null){
 
 function handle_modbus_command(command,cmd) {
 
-    //console.log(cmd,myargs[myargs.length-1]);
-    //let param=getparam(cmd,index);
-
     if (!command.match(/{CRC}/)) return command;
-
-    
-    /*
-    if (param==""){
-        console.log("No parameter index supplied in argument. Querying all parameters \n");
-        commands.commandsequences.push()
-    }
-    */
+   
     let addr = "";
     let type = "";
 
@@ -385,11 +375,12 @@ function handle_modbus_command(command,cmd) {
         type = cmd.definition[global_commandparam].type;
     }
     
-    let reqlen='0001'; //modbus defines 16bytes, some compley data are stored on multiple registers
+    let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
     if (Number.isInteger(type)){
         //plus 2 byte in offset
         type+=2;
-
+        type=type/2;
+        
         reqlen=type.toString(16).padStart(4,'0');
     }
     
