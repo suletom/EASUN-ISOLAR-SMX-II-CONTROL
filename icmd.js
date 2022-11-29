@@ -183,7 +183,7 @@ function starttcp(){
                         if ( Number.isInteger(def.type) ){
 
                             //type with custom length
-                            val=val.substring(startpos*2,startpos*2+lenval);
+                            val=val.substring(startpos*2,startpos*2+(lenval*2));
 
                             for(let c=0;c<lenval*2;c++){
                                 handled[startpos*2+c]=1;

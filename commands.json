@@ -59,7 +59,7 @@
                 {"num":"36","name":"Max PV charger current(A)","address":"E001","type":"UInt16BE","rate":0.1,"format":1,"unit": "A"},
                 {"num":"37","name":"Battery charge recovery(V)","address":"E00A","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
                 {"num":"38","name":"Output voltage set(V)","address":"E208","type":"UInt16BE","rate": 0.1,"format":1,"unit": "V"},
-                {"num":"39","name":"System date time ?len:3?","address":"020C","type":3,"format":100,"unit": ""},
+                {"num":"39","name":"System date time","address":"020C","type":3,"format":100,"unit": ""},
                 {"num":"40","name":"Input password (Not supported?)","address":"E203","type":"UInt16BE","unit": ""},
                 {"num":"41","name":"Change password (Not supported?)","address":"E202","type":"UInt16BE","unit": ""},
                 {"num":"42","name":"Customer ID","address":"E117","type":"UInt16BE","unit": ""},
