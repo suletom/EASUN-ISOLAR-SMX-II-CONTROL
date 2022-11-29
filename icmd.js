@@ -374,12 +374,19 @@ function handle_modbus_command(command,cmd) {
     }
     */
     let addr = "";
+    let type = "";
 
     if (global_commandparam!==""){
         addr = cmd.definition[global_commandparam].address;
+        type = cmd.definition[global_commandparam].type;
     }
-     
-    command=command.replace('{PARAM}',addr+'0001');
+    
+    let reqlen='0001'; //modbus defines 16bytes, some compley data are stored on multiple registers
+    if (Number.isInteger(type)){
+        reqlen=type.toString(16).padStart(4,'0');
+    }
+    
+    command=command.replace('{PARAM}',addr+reqlen);
     
     let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
     let inner="";
