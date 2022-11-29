@@ -195,7 +195,10 @@ function starttcp(){
                             if (def.hasOwnProperty('format')){
                                 //datetime
                                 if (def.format===100){
-                                    nb=data.readUInt8(startpos+lenval-3).toString()+":"+
+                                    nb= data.readUInt8(startpos+lenval-6).toString()+" "+
+                                        data.readUInt8(startpos+lenval-5).toString()+" "+
+                                        data.readUInt8(startpos+lenval-4).toString()+" "+
+                                        data.readUInt8(startpos+lenval-3).toString()+":"+
                                         data.readUInt8(startpos+lenval-2).toString()+":"+
                                         data.readUInt8(startpos+lenval-1).toString();
                                 }
