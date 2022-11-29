@@ -181,18 +181,16 @@ function starttcp(){
                         if ( Number.isInteger(def.type) ){
 
                             //type with custom length
-                            
                             val=val.substring(startpos*2,startpos*2+lenval);
 
-                            let strout="";
-                            for(let c=0;c<lenval;c++){
+                            for(let c=0;c<lenval*2;c++){
                                 handled[startpos*2+c]=1;
-                                strout+=data.readUInt16BE(startpos+c).toString();
                             }
-
-                            val=strout;
+                            
+                            //val=strout;
                         
-                        }else{    
+                        }else{
+
                             //basic types supported by Buffer class: most seem to be 2 byte long
                             val=data['read'+def.type](startpos);
 
@@ -388,6 +386,9 @@ function handle_modbus_command(command,cmd) {
     
     let reqlen='0001'; //modbus defines 16bytes, some compley data are stored on multiple registers
     if (Number.isInteger(type)){
+        //plus 1 in offset
+        type++;
+        
         reqlen=type.toString(16).padStart(4,'0');
     }
     
