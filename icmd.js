@@ -195,10 +195,11 @@ function starttcp(){
                             if (def.hasOwnProperty('format')){
                                 //datetime
                                 if (def.format===100){
-                                    nb=data.readInt16BE(startpos+lenval-3,startpos+lenval-2).toString()+":"+data.readInt16BE(startpos+lenval-2,startpos+lenval-1).toString()+":"+data.readInt16BE(startpos+lenval-1,startpos+lenval).toString();
+                                    nb=data.readInt16BE(startpos+lenval-3,startpos+lenval-2).toString()+":"+
+                                        data.readInt16BE(startpos+lenval-2,startpos+lenval-1).toString()+":"+
+                                        data.readInt16BE(startpos+lenval-1,startpos+lenval).toString();
                                 }
                             }
-
                             
                             val+=" -> "+nb.toString();
                         
@@ -215,11 +216,10 @@ function starttcp(){
 
                             if (def.hasOwnProperty('rate')){
                                 val=val*def.rate;
+                            } else {
+                                val=val.toFixed(def.format);
                             }    
-                            else{
-                                    val=val.toFixed(def.format);
-                                }    
-                            }
+                            
                         }
 
                         let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?(" => "+def.unit[parseInt(val)]):def.unit);
