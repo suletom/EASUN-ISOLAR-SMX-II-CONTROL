@@ -208,8 +208,8 @@ function starttcp(){
                             }    
                             if (def.hasOwnProperty('format')){
                                 //datetime
-                                if (def.format==100){
-                                    val=""+data.readInt16BE(startpos+lenval-3,startpos+lenval-2)+":"+data.readInt16BE(startpos+lenval-2,startpos+lenval-1)+":"+data.readInt16BE(startpos+lenval-1,startpos+lenval);
+                                if (def.format===100){
+                                    val=data.readInt16BE(startpos+lenval-3,startpos+lenval-2).toString()+":"+data.readInt16BE(startpos+lenval-2,startpos+lenval-1).toString()+":"+data.readInt16BE(startpos+lenval-1,startpos+lenval).toString();
                                 }else{
                                     val=val.toFixed(def.format);
                                 }    
