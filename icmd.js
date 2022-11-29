@@ -187,7 +187,8 @@ function starttcp(){
                                 handled[startpos*2+c]=1;
                             }
                             
-                            //val=strout;
+                            let nb=data.slice(startpos+c);
+                            val+=" -> "+nb.toString();
                         
                         }else{
 
