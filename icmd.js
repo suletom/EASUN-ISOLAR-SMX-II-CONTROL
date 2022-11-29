@@ -187,7 +187,7 @@ function starttcp(){
                                 handled[startpos*2+c]=1;
                             }
                             
-                            let nb=data.slice(startpos,startpos+lenval-1);
+                            let nb=data.slice(startpos,startpos+lenval);
                             val+=" -> "+nb.toString();
                         
                         }else{
@@ -380,7 +380,7 @@ function handle_modbus_command(command,cmd) {
         //plus 2 byte in offset
         type+=2;
         type=type/2;
-        
+
         reqlen=type.toString(16).padStart(4,'0');
     }
     
