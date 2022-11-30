@@ -409,6 +409,39 @@ function handle_modbus_command(command,cmd) {
     }
     
     command=command.replace('{PARAM}',addr+reqlen);
+
+    let i=0;
+    myargs.forEach(function(el){
+
+        let specargparam=addr+reqlen;
+
+        let spa=Buffer.from(specargparam, 'utf8').toString('hex');
+
+        if (spa!=""){
+            command=command.replace('{ARGP'+i+'}',hext);
+        }    
+
+        //default 2 bytes
+        let deflen='02';
+        let rv='0000';
+
+        if (cmd.type=="UInt16BE" ){
+            
+        }
+
+        if (Array.isArray(cmd.unit)){
+            let listval=cmd.unit.indexOf(el);
+            rv=listval.toString(16).padStart(4,'0');
+        }
+        let specargval=deflen+rv;
+        let spv=Buffer.from(specargval, 'utf8').toString('hex');
+        if (spv!=""){
+            command=command.replace('{ARGV'+i+'}',spv);
+        }
+        i++;
+    });
+
+
     
     let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
     let inner="";

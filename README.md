@@ -2,7 +2,7 @@
 Documentation collection about controlling an EASUN-ISOLAR-SMX-II chinese off-grid solar inverter.
 
 !! Work in progress, use this at your own risk!!
-My test device is an EASUN branded 3.6KW inverter with original firmware.
+My test device is an EASUN branded 3.6KW inverter with original firmware (6.63).
 
 The seller/manufacturer refused to provide any further information about controlling/monitoring the device on wifi and the supplied PC software is limited and has some bugs. My goal is to have the ability to control the inverter by software without any external serial/etc. device. The supplied tool is primary a helper to reverse engineer the communication.
 
@@ -13,8 +13,8 @@ My observations about the provided original installation process are the followi
 1. Connect the adatpter to the inverter (rj45 rs485 port)
 2. Install and open SmartESS app (Android/IOS)
 3. The device creates a wifi access point (ssid=device id) which we should connect to (according to the manual the default password is: 12345678)
-4. In SmartEss main screen Wifi configuration -> Network Setting.  (If we connected succefully to the datalogger in previous step, the apps uses the wifi gateway ip make connection)
-5. The app here sends the following UDP data: set>server=PHONE_WIFI_IP:8899; (This instructs the datalogger device to connect to a TCP server created by the SmartEss app) The UDP reply should be: rsp>server=1;
+4. In SmartEss main screen Wifi configuration -> Network Setting.  (If we connected succefully to the datalogger in previous step, the apps uses the wifi gateway ip to connect to)
+5. The app here sends the following UDP data (port: 58899): set>server=PHONE_WIFI_IP:8899; (This instructs the datalogger device to connect to a TCP server created by the SmartEss app) The UDP reply should be: rsp>server=1;
 6. After that if we fill the WIFI AP settings(SSID/Password) and save with "Setting" button these are sent in TCP packages through the previously initiated connection.
 
 
@@ -62,7 +62,7 @@ By sniffing the network traffic i found some command (HEX: aaaa00010003001100) t
 Example to query all params one by one with crc check:
 >npm start get-smx-param [datalogger ip address]
 
-Some register addresses has connection by the ones sent on serial line but not all of them and i think this command is not a standard MODBUS TCP.
+Some register addresses has connection by the ones sent on serial line but not all of them and i think this command is not a standard MODBUS TCP for the inverter, rather something for the datalogger.
 Example(same as above without parsing): 
 >npm start query-modbus [datalogger ip address] aaaa00010003001100
 
