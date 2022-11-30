@@ -6,7 +6,8 @@
         {"name": "restart-wifi", "seq":["restart_wifi"],"desc": "wifi datalogger reset","args": "[datalogger ip address]" },
         {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [raw_modbus_packet_hex]" },
         {"name": "get-device-info", "seq":["get_device_id","get_device_info"],"desc": "gets wifi datalogger device id and other ifno","args": "[datalogger ip address]" },
-        {"name": "get-smx-param", "seq":["get_smx_param"],"desc": "Get ISolar SMX II 3.6 inverter param value","args": "[datalogger ip address]" }
+        {"name": "get-smx-param", "seq":["get_smx_param"],"desc": "Get ISolar SMX II 3.6 inverter param value","args": "[datalogger ip address]" },
+        {"name": "set-smx-param", "seq":["set_smx_param"],"desc": "Set ISolar SMX II 3.6 inverter param value WARNING: this is dangerous and experimental!","args": "[datalogger ip address] [parameter number] [new value]" }
     ],
     "//comment2":"Commands defines modbus tcp commands: some commands are for the wifi plug pro(clean modbus tcp frame: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, etc. ), others are handled by the gateway and sent to the modbus rtu device on serial line.",
     "//comment3":"Modbus commands for the device: 2byte transaction id, 2byte protocol id, 2byte length, data: 1byte unit id, 1byte funtion code, (modbus rtu packet:  1byte unit id, 1byte funtion code(for the inverter), 2byte register address, 2byte register offset, 2byte crc( crc16/MODBUS: from the beginning of the modbus rtu packet)) ",
@@ -19,6 +20,7 @@
         {"name": "get_wifi_device_info","cmd": "{SEQ}00010003ff0205"},
         {"name": "query_modbus","cmd": "{ARG2}","raw": true},
         {"name": "get-smx-out-prio","cmd": "{SEQ}0001000aff04ff03e2040001e66d", "/*!example form param get/set: whole modbus rtu packet in modbus tcp*/":""},
+        {"name": "set_smx_param","cmd": "{ARGP}{ARGV}","test": "{SEQ}0001{LEN}ff04ff10{ARGP}{ARGV}{CRC}"},
         {"name": "get_smx_param","cmd": "{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}", "definition":
             [
                 {"num":"1","name":"Output priority","address":"E204","type":"UInt16BE","unit": ["SOL","UTI","SBU"]},
@@ -73,7 +75,7 @@
                 {"num":"102","name":"Compile time","address":"0021","type":20,"unit": ""},
                 {"num":"103","name":"Product SN","address":"0035","type":20,"unit": ""},
                 {"num":"104","name":"MachineState","address":"0210","type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]},
-                {"num":"105","name":"Current fault?","address":"0204","type":31,"format":101,"unit":["OK","Battery under voltage alarm",
+                {"num":"105","name":"Current fault?","address":"0204","type":4,"format":101,"unit":["OK","Battery under voltage alarm",
                 "Battery over current software",
                 "Battery disconnect",
                 "Battery under voltage(stop discharge)",

@@ -46,7 +46,7 @@ if (myargs.length==0){
             cs.seq.forEach(function(cd){
                 let nc=commands.commands.find(cdf => cdf.name === cd);
                 
-                let reg=nc.cmd.match(/\{ARG[0-9]+\}/g);
+                let reg=nc.cmd.match(/\{ARG[PV]*[0-9]+\}/g);
                 if (reg!=null && reg!==false && reg!=undefined ) argscount=argscount.concat(reg);
 
                 //console.log(nc);
@@ -234,7 +234,7 @@ function starttcp(){
                             
                         }
 
-                        let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?(" => "+def.unit[parseInt(val)]):def.unit);
+                        let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
                         console.log(stmp);
                         outsum+=stmp+"\n";
                         
@@ -302,7 +302,7 @@ function getdatacmd(data){
     let obj=commands.commands.find(o => o.name === data );
 
     let cmdtorun=obj.cmd;
-    //place input args in modbus commands
+    //place simple input args in modbus commands
     let i=0;
     myargs.forEach(function(el){
 
