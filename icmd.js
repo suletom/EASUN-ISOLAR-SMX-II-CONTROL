@@ -418,6 +418,7 @@ function handle_modbus_command(command,cmd) {
 
         if (spa!=""){
             command=command.replace('{ARGP'+i+'}',spa);
+            return;
         }    
 
         //default 2 bytes
