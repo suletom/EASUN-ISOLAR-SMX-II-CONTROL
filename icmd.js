@@ -414,18 +414,17 @@ function handle_modbus_command(command,cmd) {
     myargs.forEach(function(el){
 
         let specargparam=addr+reqlen;
-
         let spa=Buffer.from(specargparam, 'utf8').toString('hex');
 
         if (spa!=""){
-            command=command.replace('{ARGP'+i+'}',hext);
+            command=command.replace('{ARGP'+i+'}',spa);
         }    
 
         //default 2 bytes
         let deflen='02';
         let rv='0000';
 
-        switch (cmd.type){
+        switch (cmd.type) {
             case "UInt16BE":
                 if (!Number.isInteger(el) || el<0){
                     console.log("Error: The requested value is not compatible with the parameter type ("+cmd.type+")!");
@@ -443,8 +442,7 @@ function handle_modbus_command(command,cmd) {
             default:
                 console.log("Error: The requested parameter type ("+cmd.type+") is not writabe!");
                 exit(-1);
-            
-        }            
+        }
         
         if (Array.isArray(cmd.unit)){
             let listval=cmd.unit.indexOf(el);

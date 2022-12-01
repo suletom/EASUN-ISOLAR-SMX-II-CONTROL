@@ -20,7 +20,7 @@
         {"name": "get_wifi_device_info","cmd": "{SEQ}00010003ff0205"},
         {"name": "query_modbus","cmd": "{ARG2}","raw": true},
         {"name": "get-smx-out-prio","cmd": "{SEQ}0001000aff04ff03e2040001e66d", "/*!example form param get/set: whole modbus rtu packet in modbus tcp*/":""},
-        {"name": "set_smx_param","cmd": "{SEQ}0001{LEN}ff04ff10{ARGP}{ARGV}{CRC}"},
+        {"name": "set_smx_param","cmd": "{SEQ}0001{LEN}ff04ff10{ARGP2}{ARGV3}{CRC}"},
         {"name": "get_smx_param","cmd": "{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}", "definition":
             [
                 {"num":"1","name":"Output priority","address":"E204","type":"UInt16BE","unit": ["SOL","UTI","SBU"]},
