@@ -202,6 +202,7 @@ function starttcp(){
                                         data.readUInt8(startpos+lenval-2).toString()+":"+
                                         data.readUInt8(startpos+lenval-1).toString();
                                 }
+                                //fault codes
                                 if (def.format===101){
                                     nb = "\nFAULT: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+"\n"+
                                         "FAULT: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+"\n"+
@@ -300,6 +301,10 @@ function getdatacmd(data){
     console.log("\nCommand: "+data);
 
     let obj=commands.commands.find(o => o.name === data );
+    //definition array link following
+    if (typeof obj.definition === 'string'){
+        obj.definition=commands.commands.find(o => o.name === obj.definition ).definition;
+    }
 
     let cmdtorun=obj.cmd;
     //place simple input args in modbus commands
@@ -404,61 +409,111 @@ function handle_modbus_command(command,cmd) {
     
     let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
     if (Number.isInteger(type)){
-        
         reqlen=type.toString(16).padStart(4,'0');
     }
-    
+        
     command=command.replace('{PARAM}',addr+reqlen);
 
+    
+    //HANDLE set command...    
+    let setparam="";
+    let setparamind=0;
+    let setval="";
+    let setvalind=0;
+
+    //get args and connected data
     let i=0;
     myargs.forEach(function(el) {
 
-        let specargparam=addr+reqlen;
-        let spa=Buffer.from(specargparam, 'utf8').toString('hex');
-
-        if (spa!="") {
-            command=command.replace('{ARGP'+i+'}',spa);
-            return;
-        }    
-
-        //default 2 bytes
-        let deflen='02';
-        let rv='0000';
-
-        switch (cmd.type) {
-            case "UInt16BE":
-                if (!Number.isInteger(el) || el<0){
-                    console.log("Error: The requested value is not compatible with the parameter type ("+cmd.type+")!");
-                    exit(-1);
-                }
-                el.toString(16).padStart(4,'0');
-            break;
-            case "Int16BE":
-                if (!Number.isInteger(el) || el<0){
-                    console.log("Error: The requested value is not compatible with the parameter type ("+cmd.type+")!");
-                    exit(-1);
-                }
-                el.toString(16).padStart(4,'0');
-            break;
-            default:
-                console.log("Error: The requested parameter type ("+cmd.type+") is not writabe!");
-                exit(-1);
-        }
-        
-        if (Array.isArray(cmd.unit)) {
-            let listval=cmd.unit.indexOf(el);
-            rv=listval.toString(16).padStart(4,'0');
+        if ( command.indexOf('{ARGP'+i+'}')!==-1) {
+            setparamind=i;
+            setparam=cmd.definition.find(o => o.num === el );
         }
 
-        let specargval=deflen+rv;
-        let spv=Buffer.from(specargval, 'utf8').toString('hex');
-        if (spv!="") {
-            command=command.replace('{ARGV'+i+'}',spv);
+        if ( command.indexOf('{ARGV'+i+'}')!==-1) {
+            setvalind=i;
+            setval=el;
         }
+
         i++;
     });
 
+    //console.log(setparam);
+    //console.log(setval);
 
+    if (setparam!="" && setval!="") {
+
+        if ( command.indexOf('{ARGP'+setparamind+'}')!==-1) {
+
+            //default 1 register            
+            let reglen="0001";
+            if (Number.isInteger(setparam.type)) {
+                reglen=setparam.type.toString(16).padStart(4,'0');
+                console.log("Error: Not supported type:", setparam.type);
+                exit(-1);
+            }    
+
+            let specargparam=setparam.address+reglen;
+            command=command.replace('{ARGP'+setparamind+'}',specargparam);
+            
+        }
+
+        if ( command.indexOf('{ARGV'+setvalind+'}')!==-1) {
+            //default 2 bytes
+            let deflen='02';
+            let rv='0000';
+
+            if (Array.isArray(setparam.unit)) {
+                let listval=setparam.unit.indexOf(setval);
+                if (listval===-1){
+                    console.log("Error: The requested value is not valid, values:", setparam.unit);
+                    exit(-1);
+                }
+                if (Number.isInteger(listval)){
+                    
+                    rv=listval.toString(16).padStart(4,'0');
+                }else{
+                    console.log("Error: The requested value is not compatible with the parameter type ("+setparam.type+")!");
+                    exit(-1);
+                }
+                
+            }else{
+
+                switch (setparam.type) {
+                    case "UInt16BE":
+                        if (!Number.isInteger(setval) || setval<0){
+                            console.log(setparam);
+                            console.log("Error: The requested value is not compatible with the parameter type!");
+                            exit(-1);
+                        }
+                        rv=setval.toString(16).padStart(4,'0');
+                    break;
+                    case "Int16BE":
+                        if (!Number.isInteger(setval)){
+                            console.log(setparam);
+                            console.log("Error: The requested value is not compatible with the parameter type!");
+                            exit(-1);
+                        }
+                        rv=setval.toString(16).padStart(4,'0');
+                    break;
+                    default:
+                        console.log(setparam);
+                        console.log("Error: The requested parameter is not writable!");
+                        exit(-1);
+                }
+            }
+
+            //console.log(rv);
+            
+            let specargval=deflen+rv;
+            //console.log("replace:",specargval);
+            
+            command=command.replace('{ARGV'+setvalind+'}',specargval);
+            
+        }
+        
+        console.log("set modbus rtu command:",command);
+    }
     
     let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
     let inner="";
