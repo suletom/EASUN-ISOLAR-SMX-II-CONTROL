@@ -450,7 +450,7 @@ function handle_modbus_command(command,cmd) {
             let listval=cmd.unit.indexOf(el);
             rv=listval.toString(16).padStart(4,'0');
         }
-        
+
         let specargval=deflen+rv;
         let spv=Buffer.from(specargval, 'utf8').toString('hex');
         if (spv!=""){
@@ -474,7 +474,7 @@ function handle_modbus_command(command,cmd) {
     
     command=command.replace("{CRC}",crc.substring(2)+crc.substring(0,2));
 
-    console.log(command);
+    console.log("handle modbus command end:"+command);
     exit(-1);
     
     return command;
