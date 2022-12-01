@@ -425,14 +425,32 @@ function handle_modbus_command(command,cmd) {
         let deflen='02';
         let rv='0000';
 
-        if (cmd.type=="UInt16BE" ){
+        switch (cmd.type){
+            case "UInt16BE":
+                if (!Number.isInteger(el) || el<0){
+                    console.log("Error: The requested value is not compatible with the parameter type ("+cmd.type+")!");
+                    exit(-1);
+                }
+                el.toString(16).padStart(4,'0');
+            break;
+            case "Int16BE":
+                if (!Number.isInteger(el) || el<0){
+                    console.log("Error: The requested value is not compatible with the parameter type ("+cmd.type+")!");
+                    exit(-1);
+                }
+                el.toString(16).padStart(4,'0');
+            break;
+            default:
+                console.log("Error: The requested parameter type ("+cmd.type+") is not writabe!");
+                exit(-1);
             
-        }
-
+        }            
+        
         if (Array.isArray(cmd.unit)){
             let listval=cmd.unit.indexOf(el);
             rv=listval.toString(16).padStart(4,'0');
         }
+        
         let specargval=deflen+rv;
         let spv=Buffer.from(specargval, 'utf8').toString('hex');
         if (spv!=""){
@@ -455,6 +473,9 @@ function handle_modbus_command(command,cmd) {
     crc=crc.toString(16).padStart(4,'0');
     
     command=command.replace("{CRC}",crc.substring(2)+crc.substring(0,2));
+
+    console.log(command);
+    exit(-1);
     
     return command;
 
