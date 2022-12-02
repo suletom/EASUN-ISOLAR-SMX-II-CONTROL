@@ -5,6 +5,7 @@ var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
 const { Buffer } = require('buffer');
 const { match } = require('assert');
+const { executionAsyncResource } = require('async_hooks');
 
 var commands={};
 let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'})
@@ -27,8 +28,8 @@ commands.commandsequences.forEach(function(cs){
 
 console.log("\n");
 
-var global_commandsequence="";
-var global_commandparam="";
+var global_commandsequence=""; //run more commands after another
+var global_commandparam=""; //run more paramterter for 1 command
 var global_tcp_seq=1; //sends the device in every command: modbus transaction id
 
 if (myargs.length==0){
@@ -50,9 +51,10 @@ if (myargs.length==0){
                 if (reg!=null && reg!==false && reg!=undefined ) argscount=argscount.concat(reg);
 
                 //console.log(nc);
-                if (nc.hasOwnProperty('definition')){
+                if (nc.hasOwnProperty('definition') && Array.isArray(nc.definition)){
+                    //console.log("gpn!!!4");
+                    //exit(0);
                     global_commandparam=0;
-                   
                 }
                 
             });
@@ -78,6 +80,8 @@ function sendudp(devip){
     try{
 
         localIpV4Address().then(function(ip){
+
+            ip="192.168.89.254";
             
             console.log("Using local ip to create TCP server: "+(ip));
 
@@ -138,7 +142,7 @@ function starttcp(){
             //console.log(lastcmdname);
             let lastcmddef = commands.commands.find(e => e.name === lastcmdname);
             //console.log(lastcmddef);
-            if (lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
+            if (global_commandparam!=="" && lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
                 
                 let handled=[];
                 lastcmddef.definition.forEach(function(def,ind){
@@ -147,9 +151,10 @@ function starttcp(){
                         if (ind!=global_commandparam) {
                             return ;
                         }
+                    } else {
+                        
+                        return;
                     }
-
-                    
 
                     //modbus rtu response: fixed position to extract data from
                     let val="";
@@ -180,6 +185,7 @@ function starttcp(){
                         console.log((def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!");
                     }else{
 
+                        //custom formats
                         if ( Number.isInteger(def.type) ){
 
                             //type with custom length
@@ -204,10 +210,10 @@ function starttcp(){
                                 }
                                 //fault codes
                                 if (def.format===101){
-                                    nb = "\nFAULT: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+"\n"+
-                                        "FAULT: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+"\n"+
-                                        "FAULT: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+"\n"+
-                                        "FAULT: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+"\n";
+                                    nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
+                                        "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
+                                        "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+
+                                        "FAULT3: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+" ";
                                         
                                 }
                             }
@@ -279,7 +285,10 @@ function starttcp(){
         let cmdstr=getcommseqcmd(command_seq);
         if (cmdstr === undefined) { console.log("Missing command sequence, exiting..."); exit(-1); }
 
-        socket.write(getdatacmd(cmdstr));
+        
+        let tw=getdatacmd(cmdstr);
+        //console.log("write:",tw);
+        socket.write(tw);
         command_seq++;
 
     });
@@ -486,6 +495,7 @@ function handle_modbus_command(command,cmd) {
                             console.log("Error: The requested value is not compatible with the parameter type!");
                             exit(-1);
                         }
+                        setval=round(setval/setparam.rate);
                         rv=setval.toString(16).padStart(4,'0');
                     break;
                     case "Int16BE":
@@ -494,6 +504,7 @@ function handle_modbus_command(command,cmd) {
                             console.log("Error: The requested value is not compatible with the parameter type!");
                             exit(-1);
                         }
+                        setval=round(setval/setparam.rate);
                         rv=setval.toString(16).padStart(4,'0');
                     break;
                     default:
@@ -512,7 +523,7 @@ function handle_modbus_command(command,cmd) {
             
         }
         
-        console.log("set modbus rtu command:",command);
+       
     }
     
     let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
@@ -528,9 +539,12 @@ function handle_modbus_command(command,cmd) {
     
     command=command.replace("{CRC}",crc.substring(2)+crc.substring(0,2));
 
-    console.log("handle modbus command end:"+command);
-    exit(-1);
-    
+    if (setparam!="" && setval!="") {
+        console.log("Constructed modbus RTU command:"+command);
+        console.log("Dry run exiting here....");
+        exit(0);
+    }    
+        
     return command;
 
 }
@@ -552,4 +566,11 @@ function crc16modbus(data){
 
     return crc;
     
+}
+
+
+function display(){
+
+
+
 }
