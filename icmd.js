@@ -81,7 +81,7 @@ function sendudp(devip){
 
         localIpV4Address().then(function(ip){
 
-            ip="192.168.89.254";
+            //ip="192.168.89.254";
             
             console.log("Using local ip to create TCP server: "+(ip));
 
@@ -490,22 +490,20 @@ function handle_modbus_command(command,cmd) {
 
                 switch (setparam.type) {
                     case "UInt16BE":
-                        if (!Number.isInteger(setval) || setval<0){
-                            console.log(setparam);
-                            console.log("Error: The requested value is not compatible with the parameter type!");
-                            exit(-1);
-                        }
-                        setval=round(setval/setparam.rate);
-                        rv=setval.toString(16).padStart(4,'0');
-                    break;
                     case "Int16BE":
-                        if (!Number.isInteger(setval)){
+                        if (setval.match(/^[0-9\.]+$/) ){
+                            if (parseInt(setval).toString() === setval){
+                                setval=parseInt(setval);    
+                            }
+                        }else{
                             console.log(setparam);
-                            console.log("Error: The requested value is not compatible with the parameter type!");
+                            console.log("Error: The requested value ("+setval+") is not compatible with the parameter type!");
                             exit(-1);
                         }
-                        setval=round(setval/setparam.rate);
+                        
+                        setval=Math.round(setval/setparam.rate);
                         rv=setval.toString(16).padStart(4,'0');
+
                     break;
                     default:
                         console.log(setparam);
@@ -541,8 +539,8 @@ function handle_modbus_command(command,cmd) {
 
     if (setparam!="" && setval!="") {
         console.log("Constructed modbus RTU command:"+command);
-        console.log("Dry run exiting here....");
-        exit(0);
+        //console.log("Dry run exiting here....");
+        //exit(0);
     }    
         
     return command;
