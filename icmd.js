@@ -182,7 +182,10 @@ function starttcp(){
                     console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")");
 
                     if (hcrc!=rcrc){
-                        console.log((def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!");
+                        let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
+                        console.log(outt);
+                        outsum+=outt+"\n";
+
                     }else{
 
                         //custom formats
@@ -507,7 +510,7 @@ function handle_modbus_command(command,cmd) {
                     break;
                     default:
                         console.log(setparam);
-                        console.log("Error: The requested parameter is not writable!");
+                        console.log("Error: The requested parameter is not writable now!");
                         exit(-1);
                 }
             }
