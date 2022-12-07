@@ -195,8 +195,8 @@ function starttcp(){
                         //custom formats
                         if ( Number.isInteger(def.type) ){
 
-                            //type with custom length
-                            val=val.substring(startpos*2,startpos*2+(lenval*2));
+                            //type with custom length: not needed -> string default
+                            //val=val.substring(startpos*2,startpos*2+(lenval*2));
 
                             for(let c=0;c<lenval*2;c++){
                                 handled[startpos*2+c]=1;
@@ -204,7 +204,7 @@ function starttcp(){
                             
                             //default handle as string
                             let nb=data.slice(startpos,startpos+lenval);
-                            nb=nb.toString().replace('\x00','');
+                            nb=nb.toString('utf8').replace(/\0/g, '');
 
                             if (def.hasOwnProperty('format')){
                                 //datetime
@@ -226,7 +226,7 @@ function starttcp(){
                                 }
                             }
                             
-                            val=nb.toString();
+                            val=nb;
                         
                         }else{
 
