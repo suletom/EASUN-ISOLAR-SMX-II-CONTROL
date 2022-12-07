@@ -75,7 +75,7 @@
                 {"num":"102","name":"Compile time","address":"0021","type":20,"unit": ""},
                 {"num":"103","name":"Product SN","address":"0035","type":20,"unit": ""},
                 {"num":"104","name":"MachineState","address":"0210","type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]},
-                {"num":"105","name":"Current fault?","address":"0204","type":4,"format":101,"unit":["OK","Battery under voltage alarm",
+                {"num":"105","name":"Current fault","address":"0204","type":4,"format":101,"unit":["OK","Battery under voltage alarm",
                 "Battery over current software",
                 "Battery disconnect",
                 "Battery under voltage(stop discharge)",

@@ -130,6 +130,7 @@ function starttcp(){
         console.log(`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
         
         let outsum="\n";
+        let outobj={};
 
         //socket.pipe(socket);
         socket.on('data',function(data){
@@ -182,8 +183,11 @@ function starttcp(){
                     console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")");
 
                     if (hcrc!=rcrc){
+
                         let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
                         console.log(outt);
+
+                        outobj[def.name]="N/A";
                         outsum+=outt+"\n";
 
                     }else{
@@ -200,12 +204,13 @@ function starttcp(){
                             
                             //default handle as string
                             let nb=data.slice(startpos,startpos+lenval);
+                            nb=nb.toString().replace('\x00','');
 
                             if (def.hasOwnProperty('format')){
                                 //datetime
                                 if (def.format===100){
-                                    nb= data.readUInt8(startpos+lenval-6).toString()+" "+
-                                        data.readUInt8(startpos+lenval-5).toString()+" "+
+                                    nb= "20"+data.readUInt8(startpos+lenval-6).toString()+"-"+
+                                        data.readUInt8(startpos+lenval-5).toString()+"-"+
                                         data.readUInt8(startpos+lenval-4).toString()+" "+
                                         data.readUInt8(startpos+lenval-3).toString()+":"+
                                         data.readUInt8(startpos+lenval-2).toString()+":"+
@@ -221,7 +226,7 @@ function starttcp(){
                                 }
                             }
                             
-                            val+=" -> "+nb.toString();
+                            val=nb.toString();
                         
                         }else{
 
@@ -246,6 +251,7 @@ function starttcp(){
 
                         let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
                         console.log(stmp);
+                        outobj[def.name]=val;
                         outsum+=stmp+"\n";
                         
                     }    
@@ -269,6 +275,7 @@ function starttcp(){
             
             if (cmdstr === undefined) { 
                 console.log(outsum);
+                console.log("JSON output:\n",outobj);
                 console.log("DONE, exiting"); exit(0);
             }
                
