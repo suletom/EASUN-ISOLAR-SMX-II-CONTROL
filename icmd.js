@@ -114,6 +114,7 @@ function sendudp(devip){
 
     }catch(e){
         console.log("Error: ",e);
+        exit(-1);
     }
     
 }
@@ -276,7 +277,8 @@ function starttcp(){
             if (cmdstr === undefined) { 
                 console.log(outsum);
                 console.log("JSON output:\n",outobj);
-                console.log("DONE, exiting"); exit(0);
+                console.log("DONE, exiting"); 
+                exit(0);
             }
                
             socket.write(getdatacmd(cmdstr));
@@ -285,11 +287,13 @@ function starttcp(){
         });
 
         socket.on('error',function(error){
-            console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
+            console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}..., exiting...`);
+            exit(-1);
         });
 
         socket.on('close',function(){
-            console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
+            console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting...`);
+            exit(-1);
         });
 
         let cmdstr=getcommseqcmd(command_seq);
@@ -366,7 +370,6 @@ function getparam(cmd,ind){
         return param;
     }
     return "";    
-    //test: return "e2040001";
 }
 
 //hex dump
