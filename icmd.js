@@ -269,7 +269,10 @@ function starttcp(){
                 }
             }else{
                 process.stdout.write("Response:\n");
+
                 dumpdata(data);
+
+                console.log("String format:\n",data.toString());
             }
 
             let cmdstr=getcommseqcmd(command_seq);
