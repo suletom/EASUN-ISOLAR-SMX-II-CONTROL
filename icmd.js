@@ -51,10 +51,16 @@ if (myargs.length==0){
                 if (reg!=null && reg!==false && reg!=undefined ) argscount=argscount.concat(reg);
 
                 //console.log(nc);
-                if (nc.hasOwnProperty('definition') && Array.isArray(nc.definition)){
-                    //console.log("gpn!!!4");
+                if (nc.hasOwnProperty('definition') && Array.isArray(nc.definition)) {
                     //exit(0);
-                    global_commandparam=0;
+                    
+                    //optional last argumentum (start param to query)
+                    let lastarg=myargs[myargs.length-1];
+                    let ind=nc.definition.findIndex(o => o.num == lastarg );
+
+                    global_commandparam=(lastarg.match(/^[0-9]+$/) && ind>0 ?ind:0);
+
+                    console.log("Starting from param: ",global_commandparam);
                 }
                 
             });
@@ -81,7 +87,8 @@ function sendudp(devip){
 
         localIpV4Address().then(function(ip){
 
-            //ip="192.168.89.254";
+        
+            ip="192.168.89.255";
             
             console.log("Using local ip to create TCP server: "+(ip));
 
@@ -149,7 +156,7 @@ function starttcp(){
                 let handled=[];
                 lastcmddef.definition.forEach(function(def,ind){
 
-                    if (global_commandparam!==""){
+                    if (global_commandparam!=="") {
                         if (ind!=global_commandparam) {
                             return ;
                         }
@@ -427,6 +434,7 @@ function handle_modbus_command(command,cmd) {
     let type = "";
 
     if (global_commandparam!==""){
+        
         addr = cmd.definition[global_commandparam].address;
         type = cmd.definition[global_commandparam].type;
         console.log("Querying param: "+cmd.definition[global_commandparam].name+"\n");
