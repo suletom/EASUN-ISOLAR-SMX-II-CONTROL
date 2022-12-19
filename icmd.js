@@ -286,7 +286,11 @@ function starttcp(){
             
             if (cmdstr === undefined) { 
                 console.log(outsum);
+
                 console.log("JSON output:\n",outobj);
+                fs.writeFile('currentdata.json',outobj.toString(), function (err) {
+                    if (err) return console.log(err);
+                });
                 console.log("DONE, exiting"); 
                 exit(0);
             }
