@@ -88,7 +88,7 @@ function sendudp(devip){
         localIpV4Address().then(function(ip){
 
         
-            ip="192.168.89.255";
+//            ip="192.168.89.255";
             
             console.log("Using local ip to create TCP server: "+(ip));
 
@@ -288,9 +288,12 @@ function starttcp(){
                 console.log(outsum);
 
                 console.log("JSON output:\n",outobj);
-                fs.writeFile('currentdata.json',outobj.toString(), function (err) {
-                    if (err) return console.log(err);
-                });
+                try {
+                    fs.writeFileSync('currentdata.json',JSON.stringify(outobj));
+                } catch (err) {
+                    console.error(err)
+                }
+                
                 console.log("DONE, exiting"); 
                 exit(0);
             }
