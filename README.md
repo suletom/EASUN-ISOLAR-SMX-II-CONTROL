@@ -91,5 +91,8 @@ First register write test (sets charger source priority to SNU(02)):
 
 Packet beginning is like the others, additional section: 10(write func.) E20F(register address to start writing at: see commands.json) 0001(write 2byte) 02(data length) 0002(data: 0->cso, 1->sub, 2->snu, 3->oso)
 
+SET output priority (parameter 1 in commands.json) to 'SOL' (on 6.63 only the most important parameters can be set over modbus)
+
+>npm start set-smx-param [datalogger ip address] 1 SOL
 
 If you are interested feel free to contact me.
