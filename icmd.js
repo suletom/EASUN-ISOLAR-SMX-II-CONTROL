@@ -261,7 +261,7 @@ function starttcp(){
                         console.log(stmp);
                         outobj[def.name]=val;
                         if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
-                            outobj[def.name+"_text"]=def.unit[parseInt(val)]+" ("+val+")";
+                            outobj[def.name+"_text"]=def.unit[parseInt(val)];
                         }
                         outsum+=stmp+"\n";
                         
