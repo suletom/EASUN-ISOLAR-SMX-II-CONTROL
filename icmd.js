@@ -220,9 +220,9 @@ function starttcp(){
                                     nb= "20"+data.readUInt8(startpos+lenval-6).toString()+"-"+
                                         data.readUInt8(startpos+lenval-5).toString()+"-"+
                                         data.readUInt8(startpos+lenval-4).toString()+" "+
-                                        data.readUInt8(startpos+lenval-3).toString()+":"+
-                                        data.readUInt8(startpos+lenval-2).toString()+":"+
-                                        data.readUInt8(startpos+lenval-1).toString();
+                                        data.readUInt8(startpos+lenval-3).toString().padStart(2,'0')+":"+
+                                        data.readUInt8(startpos+lenval-2).toString().padStart(2,'0')+":"+
+                                        data.readUInt8(startpos+lenval-1).toString().padStart(2,'0');
                                 }
                                 //fault codes
                                 if (def.format===101){
