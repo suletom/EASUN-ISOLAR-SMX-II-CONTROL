@@ -260,6 +260,7 @@ function starttcp(){
                         let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
                         console.log(stmp);
                         outobj[def.name]=val;
+                        outobj[def.name+"_text"]=(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (val+" => "+def.unit[parseInt(val)]): val ) : val );
                         outsum+=stmp+"\n";
                         
                     }    
