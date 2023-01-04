@@ -4,11 +4,11 @@ let dgram = require('dgram');
 var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
 const { Buffer } = require('buffer');
-const { match } = require('assert');
-const { executionAsyncResource } = require('async_hooks');
+//const { match } = require('assert');
+//const { executionAsyncResource } = require('async_hooks');
 
 var commands={};
-let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'})
+let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
 
 try{ 
     commands=JSON.parse(cdata);
@@ -16,12 +16,29 @@ try{
     console.log(e);
 }
 
+let customip="";
+let original_argv=process.argv.slice();
+//console.log(process.argv);
+process.argv.forEach(function(el, index, object){
+    console.log(el);
+    let m=el.match(/^localip=((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/);
+    if (m) {
+        customip=el.substring(8);
+        console.log("")
+        object.splice(index,1);
+    }
+});
+//console.log(process.argv);
+//console.log("customip:",customip);
+//exit(0);
+
 var myargs = process.argv.slice(2);
 
 console.log("!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
 console.log("!!! On initial setup the datalogger ip address is the gateway (obtained by dhcp from the datalogger wifi AP) !!!");
+console.log("!!! Provide custom local ip if the machine that you are running this script from is available on a custom route not on the default one (vpn setup) !!!");
 
-console.log("\nUSAGE: COMMAND [options]\n\nCOMMANDS:")
+console.log("\nUSAGE: COMMAND [options] [localip=192.168.89.255]\n\nCOMMANDS:")
 commands.commandsequences.forEach(function(cs){
     console.log(cs.name+" "+cs.args+" \n ("+cs.desc+")\n");
 });
@@ -88,7 +105,9 @@ function sendudp(devip){
         localIpV4Address().then(function(ip){
 
         
-//            ip="192.168.89.255";
+            if (customip!=""){
+                ip=customip;
+            }
             
             console.log("Using local ip to create TCP server: "+(ip));
 
@@ -312,7 +331,24 @@ function starttcp(){
         });
 
         socket.on('close',function(){
-            console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting...`);
+
+            //this happens usually when the inverter drops the serial line
+            //to force the datalogger to reconnect we need to restart it
+
+            /*
+            process.on("exit", function () {
+                console.log("process.onexit");
+                //hardcoded restart command
+                process.argv[2]="restart-wifi";
+                require("child_process").spawn(process.argv.shift(),process.argv, {
+                    cwd: process.cwd(),
+                    detached : true,
+                    stdio: "inherit"
+                });
+            });
+            */
+            
+            console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting and trying to restart datalogger adapter...`);
             exit(-1);
         });
 
@@ -392,7 +428,7 @@ function getparam(cmd,ind){
     return "";    
 }
 
-//hex dump
+//hex dump with color highlighted terminal output
 function dumpdata(data,handled=null){
 
     let strdata=data.toString('hex');
