@@ -25,6 +25,7 @@ My observations about the provided original installation process are the followi
 > apt install git nodejs
 2. clone the repo
 >git clone https://github.com/suletom/EASUN-ISOLAR-SMX-II-CONTROL.git
+>
 >cd EASUN-ISOLAR-SMX-II-CONTROL
 3. install needed node modules: 
 >npm install
