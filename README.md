@@ -95,4 +95,21 @@ SET output priority (parameter 1 in commands.json) to 'SOL' (on 6.63 only the mo
 
 >npm start set-smx-param [datalogger ip address] 1 SOL
 
-If you are interested feel free to contact me.
+If you are interested free to contact me.
+
+# UPDATE 2023
+
+The WIFI adapters manufacturer provided some info about their service: The hardware(my guess is it's a simple esp8266) has a custom written firwmware for the specific inverter. So no API or standard protocol, they just query the hardcoded registers and the software sends the info in merged packets to the cloud.
+
+I'm experiancing connection drops, MODBUS CRC errors / garbage data over the serial line and over the wifi adapter as well. Other users experinced the same. When connection drop happens, the "com" led turns off on the Plug Pro adapter. Sometimes this happens 1-2 times a month, but can happen much more frequntly depending on the parameter setup.
+
+To work around the issue i added a hack invoke restart on the adapter when the TCP connection is not initiated in time, this seems to solve the disconnect issue.
+
+While querying the inverter i noticed that getting all parameters can be very slow. Modbus resisters could be grouped by addresses to make this faster, but for now i added an optional last argument to query parameters only after the provided number. For exmaple to query only the relevant state variables use this:
+
+>npm start get-smx-param [datalogger ip address] 104
+
+Another feature added: 
+We can provide custom local ip if the machine that you are running this script from is available on a custom route by the wifi device (not on the default one, example: vpn setup, port forward, etc) 
+
+>npm start get-smx-param --localip=[ip on which this_machine is availble] [datalogger ip address]
