@@ -114,3 +114,10 @@ Another feature added:
 We can provide custom local ip if the machine that you are running this script from is available on a custom route by the wifi device (not on the default one, example: vpn setup, port forward, etc) 
 
 >npm start get-smx-param --localip=[ip on which this_machine is available] [datalogger ip address]
+
+# Inverter related info news
+
+Found some resources online about the EASUN ISolar SMX II device. It's possible that this originates somehow from here:
+SRNE Solar hf2430s80-h: https://www.srnesolar.com/product/best-hybrid-off-grid-inverter-3kw-hf2430s80-h
+
+These devices use the same modbus register addresses. Found this info in an other project: https://github.com/shakthisachintha/SRNE-Hybrid-Inverter-Monitor/blob/master/src/srnecommands.py
