@@ -1,4 +1,3 @@
-
 var arr=[{"num":"104","name":"MachineState","address":"0210","type":"UInt16BE","rate":1,"format": 0,"unit":["Power on","Stand by","Initialization","Soft start","Running in line","Running in inverter","Invert to line","Line to invert","remain","remain","Shutdown","Fault"]},
                 {"num":"105","name":"Current fault","address":"0204","type":4,"format":101,"unit":["OK"]},
                 {"num":"106","name":"PVVoltage","address":"0107","type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"},
@@ -38,8 +37,9 @@ var arr=[{"num":"104","name":"MachineState","address":"0210","type":"UInt16BE","
             ];
 let out="";
 arr.forEach(function(el){
-let val=el.name;
-var template=`sensor:
+let val=el.name.replace(" ","_");
+var template=`
+
   - platform: command_line
     name: ${val}
     unique_id: easun-isolar-smx-ii.${val}
@@ -52,5 +52,3 @@ var template=`sensor:
     out+=template;
 
 });
-
-console.log(out);
