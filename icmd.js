@@ -5,11 +5,6 @@ var localIpV4Address = require("local-ipv4-address");
 const { exit } = require('process');
 const { Buffer } = require('buffer');
 
-//default 5 min timeout to prevent stucking node if not error event occures in tcp communication but not answer recived
-setTimeout(function() {
-    console.log("Timeout occured...exiting!");
-    process.exit;
- }, (1000*60*5));
 
 function runscript(args) {
 
@@ -100,6 +95,12 @@ function runscript(args) {
                     console.log("Wrong number of arguments! Exiting...");
                     exit(-1);
                 }
+
+                //default 4 min timeout to prevent stucking node if not error event occures in tcp communication but no answer recived
+                setTimeout(function() {
+                    console.log("Timeout occured...exiting!");
+                    exit(-1);
+                }, (1000*60*4));
 
                 sendudp(myargs[1]);
 
