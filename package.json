@@ -5,7 +5,8 @@
   "main": "icmd.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node icmd.js"
+    "start": "node icmd.js",
+    "gen-ha-config": "node ha_template_generator/gen.js"
   },
   "repository": {
     "type": "git",
