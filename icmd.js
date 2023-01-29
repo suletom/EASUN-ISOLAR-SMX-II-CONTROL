@@ -21,6 +21,9 @@ function runscript(args) {
     console.log("!!! On initial setup the datalogger ip address is the gateway (obtained by dhcp from the datalogger wifi AP) !!!");
     console.log("!!! Provide custom local ip if the machine that you are running this script from is available on a custom route not on the default one (vpn setup) !!!");
 
+    console.log("Quick examples:\n Query all inverter parameters: npm start get-smx-param [datalogger ip address]");
+    console.log(" Set output priority(parameter 1) to SOL: npm start set-smx-param [datalogger ip address] 1 SOL ");
+
     let customip="";
     let original_argv=args.slice();
     
@@ -85,6 +88,26 @@ function runscript(args) {
                         global_commandparam=(lastarg.match(/^[0-9]+$/) && ind>0 ?ind:0);
 
                         console.log("Starting from param: ",global_commandparam);
+
+                        //check addresses to join
+                        /*
+                        let addrord=[];
+                        nc.definition.forEach(function(el,ind){
+                            
+                            if (ind>=global_commandparam){
+                                let addr=parseInt(el.address, 16);
+                                if (addr>maxaddr){
+                                    maxaddr=addr;
+                                }
+                                if (addr<minaddr){
+                                    minaddr=addr;
+                                }
+                            }
+                        });
+                        console.log("min addr:", minaddr);
+                        console.log("max addr:", maxaddr);
+                        console.log("interval:", maxaddr-minaddr);
+                        */
                     }
                     
                 });
@@ -271,7 +294,7 @@ function runscript(args) {
                             
                             }else{
 
-                                //basic types supported by Buffer class: most seem to be 2 byte long
+                                //basic types supported by Buffer class: most seem to be 2 bytes long
                                 val=data['read'+def.type](startpos);
 
                                 //hack: mark always 2 bytes: just for debugging
@@ -292,7 +315,7 @@ function runscript(args) {
 
                             let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
                             console.log(stmp);
-                            outobj[def.name]=val;
+                            outobj[def.name]=parseFloat(val);
                             if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
                                 outobj[def.name+"_text"]=def.unit[parseInt(val)];
                             }
@@ -322,7 +345,7 @@ function runscript(args) {
                 
                 if (cmdstr === undefined) { 
                     console.log(outsum);
-
+                    
                     console.log("JSON output:\n",outobj);
                     try {
                         fs.writeFileSync('currentdata.json',JSON.stringify(outobj));
