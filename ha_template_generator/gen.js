@@ -16,7 +16,7 @@ let arr=tmp.definition;
 
 let out="";
 arr.forEach(function(el){
-let val=el.name.replace(" ","_");
+let val=el.name.replace(/ /g,"_");
 
 var unit="";
 
