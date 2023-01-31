@@ -346,12 +346,14 @@ function runscript(args) {
                 if (cmdstr === undefined) { 
                     console.log(outsum);
                     
-                    console.log("JSON output:\n",outobj);
-                    try {
-                        fs.writeFileSync('currentdata.json',JSON.stringify(outobj));
-                    } catch (err) {
-                        console.error(err)
-                    }
+                    if (Object.keys(outobj).length === 0 && outobj.constructor === Object) {
+                        console.log("JSON output:\n",outobj);
+                        try {
+                            fs.writeFileSync('currentdata.json',JSON.stringify(outobj));
+                        } catch (err) {
+                            console.error(err)
+                        }
+                    }    
                     
                     console.log("DONE, exiting"); 
                     exit(0);
