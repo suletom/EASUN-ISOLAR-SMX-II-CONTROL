@@ -56,7 +56,8 @@ function runscript(args) {
     console.log("\n");
 
     var global_commandsequence=""; //run more commands after another
-    var global_commandparam=""; //run more paramterter for 1 command
+    var global_commandparam=""; //run more parameters for 1 command
+    var grouped_commandparam=""; //run 1 query for multiple parameters
     var global_tcp_seq=1; //sends the device in every command: modbus transaction id
 
     if (myargs.length==0){
@@ -89,25 +90,42 @@ function runscript(args) {
 
                         console.log("Starting from param: ",global_commandparam);
 
-                        //check addresses to join
-                        /*
+                        //check addresses to join to query together
                         let addrord=[];
                         nc.definition.forEach(function(el,ind){
                             
                             if (ind>=global_commandparam){
+
                                 let addr=parseInt(el.address, 16);
-                                if (addr>maxaddr){
-                                    maxaddr=addr;
-                                }
-                                if (addr<minaddr){
-                                    minaddr=addr;
-                                }
+                                
+                                addrord.push({'index': ind,'address':addr, 'name': el.name,'type': (Number.isInteger(el.type)?el.type:1)});
+                                
                             }
                         });
-                        console.log("min addr:", minaddr);
-                        console.log("max addr:", maxaddr);
-                        console.log("interval:", maxaddr-minaddr);
-                        */
+
+                        addrord.sort(function(a,b){ return a.address-b.address });
+
+                        let bymem=[];
+                        let lv=0;
+
+                        addrord.forEach(function(el, ind){
+                            if (bymem.length==0){
+                                bymem.push([el]);
+                            }else{
+
+                                if (bymem[lv][0].address+123>(el.address+(Number.isInteger(el.type)?el.type:1))){
+                                    bymem[lv].push(el);
+                                }else{
+                                    bymem.push([el]);
+                                    lv++;
+                                }
+
+                            }
+                        });
+                        
+
+                        //console.log("sortedaddrs:", bymem);
+                        
                     }
                     
                 });
@@ -530,8 +548,16 @@ function runscript(args) {
             addr = cmd.definition[global_commandparam].address;
             type = cmd.definition[global_commandparam].type;
             console.log("Querying param: "+cmd.definition[global_commandparam].name+"\n");
+            if (grouped_commandparam=="") {
+                grouped_commandparam=0;
+            }
         }
         
+        //join queries
+        
+        let nrlen=bymem[grouped_commandparam].length+bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['type'];
+        //listval.toString(16).padStart(4,'0');
+
         let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
         if (Number.isInteger(type)){
             reqlen=type.toString(16).padStart(4,'0');
