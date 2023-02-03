@@ -59,6 +59,8 @@ function runscript(args) {
     var global_commandparam=""; //run more parameters for 1 command
     var grouped_commandparam=""; //run 1 query for multiple parameters
     var global_tcp_seq=1; //sends the device in every command: modbus transaction id
+    var bymem=[];
+
 
     if (myargs.length==0){
         console.log("\n No command supplied! ");
@@ -105,7 +107,7 @@ function runscript(args) {
 
                         addrord.sort(function(a,b){ return a.address-b.address });
 
-                        let bymem=[];
+                        
                         let lv=0;
 
                         addrord.forEach(function(el, ind){
@@ -217,9 +219,7 @@ function runscript(args) {
             //socket.pipe(socket);
             socket.on('data',function(data){
                 //console.log("Got TCP packet...");
-                //dumpdata(data);
-                //console.log("Binary: ",data.toString());
-                //console.log("\n");
+              
 
                 let lastcmdname=getcommseqcmd(command_seq-1);
                 //console.log(lastcmdname);
@@ -227,7 +227,7 @@ function runscript(args) {
                 //console.log(lastcmddef);
                 if (global_commandparam!=="" && lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
                     
-                    let handled=[];
+                    
                     lastcmddef.definition.forEach(function(def,ind){
 
                         if (global_commandparam!=="") {
@@ -239,110 +239,11 @@ function runscript(args) {
                             return;
                         }
 
-                        //modbus rtu response: fixed position to extract data from
-                        let val="";
-                        val=data.toString('hex');
-
-                        process.stdout.write("Response orig:\n");
-                        dumpdata(data);
-
-                        //data starts at byte 11
-                        startpos=11;
-
-                        //1 byte len
-                        lenval=data[10];
-                        
-                        let tmpbuf=data.slice(8,data.length-2);
-                        let rcrc=data.slice(data.length-2,data.length);
-                        //dumpdata(rcrc);
-                        rcrc=rcrc.readUInt16BE().toString(16).padStart(4,'0');
-                        //dumpdata(tmpbuf);
-                        let chcrc=crc16modbus(tmpbuf);
-                        chcrc=chcrc.toString(16).padStart(4,'0');
-        
-                        let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
-                        
-                        console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")");
-
-                        if (hcrc!=rcrc){
-
-                            let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
-                            console.log(outt);
-
-                            outobj[def.name]="N/A";
-                            outsum+=outt+"\n";
-
-                        }else{
-
-                            //custom formats
-                            if ( Number.isInteger(def.type) ){
-
-                                //type with custom length: not needed -> string default
-                                //val=val.substring(startpos*2,startpos*2+(lenval*2));
-
-                                for(let c=0;c<lenval*2;c++){
-                                    handled[startpos*2+c]=1;
-                                }
-                                
-                                //default handle as string
-                                let nb=data.slice(startpos,startpos+lenval);
-                                nb=nb.toString('utf8').replace(/\0/g, '');
-
-                                if (def.hasOwnProperty('format')){
-                                    //datetime
-                                    if (def.format===100){
-                                        nb= "20"+data.readUInt8(startpos+lenval-6).toString()+"-"+
-                                            data.readUInt8(startpos+lenval-5).toString()+"-"+
-                                            data.readUInt8(startpos+lenval-4).toString()+" "+
-                                            data.readUInt8(startpos+lenval-3).toString().padStart(2,'0')+":"+
-                                            data.readUInt8(startpos+lenval-2).toString().padStart(2,'0')+":"+
-                                            data.readUInt8(startpos+lenval-1).toString().padStart(2,'0');
-                                    }
-                                    //fault codes
-                                    if (def.format===101){
-                                        nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
-                                            "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
-                                            "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+
-                                            "FAULT3: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+" ";
-                                            
-                                    }
-                                }
-                                
-                                val=nb;
-                            
-                            }else{
-
-                                //basic types supported by Buffer class: most seem to be 2 bytes long
-                                val=data['read'+def.type](startpos);
-
-                                //hack: mark always 2 bytes: just for debugging
-                                handled[startpos*2]=1;
-                                handled[startpos*2+1]=1;
-                                handled[startpos*2+2]=1;
-                                handled[startpos*2+3]=1;
-
-                                if (def.hasOwnProperty('rate')){
-                                    val=val*def.rate;
-                                }
-                                
-                                if (def.hasOwnProperty('format')){
-                                    val=val.toFixed(def.format);
-                                }
-                                
-                            }
-
-                            let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
-                            console.log(stmp);
-                            outobj[def.name]=parseFloat(val);
-                            if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
-                                outobj[def.name+"_text"]=def.unit[parseInt(val)];
-                            }
-                            outsum+=stmp+"\n";
-                            
-                        }    
-
-                        process.stdout.write("Response:\n");
-                        dumpdata(data,handled);
+                        let tmp=processpacket(data,def);
+                        //console.log(tmp);
+                        outsum += tmp.outsum;
+                        outobj = {...outobj,...tmp.outobj};
+                        //console.log(outobj);
                         
                     });
 
@@ -351,7 +252,9 @@ function runscript(args) {
                         //run again with another param
                         command_seq--;
                     }
+
                 }else{
+
                     process.stdout.write("Response:\n");
 
                     dumpdata(data);
@@ -362,10 +265,12 @@ function runscript(args) {
                 let cmdstr=getcommseqcmd(command_seq);
                 
                 if (cmdstr === undefined) { 
-                    console.log(outsum);
+                    //console.log(outsum);
+
+                    console.log("JSON output:\n",outobj);
                     
-                    if (Object.keys(outobj).length === 0 && outobj.constructor === Object) {
-                        console.log("JSON output:\n",outobj);
+                    if (outobj.constructor === Object && Object.keys(outobj).length > 0) {
+                        
                         try {
                             fs.writeFileSync('currentdata.json',JSON.stringify(outobj));
                         } catch (err) {
@@ -492,50 +397,7 @@ function runscript(args) {
         return "";    
     }
 
-    //hex dump with color highlighted terminal output
-    function dumpdata(data,handled=null){
-
-        let strdata=data.toString('hex');
-        
-        let out="";
-        let i=1;
-        [...strdata].forEach(element => {
-            
-            bgred="\x1b[42m";
-            normal="\x1b[0m";
-
-            if (Array.isArray(handled)){
-                if (handled[i-1]==1) {
-                    out+=bgred;
-                }    
-            }
-            out+=element;
-            if (Array.isArray(handled)){
-                if (handled[i-1]==1) {
-                    out+=normal;
-                }
-            }    
-
-            if (i%2==0) {     
-                out+=" ";
-            }
-
-            if (i%16==0) {
-                out+="  ";
-            }
-
-            if (i%32==0) {
-                out+="\n";
-            }
-
-            i++;
-
-        });
-
-        console.log(out);
-
-    }
-
+    
     function handle_modbus_command(command,cmd) {
 
         if (!command.match(/{CRC}/)) return command;
@@ -552,16 +414,19 @@ function runscript(args) {
                 grouped_commandparam=0;
             }
         }
-        
-        //join queries
-        
-        let nrlen=bymem[grouped_commandparam].length+bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['type'];
-        //listval.toString(16).padStart(4,'0');
+
 
         let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
         if (Number.isInteger(type)){
             reqlen=type.toString(16).padStart(4,'0');
         }
+
+        //join queries
+        if (bymem.length>0) {
+            let nrlen=bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['address']-bymem[grouped_commandparam][0]['address']+bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['type'];
+            let grplen=nrlen.toString(16).padStart(4,'0');
+            reqlen=grplen;
+        }   
             
         command=command.replace('{PARAM}',addr+reqlen);
 
@@ -687,25 +552,185 @@ function runscript(args) {
         return command;
 
     }
+    
+}
 
-    function crc16modbus(data){
+function crc16modbus(data){
         
-        const table = [
-            0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
-            0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400
-        ];
-        
-        let crc = 0xFFFF;
+    const table = [
+        0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
+        0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400
+    ];
+    
+    let crc = 0xFFFF;
 
-        for (let i = 0; i < data.length; i++) {
-            let ch = data[i];
-            crc = table[(ch ^ crc) & 15] ^ (crc >> 4);
-            crc = table[((ch >> 4) ^ crc) & 15] ^ (crc >> 4);
+    for (let i = 0; i < data.length; i++) {
+        let ch = data[i];
+        crc = table[(ch ^ crc) & 15] ^ (crc >> 4);
+        crc = table[((ch >> 4) ^ crc) & 15] ^ (crc >> 4);
+    }
+
+    return crc;
+    
+}
+
+//hex dump with color highlighted terminal output
+function dumpdata(data,handled=null){
+
+    let strdata=data.toString('hex');
+    
+    let out="";
+    let i=1;
+    [...strdata].forEach(element => {
+        
+        bgred="\x1b[42m";
+        normal="\x1b[0m";
+
+        if (Array.isArray(handled)){
+            if (handled[i-1]==1) {
+                out+=bgred;
+            }    
+        }
+        out+=element;
+        if (Array.isArray(handled)){
+            if (handled[i-1]==1) {
+                out+=normal;
+            }
+        }    
+
+        if (i%2==0) {     
+            out+=" ";
         }
 
-        return crc;
+        if (i%16==0) {
+            out+="  ";
+        }
+
+        if (i%32==0) {
+            out+="\n";
+        }
+
+        i++;
+
+    });
+
+    console.log(out);
+
+}
+
+
+function processpacket(data,def){
+
+    let handled=[];
+    let outobj={};
+    let outsum="";
+
+    //modbus rtu response: fixed position to extract data from
+    let val="";
+    val=data.toString('hex');
+
+    process.stdout.write("Response orig:\n");
+    dumpdata(data);
+
+    //data starts at byte 11
+    startpos=11;
+
+    //1 byte len
+    lenval=data[10];
+    
+    let tmpbuf=data.slice(8,data.length-2);
+    let rcrc=data.slice(data.length-2,data.length);
+    //dumpdata(rcrc);
+    rcrc=rcrc.readUInt16BE().toString(16).padStart(4,'0');
+    //dumpdata(tmpbuf);
+    let chcrc=crc16modbus(tmpbuf);
+    chcrc=chcrc.toString(16).padStart(4,'0');
+
+    let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
+    
+    console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")");
+
+    if (hcrc!=rcrc){
+
+        let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
+        console.log(outt);
+
+        outobj[def.name]="N/A";
+        outsum+=outt+"\n";
+
+    }else{
+
+        //custom formats
+        if ( Number.isInteger(def.type) ){
+
+            //type with custom length: not needed -> string default
+            //val=val.substring(startpos*2,startpos*2+(lenval*2));
+
+            for(let c=0;c<lenval*2;c++){
+                handled[startpos*2+c]=1;
+            }
+            
+            //default handle as string
+            let nb=data.slice(startpos,startpos+lenval);
+            nb=nb.toString('utf8').replace(/\0/g, '');
+
+            if (def.hasOwnProperty('format')){
+                //datetime
+                if (def.format===100){
+                    nb= "20"+data.readUInt8(startpos+lenval-6).toString()+"-"+
+                        data.readUInt8(startpos+lenval-5).toString()+"-"+
+                        data.readUInt8(startpos+lenval-4).toString()+" "+
+                        data.readUInt8(startpos+lenval-3).toString().padStart(2,'0')+":"+
+                        data.readUInt8(startpos+lenval-2).toString().padStart(2,'0')+":"+
+                        data.readUInt8(startpos+lenval-1).toString().padStart(2,'0');
+                }
+                //fault codes
+                if (def.format===101){
+                    nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
+                        "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
+                        "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+
+                        "FAULT3: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+" ";
+                        
+                }
+            }
+            
+            val=nb;
         
-    }
+        }else{
+
+            //basic types supported by Buffer class: most seem to be 2 bytes long
+            val=data['read'+def.type](startpos);
+
+            //hack: mark always 2 bytes: just for debugging
+            handled[startpos*2]=1;
+            handled[startpos*2+1]=1;
+            handled[startpos*2+2]=1;
+            handled[startpos*2+3]=1;
+
+            if (def.hasOwnProperty('rate')){
+                val=val*def.rate;
+            }
+            
+            if (def.hasOwnProperty('format')){
+                val=val.toFixed(def.format);
+            }
+            
+        }
+
+        let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
+        console.log(stmp);
+        outobj[def.name]=parseFloat(val);
+        if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
+            outobj[def.name+"_text"]=def.unit[parseInt(val)];
+        }
+        outsum+=stmp+"\n";
+        
+    }    
+
+    process.stdout.write("Response:\n");
+    dumpdata(data,handled);
+
+    return {"outobj": outobj, "outsum": outsum};
 
 }
 
