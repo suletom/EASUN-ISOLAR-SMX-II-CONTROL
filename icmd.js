@@ -55,27 +55,47 @@ function runscript(args) {
 
     console.log("\n");
 
-    var global_commandsequence=""; //run more commands after another
-    var global_commandparam=""; //run more parameters for 1 command
-    var grouped_commandparam=""; //run 1 query for multiple parameters
-    var global_tcp_seq=1; //sends the device in every command: modbus transaction id
-    var bymem=[];
+    //state object to for the sript to pass config, arugments and current pass
+    
+    var stateobject={
+
+        'commands':commands,
+        //run more commands after another
+        'global_commandsequence':"",
+        //run more parameters for 1 command
+        'global_commandparam':"",
+        //run 1 query for multiple parameters
+        'grouped_commandparam':"",
+        //sends the device in every command: modbus transaction id
+        'global_tcp_seq':1,
+        //current commandseq index
+        'command_seq': 0,
+        //modbus addresses by memory
+        'bymem':[],
+        //modified arguments array
+        'myargs':myargs,
+        //json output
+        'outobj':{},
+        //text output
+        'outsum':"\n"
+    }    
 
 
+    
     if (myargs.length==0){
         console.log("\n No command supplied! ");
     }else{
 
-        commands.commandsequences.forEach(function(cs){
+        stateobject.commands.commandsequences.forEach(function(cs){
             
             if (cs.name===myargs[0]){
                 
-                global_commandsequence=myargs[0];
-                console.log("Running: "+global_commandsequence);
+                stateobject.global_commandsequence=myargs[0];
+                console.log("Running: "+stateobject.global_commandsequence);
 
                 argscount=[];
                 cs.seq.forEach(function(cd){
-                    let nc=commands.commands.find(cdf => cdf.name === cd);
+                    let nc=stateobject.commands.commands.find(cdf => cdf.name === cd);
                     
                     let reg=nc.cmd.match(/\{ARG[PV]*[0-9]+\}/g);
                     if (reg!=null && reg!==false && reg!=undefined ) argscount=argscount.concat(reg);
@@ -88,15 +108,15 @@ function runscript(args) {
                         let lastarg=myargs[myargs.length-1];
                         let ind=nc.definition.findIndex(o => o.num == lastarg );
 
-                        global_commandparam=(lastarg.match(/^[0-9]+$/) && ind>0 ?ind:0);
+                        stateobject.global_commandparam=(lastarg.match(/^[0-9]+$/) && ind>0 ?ind:0);
 
-                        console.log("Starting from param: ",global_commandparam);
+                        console.log("Starting from param: ",stateobject.global_commandparam);
 
                         //check addresses to join to query together
                         let addrord=[];
                         nc.definition.forEach(function(el,ind){
                             
-                            if (ind>=global_commandparam){
+                            if (ind>=stateobject.global_commandparam){
 
                                 let addr=parseInt(el.address, 16);
                                 
@@ -111,21 +131,20 @@ function runscript(args) {
                         let lv=0;
 
                         addrord.forEach(function(el, ind){
-                            if (bymem.length==0){
-                                bymem.push([el]);
+                            if (stateobject.bymem.length==0){
+                                stateobject.bymem.push([el]);
                             }else{
 
-                                if (bymem[lv][0].address+123>(el.address+(Number.isInteger(el.type)?el.type:1))){
-                                    bymem[lv].push(el);
+                                if (stateobject.bymem[lv][0].address+123>(el.address+(Number.isInteger(el.type)?el.type:1))){
+                                    stateobject.bymem[lv].push(el);
                                 }else{
-                                    bymem.push([el]);
+                                    stateobject.bymem.push([el]);
                                     lv++;
                                 }
 
                             }
                         });
                         
-
                         //console.log("sortedaddrs:", bymem);
                         
                     }
@@ -145,7 +164,7 @@ function runscript(args) {
                     exit(-1);
                 }, (1000*60*4));
 
-                sendudp(myargs[1]);
+                sendudp(myargs[1],stateobject);
 
             }
 
@@ -154,7 +173,7 @@ function runscript(args) {
     }
 
 
-    function sendudp(devip){
+    function sendudp(devip,stateobject){
 
         try{
 
@@ -166,7 +185,7 @@ function runscript(args) {
                 
                 console.log("Using local ip to create TCP server: "+(ip));
 
-                starttcp();
+                starttcp(stateobject);
 
                 var client = dgram.createSocket('udp4');
                 let port=58899;
@@ -202,10 +221,12 @@ function runscript(args) {
         
     }
 
-    function starttcp(){
+    
+
+    function starttcp(stateobject){
 
         let port=8899;
-        let command_seq=0;
+        //let command_seq=0;
 
         console.log("starting TCP server(port: "+port+") to recieve data....");
 
@@ -213,78 +234,18 @@ function runscript(args) {
 
             console.log(`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
             
-            let outsum="\n";
-            let outobj={};
-
             //socket.pipe(socket);
-            socket.on('data',function(data){
-                //console.log("Got TCP packet...");
-              
+            socket.on('data',function(data) {
 
-                let lastcmdname=getcommseqcmd(command_seq-1);
-                //console.log(lastcmdname);
-                let lastcmddef = commands.commands.find(e => e.name === lastcmdname);
-                //console.log(lastcmddef);
-                if (global_commandparam!=="" && lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
-                    
-                    
-                    lastcmddef.definition.forEach(function(def,ind){
+                let result=receivedata(data,stateobject);
 
-                        if (global_commandparam!=="") {
-                            if (ind!=global_commandparam) {
-                                return ;
-                            }
-                        } else {
-                            
-                            return;
-                        }
+                socket.write(result.command);
 
-                        let tmp=processpacket(data,def);
-                        //console.log(tmp);
-                        outsum += tmp.outsum;
-                        outobj = {...outobj,...tmp.outobj};
-                        //console.log(outobj);
-                        
-                    });
+                //command_seq=result.command_seq;
+                //global_commandparam=result.global_commandparam;
+                //outsum=result.outsum;
+                //outobj=result.outobj;
 
-                    if (global_commandparam!=="" && lastcmddef.definition.length>global_commandparam+1){
-                        global_commandparam++;
-                        //run again with another param
-                        command_seq--;
-                    }
-
-                }else{
-
-                    process.stdout.write("Response:\n");
-
-                    dumpdata(data);
-
-                    console.log("String format:\n",data.toString());
-                }
-
-                let cmdstr=getcommseqcmd(command_seq);
-                
-                if (cmdstr === undefined) { 
-                    //console.log(outsum);
-
-                    console.log("JSON output:\n",outobj);
-                    
-                    if (outobj.constructor === Object && Object.keys(outobj).length > 0) {
-                        
-                        try {
-                            fs.writeFileSync('currentdata.json',JSON.stringify(outobj));
-                        } catch (err) {
-                            console.error(err)
-                        }
-                    }    
-                    
-                    console.log("DONE, exiting"); 
-                    exit(0);
-                }
-                
-                socket.write(getdatacmd(cmdstr));
-                command_seq++;
-                
             });
 
             socket.on('error',function(error){
@@ -297,19 +258,6 @@ function runscript(args) {
                 //this happens usually when the inverter drops the serial line
                 //to force the datalogger to reconnect we need to restart it
 
-                /*
-                process.on("exit", function () {
-                    console.log("process.onexit");
-                    //hardcoded restart command
-                    process.argv[2]="restart-wifi";
-                    require("child_process").spawn(process.argv.shift(),process.argv, {
-                        cwd: process.cwd(),
-                        detached : true,
-                        stdio: "inherit"
-                    });
-                });
-                */
-
                 console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting and trying to restart datalogger adapter...`);
                 console.log("\n");
 
@@ -321,238 +269,197 @@ function runscript(args) {
                 
             });
 
-            let cmdstr=getcommseqcmd(command_seq);
+            //get first command to send
+            let cmdstr=getcommseqcmd(stateobject);
             if (cmdstr === undefined) { console.log("Missing command sequence, exiting..."); exit(-1); }
 
             
-            let tw=getdatacmd(cmdstr);
+            let tw=getdatacmd(cmdstr,stateobject);
             //console.log("write:",tw);
             socket.write(tw);
-            command_seq++;
 
+            stateobject.command_seq++;
+            
         });
 
         server.listen(port, '0.0.0.0');
 
     }
 
+    
+}
 
-    //get next command for the commany sequence by index
-    function getcommseqcmd(index){
+function getparam(cmd,ind){
 
-        let obj=commands.commandsequences.find(o => o.name === global_commandsequence );
-        return obj.seq[index];
+    let param=cmd.definition.find(o => o.num === ind );
+    if (param!==undefined) {
+        console.log("Requested param: "+param.name);
+        return param;
     }
+    return "";    
+}
 
-    function getdatacmd(data){
+function handle_modbus_command(command,cmd,stateobject) {
 
-        console.log("\nCommand: "+data);
+    if (!command.match(/{CRC}/)) return command;
 
-        let obj=commands.commands.find(o => o.name === data );
-        //definition array link following
-        if (typeof obj.definition === 'string'){
-            obj.definition=commands.commands.find(o => o.name === obj.definition ).definition;
-        }
+    let addr = "";
+    let type = "";
 
-        let cmdtorun=obj.cmd;
-        //place simple input args in modbus commands
-        let i=0;
-        myargs.forEach(function(el){
-
-            let hext=Buffer.from(el, 'utf8').toString('hex');
-            if (obj.hasOwnProperty('raw') && obj.raw===true){
-                hext=el;
-            }
-            cmdtorun=obj.cmd.replace('{ARG'+i+'}',hext);
-            i++;
-        });
-
-        //custom built modbus command
-        cmdtorun=handle_modbus_command(cmdtorun,obj);
-
-        //compute and place length where needed
-        let matches=cmdtorun.match(/\{LEN\}(.+)$/);
-        if (matches) {
-            cmdtorun=cmdtorun.replace("{LEN}",(matches[1].length/2).toString(16).padStart(4, '0'));
-        }
-
-        //add modbus tcp transaction id, just an incemental index
-        cmdtorun=cmdtorun.replace('{SEQ}',String(global_tcp_seq).padStart(4, '0'));
-        global_tcp_seq++;
-
-        process.stdout.write("Request: ");
-        dumpdata(cmdtorun);
+    if (stateobject.global_commandparam!==""){
         
-
-        return Buffer.from(cmdtorun, 'hex');
-    }
-
-    function getparam(cmd,ind){
-
-        let param=cmd.definition.find(o => o.num === ind );
-        if (param!==undefined) {
-            console.log("Requested param: "+param.name);
-            return param;
+        addr = cmd.definition[stateobject.global_commandparam].address;
+        type = cmd.definition[stateobject.global_commandparam].type;
+        console.log("Querying param: "+cmd.definition[stateobject.global_commandparam].num+" => "+cmd.definition[stateobject.global_commandparam].name+"\n");
+        if (stateobject.grouped_commandparam=="") {
+            stateobject.grouped_commandparam=0;
         }
-        return "";    
     }
+
+
+    let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
+    if (Number.isInteger(type)){
+        reqlen=type.toString(16).padStart(4,'0');
+    }
+
+    //join queries
+    if (stateobject.bymem.length>0) {
+        let nrlen=stateobject.bymem[stateobject.grouped_commandparam][stateobject.bymem[stateobject.grouped_commandparam].length-1]['address']-stateobject.bymem[stateobject.grouped_commandparam][0]['address']+stateobject.bymem[stateobject.grouped_commandparam][stateobject.bymem[stateobject.grouped_commandparam].length-1]['type'];
+        let grplen=nrlen.toString(16).padStart(4,'0');
+        reqlen=grplen;
+    }   
+        
+    command=command.replace('{PARAM}',addr+reqlen);
 
     
-    function handle_modbus_command(command,cmd) {
+    //HANDLE set command...    
+    let setparam="";
+    let setparamind=0;
+    let setval="";
+    let setvalind=0;
 
-        if (!command.match(/{CRC}/)) return command;
-    
-        let addr = "";
-        let type = "";
+    //get args and connected data
+    let i=0;
+    stateobject.myargs.forEach(function(el) {
 
-        if (global_commandparam!==""){
-            
-            addr = cmd.definition[global_commandparam].address;
-            type = cmd.definition[global_commandparam].type;
-            console.log("Querying param: "+cmd.definition[global_commandparam].name+"\n");
-            if (grouped_commandparam=="") {
-                grouped_commandparam=0;
-            }
+        if ( command.indexOf('{ARGP'+i+'}')!==-1) {
+            setparamind=i;
+            setparam=cmd.definition.find(o => o.num === el );
         }
 
-
-        let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
-        if (Number.isInteger(type)){
-            reqlen=type.toString(16).padStart(4,'0');
+        if ( command.indexOf('{ARGV'+i+'}')!==-1) {
+            setvalind=i;
+            setval=el;
         }
 
-        //join queries
-        if (bymem.length>0) {
-            let nrlen=bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['address']-bymem[grouped_commandparam][0]['address']+bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['type'];
-            let grplen=nrlen.toString(16).padStart(4,'0');
-            reqlen=grplen;
-        }   
+        i++;
+    });
+
+    //console.log(setparam);
+    //console.log(setval);
+
+    if (setparam!="" && setval!="") {
+
+        if ( command.indexOf('{ARGP'+setparamind+'}')!==-1) {
+
+            //default 1 register            
+            let reglen="0001";
+            if (Number.isInteger(setparam.type)) {
+                reglen=setparam.type.toString(16).padStart(4,'0');
+                console.log("Error: Not supported type:", setparam.type);
+                exit(-1);
+            }    
+
+            let specargparam=setparam.address+reglen;
+            command=command.replace('{ARGP'+setparamind+'}',specargparam);
             
-        command=command.replace('{PARAM}',addr+reqlen);
+        }
 
-        
-        //HANDLE set command...    
-        let setparam="";
-        let setparamind=0;
-        let setval="";
-        let setvalind=0;
+        if ( command.indexOf('{ARGV'+setvalind+'}')!==-1) {
+            //default 2 bytes
+            let deflen='02';
+            let rv='0000';
 
-        //get args and connected data
-        let i=0;
-        myargs.forEach(function(el) {
-
-            if ( command.indexOf('{ARGP'+i+'}')!==-1) {
-                setparamind=i;
-                setparam=cmd.definition.find(o => o.num === el );
-            }
-
-            if ( command.indexOf('{ARGV'+i+'}')!==-1) {
-                setvalind=i;
-                setval=el;
-            }
-
-            i++;
-        });
-
-        //console.log(setparam);
-        //console.log(setval);
-
-        if (setparam!="" && setval!="") {
-
-            if ( command.indexOf('{ARGP'+setparamind+'}')!==-1) {
-
-                //default 1 register            
-                let reglen="0001";
-                if (Number.isInteger(setparam.type)) {
-                    reglen=setparam.type.toString(16).padStart(4,'0');
-                    console.log("Error: Not supported type:", setparam.type);
+            if (Array.isArray(setparam.unit)) {
+                let listval=setparam.unit.indexOf(setval);
+                if (listval===-1){
+                    console.log("Error: The requested value is not valid, values:", setparam.unit);
                     exit(-1);
-                }    
-
-                let specargparam=setparam.address+reglen;
-                command=command.replace('{ARGP'+setparamind+'}',specargparam);
-                
-            }
-
-            if ( command.indexOf('{ARGV'+setvalind+'}')!==-1) {
-                //default 2 bytes
-                let deflen='02';
-                let rv='0000';
-
-                if (Array.isArray(setparam.unit)) {
-                    let listval=setparam.unit.indexOf(setval);
-                    if (listval===-1){
-                        console.log("Error: The requested value is not valid, values:", setparam.unit);
-                        exit(-1);
-                    }
-                    if (Number.isInteger(listval)){
-                        
-                        rv=listval.toString(16).padStart(4,'0');
-                    }else{
-                        console.log("Error: The requested value is not compatible with the parameter type ("+setparam.type+")!");
-                        exit(-1);
-                    }
-                    
-                }else{
-
-                    switch (setparam.type) {
-                        case "UInt16BE":
-                        case "Int16BE":
-                            if (setval.match(/^[0-9\.]+$/) ){
-                                if (parseInt(setval).toString() === setval){
-                                    setval=parseInt(setval);    
-                                }
-                            }else{
-                                console.log(setparam);
-                                console.log("Error: The requested value ("+setval+") is not compatible with the parameter type!");
-                                exit(-1);
-                            }
-                            
-                            setval=Math.round(setval/setparam.rate);
-                            rv=setval.toString(16).padStart(4,'0');
-
-                        break;
-                        default:
-                            console.log(setparam);
-                            console.log("Error: The requested parameter is not writable now!");
-                            exit(-1);
-                    }
                 }
+                if (Number.isInteger(listval)){
+                    
+                    rv=listval.toString(16).padStart(4,'0');
+                }else{
+                    console.log("Error: The requested value is not compatible with the parameter type ("+setparam.type+")!");
+                    exit(-1);
+                }
+                
+            }else{
 
-                //console.log(rv);
-                
-                let specargval=deflen+rv;
-                //console.log("replace:",specargval);
-                
-                command=command.replace('{ARGV'+setvalind+'}',specargval);
-                
+                switch (setparam.type) {
+                    case "UInt16BE":
+                    case "Int16BE":
+                        if (setval.match(/^[0-9\.]+$/) ){
+                            if (parseInt(setval).toString() === setval){
+                                setval=parseInt(setval);    
+                            }
+                        }else{
+                            console.log(setparam);
+                            console.log("Error: The requested value ("+setval+") is not compatible with the parameter type!");
+                            exit(-1);
+                        }
+                        
+                        setval=Math.round(setval/setparam.rate);
+                        rv=setval.toString(16).padStart(4,'0');
+
+                    break;
+                    default:
+                        console.log(setparam);
+                        console.log("Error: The requested parameter is not writable now!");
+                        exit(-1);
+                }
             }
+
+            //console.log(rv);
+            
+            let specargval=deflen+rv;
+            //console.log("replace:",specargval);
+            
+            command=command.replace('{ARGV'+setvalind+'}',specargval);
             
         }
         
-        let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
-        let inner="";
-        if (matches) {
-            //{CRC} -> 5 char vs 4char hex(2 byte): -1
-            inner=Buffer.from(matches[1],'hex');
-        }
-
-        let crc=crc16modbus(inner);
-        
-        crc=crc.toString(16).padStart(4,'0');
-        
-        command=command.replace("{CRC}",crc.substring(2)+crc.substring(0,2));
-
-        if (setparam!="" && setval!="") {
-            console.log("Constructed modbus RTU command:"+command);
-            //console.log("Dry run exiting here....");
-            //exit(0);
-        }    
-            
-        return command;
-
     }
     
+    let matches=command.match(/\{LEN\}[a-f0-9A-F]{4}(.+)\{CRC\}$/);
+    let inner="";
+    if (matches) {
+        //{CRC} -> 5 char vs 4char hex(2 byte): -1
+        inner=Buffer.from(matches[1],'hex');
+    }
+
+    let crc=crc16modbus(inner);
+    
+    crc=crc.toString(16).padStart(4,'0');
+    
+    command=command.replace("{CRC}",crc.substring(2)+crc.substring(0,2));
+
+    if (setparam!="" && setval!="") {
+        console.log("Constructed modbus RTU command:"+command);
+        //console.log("Dry run exiting here....");
+        //exit(0);
+    }    
+        
+    return command;
+
+}
+
+
+//get next command for the commany sequence by index
+function getcommseqcmd(stateobject){
+    
+    let obj=stateobject.commands.commandsequences.find(o => o.name === stateobject.global_commandsequence );
+    return obj.seq[stateobject.command_seq];
 }
 
 function crc16modbus(data){
@@ -732,6 +639,122 @@ function processpacket(data,def){
 
     return {"outobj": outobj, "outsum": outsum};
 
+}
+
+
+function receivedata(data,stateobject){
+    
+    let lastcmdname=getcommseqcmd(stateobject);
+    //console.log(lastcmdname);
+    let lastcmddef = stateobject.commands.commands.find(e => e.name === lastcmdname);
+    //console.log(lastcmddef);
+    if (stateobject.global_commandparam!=="" && lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
+        
+        
+        lastcmddef.definition.forEach(function(def,ind){
+
+            if (stateobject.global_commandparam!=="") {
+                if (ind!=stateobject.global_commandparam) {
+                    return ;
+                }
+            } else {
+                
+                return;
+            }
+
+            let tmp=processpacket(data,def);
+            //console.log(tmp);
+            outsum += tmp.outsum;
+            outobj = {...outobj,...tmp.outobj};
+            //console.log(outobj);
+            
+        });
+
+        if (stateobject.global_commandparam!=="" && lastcmddef.definition.length>stateobject.global_commandparam+1){
+            stateobject.global_commandparam++;
+            //run again with another param
+            stateobject.command_seq--;
+        }
+
+    }else{
+
+        process.stdout.write("Response:\n");
+
+        dumpdata(data);
+
+        console.log("String format:\n",data.toString());
+    }
+
+    let cmdstr=getcommseqcmd(stateobject);
+    
+    if (cmdstr === undefined) { 
+        //console.log(outsum);
+
+        console.log("JSON output:\n",stateobject.outobj);
+        
+        if (stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
+            
+            try {
+                fs.writeFileSync('currentdata.json',JSON.stringify(stateobject.outobj));
+            } catch (err) {
+                console.error(err)
+            }
+        }    
+        
+        console.log("DONE, exiting"); 
+        exit(0);
+    }
+    
+    
+    stateobjet.command_seq++;
+
+    let comd=getdatacmd(cmdstr,stateobject);
+
+    return {'command': comd};
+    
+}
+
+function getdatacmd(data,stateobject){
+
+    console.log("\nCommand: "+data);
+
+    let obj=stateobject.commands.commands.find(o => o.name === data );
+    //definition array link following
+    if (typeof obj.definition === 'string'){
+        obj.definition=stateobject.commands.commands.find(o => o.name === obj.definition ).definition;
+    }
+
+    let cmdtorun=obj.cmd;
+    //place simple input args in modbus commands
+    let i=0;
+    stateobject.myargs.forEach(function(el){
+
+        let hext=Buffer.from(el, 'utf8').toString('hex');
+        if (obj.hasOwnProperty('raw') && obj.raw===true){
+            hext=el;
+        }
+        cmdtorun=obj.cmd.replace('{ARG'+i+'}',hext);
+        i++;
+    });
+
+    //custom built modbus command
+    cmdtorun=handle_modbus_command(cmdtorun,obj,stateobject);
+
+    //compute and place length where needed
+    let matches=cmdtorun.match(/\{LEN\}(.+)$/);
+    if (matches) {
+        cmdtorun=cmdtorun.replace("{LEN}",(matches[1].length/2).toString(16).padStart(4, '0'));
+    }
+
+    //add modbus tcp transaction id, just an incemental index
+    cmdtorun=cmdtorun.replace('{SEQ}',String(stateobject.global_tcp_seq).padStart(4, '0'));
+    stateobject.global_tcp_seq++;
+
+    process.stdout.write("Request: ");
+    dumpdata(cmdtorun);
+    
+
+    return Buffer.from(cmdtorun, 'hex');
 }
 
 runscript(process.argv);
