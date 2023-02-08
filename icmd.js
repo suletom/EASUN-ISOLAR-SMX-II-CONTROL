@@ -62,7 +62,7 @@ function runscript(args) {
         'commands':commands,
         //run more commands after another
         'global_commandsequence':"",
-        //run more parameters for 1 command
+        //run more parameters for 1 command not used, we walk through grouped params (bymem)
         'global_commandparam':"",
         //run 1 query for multiple parameters
         'grouped_commandparam':"",
@@ -70,7 +70,7 @@ function runscript(args) {
         'global_tcp_seq':1,
         //current commandseq index
         'command_seq': 0,
-        //modbus addresses by memory
+        //modbus addresses by memory, we walk through this
         'bymem':[],
         //modified arguments array
         'myargs':myargs,
@@ -119,8 +119,9 @@ function runscript(args) {
                             if (ind>=stateobject.global_commandparam){
 
                                 let addr=parseInt(el.address, 16);
-                                
-                                addrord.push({'index': ind,'address':addr, 'name': el.name,'type': (Number.isInteger(el.type)?el.type:1)});
+                                let to={'index': ind,'address':addr, 'name': el.name,'type': (Number.isInteger(el.type)?el.type:1)};
+                                let in={...el , ...to};
+                                addrord.push(in);
                                 
                             }
                         });
@@ -240,11 +241,7 @@ function runscript(args) {
                 let result=receivedata(data,stateobject);
 
                 socket.write(result.command);
-
-                //command_seq=result.command_seq;
-                //global_commandparam=result.global_commandparam;
-                //outsum=result.outsum;
-                //outobj=result.outobj;
+              
 
             });
 
@@ -278,7 +275,7 @@ function runscript(args) {
             //console.log("write:",tw);
             socket.write(tw);
 
-            stateobject.command_seq++;
+            //stateobject.command_seq++;
             
         });
 
@@ -459,6 +456,7 @@ function handle_modbus_command(command,cmd,stateobject) {
 function getcommseqcmd(stateobject){
     
     let obj=stateobject.commands.commandsequences.find(o => o.name === stateobject.global_commandsequence );
+    
     return obj.seq[stateobject.command_seq];
 }
 
@@ -526,7 +524,7 @@ function dumpdata(data,handled=null){
 }
 
 
-function processpacket(data,def){
+function processpacket(data,def,offset=0){
 
     let handled=[];
     let outobj={};
@@ -540,7 +538,7 @@ function processpacket(data,def){
     dumpdata(data);
 
     //data starts at byte 11
-    startpos=11;
+    startpos=11+offset;
 
     //1 byte len
     lenval=data[10];
@@ -645,11 +643,9 @@ function processpacket(data,def){
 function receivedata(data,stateobject){
     
     let lastcmdname=getcommseqcmd(stateobject);
-    //console.log(lastcmdname);
     let lastcmddef = stateobject.commands.commands.find(e => e.name === lastcmdname);
-    //console.log(lastcmddef);
+    
     if (stateobject.global_commandparam!=="" && lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
-        
         
         lastcmddef.definition.forEach(function(def,ind){
 
@@ -662,19 +658,24 @@ function receivedata(data,stateobject){
                 return;
             }
 
-            let tmp=processpacket(data,def);
+            let offset=0;
+            console.log('currlen:',stateobject.bymem[stateobject.grouped_commandparam]);
+            let tmp=processpacket(data,def,offset);
             //console.log(tmp);
-            outsum += tmp.outsum;
-            outobj = {...outobj,...tmp.outobj};
+            stateobject.outsum += tmp.outsum;
+            stateobject.outobj = {...stateobject.outobj,...tmp.outobj};
             //console.log(outobj);
             
         });
 
         if (stateobject.global_commandparam!=="" && lastcmddef.definition.length>stateobject.global_commandparam+1){
             stateobject.global_commandparam++;
-            //run again with another param
+            
+            //run the sequence again (with another param)
             stateobject.command_seq--;
         }
+
+        
 
     }else{
 
