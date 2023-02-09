@@ -246,7 +246,6 @@ function runscript(args) {
 
                 socket.write(result.command);
               
-
             });
 
             socket.on('error',function(error){
@@ -278,8 +277,6 @@ function runscript(args) {
             let tw=getdatacmd(cmdstr,stateobject);
             //console.log("write:",tw);
             socket.write(tw);
-
-            stateobject.command_seq++;
             
         });
 
@@ -460,8 +457,10 @@ function handle_modbus_command(command,cmd,stateobject) {
 //get next command for the commany sequence by index
 function getcommseqcmd(stateobject){
     
+
     let obj=stateobject.commands.commandsequences.find(o => o.name === stateobject.global_commandsequence );
-    
+    //console.log(obj);
+    //console.log(stateobject.command_seq);
     return obj.seq[stateobject.command_seq];
 }
 
@@ -539,8 +538,8 @@ function processpacket(data,def,offset=0){
     let val="";
     val=data.toString('hex');
 
-    process.stdout.write("Response orig:\n");
-    dumpdata(data);
+    //process.stdout.write("Response orig:\n");
+    //dumpdata(data);
 
     //data starts at byte 11
     startpos=11+offset;
@@ -558,7 +557,7 @@ function processpacket(data,def,offset=0){
 
     let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
     
-    console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")");
+    console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")\n\n");
 
     if (hcrc!=rcrc){
 
@@ -659,6 +658,7 @@ function receivedata(data,stateobject){
             let offset=0;
             //console.log('curr group:',stateobject.bymem[stateobject.bymem_index.group]);
             offset=2*(stateobject.bymem[stateobject.bymem_index][ind].address - stateobject.bymem[stateobject.bymem_index][0].address);
+            console.log('offset',offset);
             let tmp=processpacket(data,el,offset);
             resarr.push({'ret': tmp,'index': el.index});
             
@@ -677,12 +677,21 @@ function receivedata(data,stateobject){
         });
         
         //run the sequence again (with another param) if more groups exists
-        stateobject.command_seq--;
+        
+
         if (stateobject.bymem[stateobject.bymem_index+1] !== undefined ) {
+            
+            console.log('new group:',stateobject.bymem_index+1);
             stateobject.bymem_index=stateobject.bymem_index+1;
+
+        }else{
+            //finished with groups -> next command
+            stateobject.command_seq++;
         }
 
     }else{
+
+        
 
         process.stdout.write("Response:\n");
 
@@ -691,8 +700,10 @@ function receivedata(data,stateobject){
         console.log("String format:\n",data.toString());
     }
 
-    let cmdstr=getcommseqcmd(stateobject);
     
+
+    let cmdstr=getcommseqcmd(stateobject);
+        
     if (cmdstr === undefined) { 
         //console.log(outsum);
 
@@ -712,11 +723,11 @@ function receivedata(data,stateobject){
     }
     
     
-    stateobject.command_seq++;
-
     let comd=getdatacmd(cmdstr,stateobject);
-
+    
     return {'command': comd};
+
+
     
 }
 
