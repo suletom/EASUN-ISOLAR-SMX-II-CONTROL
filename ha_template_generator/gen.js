@@ -15,6 +15,8 @@ let arr=tmp.definition;
 //console.log(arr);
 
 let out="";
+let outsws="";
+
 arr.forEach(function(el){
 let val=el.name.replace(/ /g,"_");
 
@@ -23,6 +25,8 @@ var unit="";
 if (typeof el.unit === "string"){
   unit='unit_of_measurement: "'+el.unit+'"';
 }
+
+
 
 var template=`
 

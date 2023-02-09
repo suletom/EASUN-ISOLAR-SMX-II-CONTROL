@@ -555,7 +555,7 @@ function runscript(args) {
         
         //join queries
         
-        let nrlen=bymem[grouped_commandparam].length+bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['type'];
+        //let nrlen=bymem[grouped_commandparam].length+bymem[grouped_commandparam][bymem[grouped_commandparam].length-1]['type'];
         //listval.toString(16).padStart(4,'0');
 
         let reqlen='0001'; //modbus defines 16bytes, some complex data are stored on multiple registers
