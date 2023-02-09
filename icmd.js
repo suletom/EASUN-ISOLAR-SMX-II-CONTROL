@@ -55,23 +55,28 @@ function runscript(args) {
 
     console.log("\n");
 
+    let check_commandparam=""
+
     //state object to for the sript to pass config, arugments and current pass
     
     var stateobject={
 
         'commands':commands,
-        //run more commands after another
+        //run more commands after another: this is the sequence name
         'global_commandsequence':"",
-        //run more parameters for 1 command not used, we walk through grouped params (bymem)
-        'global_commandparam':"",
-        //run 1 query for multiple parameters
-        'grouped_commandparam':"",
-        //sends the device in every command: modbus transaction id
-        'global_tcp_seq':1,
+
         //current commandseq index
         'command_seq': 0,
+
         //modbus addresses by memory, we walk through this
         'bymem':[],
+
+        //index for groups and params
+        'bymem_index': 0,
+        
+        //sends the device in every command: modbus transaction id
+        'global_tcp_seq':1,
+
         //modified arguments array
         'myargs':myargs,
         //json output
@@ -108,20 +113,20 @@ function runscript(args) {
                         let lastarg=myargs[myargs.length-1];
                         let ind=nc.definition.findIndex(o => o.num == lastarg );
 
-                        stateobject.global_commandparam=(lastarg.match(/^[0-9]+$/) && ind>0 ?ind:0);
+                        check_commandparam=(lastarg.match(/^[0-9]+$/) && ind>0 ?ind:0);
 
-                        console.log("Starting from param: ",stateobject.global_commandparam);
+                        console.log("Starting from param: ",check_commandparam);
 
                         //check addresses to join to query together
                         let addrord=[];
                         nc.definition.forEach(function(el,ind){
                             
-                            if (ind>=stateobject.global_commandparam){
+                            if (ind>=check_commandparam){
 
                                 let addr=parseInt(el.address, 16);
-                                let to={'index': ind,'address':addr, 'name': el.name,'type': (Number.isInteger(el.type)?el.type:1)};
-                                let in={...el , ...to};
-                                addrord.push(in);
+                                let to={'index': ind,'address':addr, 'name': el.name,'typelen': (Number.isInteger(el.type)?el.type:1)};
+                                let inb={ ...el, ...to};
+                                addrord.push(inb);
                                 
                             }
                         });
@@ -145,9 +150,7 @@ function runscript(args) {
 
                             }
                         });
-                        
-                        //console.log("sortedaddrs:", bymem);
-                        
+                       
                     }
                     
                 });
@@ -164,6 +167,8 @@ function runscript(args) {
                     console.log("Timeout occured...exiting!");
                     exit(-1);
                 }, (1000*60*4));
+
+                console.log(stateobject.bymem);
 
                 sendudp(myargs[1],stateobject);
 
@@ -227,7 +232,6 @@ function runscript(args) {
     function starttcp(stateobject){
 
         let port=8899;
-        //let command_seq=0;
 
         console.log("starting TCP server(port: "+port+") to recieve data....");
 
@@ -275,7 +279,7 @@ function runscript(args) {
             //console.log("write:",tw);
             socket.write(tw);
 
-            //stateobject.command_seq++;
+            stateobject.command_seq++;
             
         });
 
@@ -303,14 +307,14 @@ function handle_modbus_command(command,cmd,stateobject) {
     let addr = "";
     let type = "";
 
-    if (stateobject.global_commandparam!==""){
+    if (stateobject.bymem.length>0){
         
-        addr = cmd.definition[stateobject.global_commandparam].address;
-        type = cmd.definition[stateobject.global_commandparam].type;
-        console.log("Querying param: "+cmd.definition[stateobject.global_commandparam].num+" => "+cmd.definition[stateobject.global_commandparam].name+"\n");
-        if (stateobject.grouped_commandparam=="") {
-            stateobject.grouped_commandparam=0;
-        }
+        addr = stateobject.bymem[stateobject.bymem_index][0].address;
+        addr = addr.toString(16).padStart(4,'0');
+        type = stateobject.bymem[stateobject.bymem_index][0].type;
+
+        console.log("Querying param from: "+stateobject.bymem[stateobject.bymem_index][0].num+" => "+stateobject.bymem[stateobject.bymem_index][0].name+"\n");
+        
     }
 
 
@@ -319,12 +323,13 @@ function handle_modbus_command(command,cmd,stateobject) {
         reqlen=type.toString(16).padStart(4,'0');
     }
 
-    //join queries
+    //join queries -> query the whole group
     if (stateobject.bymem.length>0) {
-        let nrlen=stateobject.bymem[stateobject.grouped_commandparam][stateobject.bymem[stateobject.grouped_commandparam].length-1]['address']-stateobject.bymem[stateobject.grouped_commandparam][0]['address']+stateobject.bymem[stateobject.grouped_commandparam][stateobject.bymem[stateobject.grouped_commandparam].length-1]['type'];
+        let nrlen=stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['address']-stateobject.bymem[stateobject.bymem_index][0]['address']+stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['typelen'];
         let grplen=nrlen.toString(16).padStart(4,'0');
         reqlen=grplen;
     }   
+    
         
     command=command.replace('{PARAM}',addr+reqlen);
 
@@ -642,40 +647,40 @@ function processpacket(data,def,offset=0){
 
 function receivedata(data,stateobject){
     
-    let lastcmdname=getcommseqcmd(stateobject);
-    let lastcmddef = stateobject.commands.commands.find(e => e.name === lastcmdname);
     
-    if (stateobject.global_commandparam!=="" && lastcmddef!==undefined && lastcmddef!==null && lastcmddef.hasOwnProperty('definition')){
+    if (stateobject.bymem.length>0){
         
-        lastcmddef.definition.forEach(function(def,ind){
+        //lastcmddef.definition.forEach(function(def,ind){ });
 
-            if (stateobject.global_commandparam!=="") {
-                if (ind!=stateobject.global_commandparam) {
-                    return ;
-                }
-            } else {
-                
-                return;
-            }
+        //process all query params
+        let resarr=[];
+        stateobject.bymem[stateobject.bymem_index].forEach(function(el,ind){
 
             let offset=0;
-            console.log('currlen:',stateobject.bymem[stateobject.grouped_commandparam]);
-            let tmp=processpacket(data,def,offset);
-            //console.log(tmp);
-            stateobject.outsum += tmp.outsum;
-            stateobject.outobj = {...stateobject.outobj,...tmp.outobj};
-            //console.log(outobj);
+            //console.log('curr group:',stateobject.bymem[stateobject.bymem_index.group]);
+            offset=2*(stateobject.bymem[stateobject.bymem_index][ind].address - stateobject.bymem[stateobject.bymem_index][0].address);
+            let tmp=processpacket(data,el,offset);
+            resarr.push({'ret': tmp,'index': el.index});
             
         });
 
-        if (stateobject.global_commandparam!=="" && lastcmddef.definition.length>stateobject.global_commandparam+1){
-            stateobject.global_commandparam++;
-            
-            //run the sequence again (with another param)
-            stateobject.command_seq--;
-        }
+        resarr.sort(function(a,b){ return a.index-b.index });
 
+        resarr.forEach(function(el,ind){
+            
+            if (el!==undefined) {
+                //do some work to restore the original order
+                stateobject.outsum += el.ret.outsum;
+                stateobject.outobj = {...stateobject.outobj,...el.ret.outobj};
+            }
+            
+        });
         
+        //run the sequence again (with another param) if more groups exists
+        stateobject.command_seq--;
+        if (stateobject.bymem[stateobject.bymem_index+1] !== undefined ) {
+            stateobject.bymem_index=stateobject.bymem_index+1;
+        }
 
     }else{
 
@@ -707,7 +712,7 @@ function receivedata(data,stateobject){
     }
     
     
-    stateobjet.command_seq++;
+    stateobject.command_seq++;
 
     let comd=getdatacmd(cmdstr,stateobject);
 
