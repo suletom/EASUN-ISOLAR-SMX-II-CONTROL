@@ -168,7 +168,15 @@ function runscript(args) {
                     exit(-1);
                 }, (1000*60*4));
 
-                console.log(stateobject.bymem);
+
+                stateobject.bymem.forEach(function(el,ind){
+                    console.log("Query group: "+ind);
+                    el.forEach(function(elb,indb){
+                        console.log(elb.name,elb.address,elb.address.toString(16).padStart(4,'0'),"len: ",elb.typelen);
+                    });
+                    console.log("");
+                });
+                
 
                 sendudp(myargs[1],stateobject);
 
@@ -322,7 +330,7 @@ function handle_modbus_command(command,cmd,stateobject) {
 
     //join queries -> query the whole group
     if (stateobject.bymem.length>0) {
-        let nrlen=stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['address']-stateobject.bymem[stateobject.bymem_index][0]['address']+stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['typelen'];
+        let nrlen=stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['address']-stateobject.bymem[stateobject.bymem_index][0]['address']+1;
         let grplen=nrlen.toString(16).padStart(4,'0');
         reqlen=grplen;
     }   
@@ -530,9 +538,12 @@ function dumpdata(data,handled=null){
 
 function processpacket(data,def,offset=0){
 
+    console.log(def);
+
     let handled=[];
     let outobj={};
     let outsum="";
+    let modbusexception=false;
 
     //modbus rtu response: fixed position to extract data from
     let val="";
@@ -546,6 +557,7 @@ function processpacket(data,def,offset=0){
 
     //1 byte len
     lenval=data[10];
+    rescode=data[9];
     
     let tmpbuf=data.slice(8,data.length-2);
     let rcrc=data.slice(data.length-2,data.length);
@@ -557,9 +569,19 @@ function processpacket(data,def,offset=0){
 
     let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
     
-    console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")\n\n");
+    console.log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")\n");
 
-    if (hcrc!=rcrc){
+    //test for modbus exception
+    if (rescode>128){
+        
+        let msg=['Illegal function','Illegal data address','Illegal data value','Slave device failure','Acknowledge','Slave device busy','Negative acknowledgment','Memory parity error',
+        'Gateway path unavailable','Gateway target device failed to respond'].find(function(e,i){ return (i+1)==lenval; });
+        console.log('Modbus exception: ',rescode.toString(16).padStart(2,'0'),lenval.toString(16).padStart(2,'0') , msg);
+        modbusexception=true;
+
+    }
+
+    if (hcrc!=rcrc || modbusexception){
 
         let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
         console.log(outt);
@@ -571,6 +593,7 @@ function processpacket(data,def,offset=0){
 
         //custom formats
         if ( Number.isInteger(def.type) ){
+            console.log("Getting from buffer: string:",def.type," from ",startpos," to ",startpos+lenval);
 
             //type with custom length: not needed -> string default
             //val=val.substring(startpos*2,startpos*2+(lenval*2));
@@ -608,6 +631,7 @@ function processpacket(data,def,offset=0){
         }else{
 
             //basic types supported by Buffer class: most seem to be 2 bytes long
+            console.log("Getting from buffer: ",def.type,startpos);
             val=data['read'+def.type](startpos);
 
             //hack: mark always 2 bytes: just for debugging
@@ -627,7 +651,7 @@ function processpacket(data,def,offset=0){
         }
 
         let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
-        console.log(stmp);
+        console.log(stmp+"\n");
         outobj[def.name]=parseFloat(val);
         if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
             outobj[def.name+"_text"]=def.unit[parseInt(val)];
@@ -658,7 +682,8 @@ function receivedata(data,stateobject){
             let offset=0;
             //console.log('curr group:',stateobject.bymem[stateobject.bymem_index.group]);
             offset=2*(stateobject.bymem[stateobject.bymem_index][ind].address - stateobject.bymem[stateobject.bymem_index][0].address);
-            console.log('offset',offset);
+            
+            //console.log('offset',offset);
             let tmp=processpacket(data,el,offset);
             resarr.push({'ret': tmp,'index': el.index});
             
@@ -681,7 +706,7 @@ function receivedata(data,stateobject){
 
         if (stateobject.bymem[stateobject.bymem_index+1] !== undefined ) {
             
-            console.log('new group:',stateobject.bymem_index+1);
+            console.log('New group request: ',stateobject.bymem_index+1);
             stateobject.bymem_index=stateobject.bymem_index+1;
 
         }else{
@@ -690,8 +715,8 @@ function receivedata(data,stateobject){
         }
 
     }else{
-
         
+        stateobject.command_seq++;
 
         process.stdout.write("Response:\n");
 
