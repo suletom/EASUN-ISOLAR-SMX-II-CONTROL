@@ -8,6 +8,8 @@ const { Buffer } = require('buffer');
 
 function runscript(args) {
 
+    const group_len_const=20;
+
     var commands={};
     let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
 
@@ -141,7 +143,7 @@ function runscript(args) {
                                 stateobject.bymem.push([el]);
                             }else{
 
-                                if (stateobject.bymem[lv][0].address+123>(el.address+(Number.isInteger(el.type)?el.type:1))){
+                                if (stateobject.bymem[lv][0].address+group_len_const>(el.address+(Number.isInteger(el.type)?el.type:1))){
                                     stateobject.bymem[lv].push(el);
                                 }else{
                                     stateobject.bymem.push([el]);
@@ -330,7 +332,10 @@ function handle_modbus_command(command,cmd,stateobject) {
 
     //join queries -> query the whole group
     if (stateobject.bymem.length>0) {
-        let nrlen=stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['address']-stateobject.bymem[stateobject.bymem_index][0]['address']+1;
+        let nrlen=stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['typelen']+
+        stateobject.bymem[stateobject.bymem_index][stateobject.bymem[stateobject.bymem_index].length-1]['address']-
+        stateobject.bymem[stateobject.bymem_index][0]['address'];
+
         let grplen=nrlen.toString(16).padStart(4,'0');
         reqlen=grplen;
     }   
@@ -592,29 +597,30 @@ function processpacket(data,def,offset=0){
     }else{
 
         //custom formats
+        //1. string with fixed length
         if ( Number.isInteger(def.type) ){
-            console.log("Getting from buffer: string:",def.type," from ",startpos," to ",startpos+lenval);
+            console.log("Getting from buffer: string:",def.type," from ",startpos," to ",startpos+def.type);
 
             //type with custom length: not needed -> string default
             //val=val.substring(startpos*2,startpos*2+(lenval*2));
 
-            for(let c=0;c<lenval*2;c++){
+            for(let c=0;c<def.type*2;c++){
                 handled[startpos*2+c]=1;
             }
             
             //default handle as string
-            let nb=data.slice(startpos,startpos+lenval);
+            let nb=data.slice(startpos,startpos+(def.type*2));
             nb=nb.toString('utf8').replace(/\0/g, '');
 
             if (def.hasOwnProperty('format')){
                 //datetime
                 if (def.format===100){
-                    nb= "20"+data.readUInt8(startpos+lenval-6).toString()+"-"+
-                        data.readUInt8(startpos+lenval-5).toString()+"-"+
-                        data.readUInt8(startpos+lenval-4).toString()+" "+
-                        data.readUInt8(startpos+lenval-3).toString().padStart(2,'0')+":"+
-                        data.readUInt8(startpos+lenval-2).toString().padStart(2,'0')+":"+
-                        data.readUInt8(startpos+lenval-1).toString().padStart(2,'0');
+                    nb= "20"+data.readUInt8(startpos).toString().padStart(2,'0')+"-"+
+                        data.readUInt8(startpos+1).toString().padStart(2,'0')+"-"+
+                        data.readUInt8(startpos+2).toString().padStart(2,'0')+" "+
+                        data.readUInt8(startpos+3).toString().padStart(2,'0')+":"+
+                        data.readUInt8(startpos+4).toString().padStart(2,'0')+":"+
+                        data.readUInt8(startpos+5).toString().padStart(2,'0');
                 }
                 //fault codes
                 if (def.format===101){
@@ -628,13 +634,14 @@ function processpacket(data,def,offset=0){
             
             val=nb;
         
+            outobj[def.name]=val;
         }else{
 
             //basic types supported by Buffer class: most seem to be 2 bytes long
             console.log("Getting from buffer: ",def.type,startpos);
             val=data['read'+def.type](startpos);
 
-            //hack: mark always 2 bytes: just for debugging
+            //hack: mark always 2 bytes: for debugging
             handled[startpos*2]=1;
             handled[startpos*2+1]=1;
             handled[startpos*2+2]=1;
@@ -648,11 +655,13 @@ function processpacket(data,def,offset=0){
                 val=val.toFixed(def.format);
             }
             
+            outobj[def.name]=parseFloat(val);
         }
 
         let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
         console.log(stmp+"\n");
-        outobj[def.name]=parseFloat(val);
+        
+        
         if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
             outobj[def.name+"_text"]=def.unit[parseInt(val)];
         }
@@ -662,6 +671,8 @@ function processpacket(data,def,offset=0){
 
     process.stdout.write("Response:\n");
     dumpdata(data,handled);
+
+    process.stdout.write("\n\n-----------------\n");
 
     return {"outobj": outobj, "outsum": outsum};
 
