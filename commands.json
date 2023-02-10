@@ -5,6 +5,7 @@
         {"name": "factory-reset-wifi", "seq":["factory_reset_wifi"],"desc": "wifi datalogger factory reset","args": "[datalogger ip address]" },
         {"name": "restart-wifi", "seq":["restart_wifi"],"desc": "wifi datalogger reset","args": "[datalogger ip address]" },
         {"name": "query-modbus", "seq":["query_modbus"],"desc": "query modbus register","args": "[datalogger ip address] [raw_modbus_packet_hex]" },
+        {"name": "query-modbus-crc", "seq":["query_modbus_crc"],"desc": "query modbus register with comupted crc","args": "[datalogger ip address] [register address hex and length]" },
         {"name": "get-device-info", "seq":["get_wifi_device_id","get_wifi_device_info"],"desc": "gets wifi datalogger device id and other info","args": "[datalogger ip address]" },
         {"name": "get-smx-param", "seq":["get_smx_param"],"desc": "Get ISolar SMX II 3.6 inverter param value","args": "[datalogger ip address]" },
         {"name": "set-smx-param", "seq":["set_smx_param"],"desc": "Set ISolar SMX II 3.6 inverter param value WARNING: this is dangerous and experimental!","args": "[datalogger ip address] [parameter number] [new value]" }
@@ -20,6 +21,7 @@
         {"name": "get_wifi_device_info","cmd": "{SEQ}00010003ff0205"},
         {"name": "get_wifi_device_id","cmd": "{SEQ}0001000aff01160b0a16102d012c"},
         {"name": "query_modbus","cmd": "{ARG2}","raw": true},
+        {"name": "query_modbus_crc","cmd": "{SEQ}0001{LEN}ff04ff03{ARG2}{CRC}","raw": true},
         {"name": "get-smx-out-prio","cmd": "{SEQ}0001000aff04ff03e2040001e66d", "/*!example form param get/set: whole modbus rtu packet in modbus tcp*/":""},
         {"name": "set_smx_param","cmd": "{SEQ}0001{LEN}ff04ff10{ARGP2}{ARGV3}{CRC}", "definition": "get_smx_param"},
         {"name": "get_smx_param","cmd": "{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}", "definition":
