@@ -100,7 +100,7 @@ If you are interested free to contact me.
 
 # UPDATE 2023
 
-The WIFI adapters manufacturer provided some info about their service: The hardware(my guess is it's a simple esp8266) has a custom written firmware for the specific inverter. So no API or standard protocol, they just query the hardcoded registers and the software sends the info in merged packets to the cloud.
+The WIFI adapters manufacturer provided some info about their service: The hardware has a custom written firmware for the specific inverter. So no API or standard protocol, they just query the hardcoded registers and the software sends the info in merged packets to the cloud.
 
 I'm experiencing connection drops, MODBUS CRC errors / garbage data over the serial line and over the wifi adapter as well. Other users expereinced the same. When connection drop happens, the "com" led turns off on the Plug Pro adapter. Sometimes this happens 1-2 times a month, but can happen much more frequently depending on the parameter setup.
 
@@ -122,6 +122,8 @@ SRNE Solar hf2430s80-h: https://www.srnesolar.com/product/best-hybrid-off-grid-i
 
 These devices use the same modbus register addresses. Found this info in an other project: https://github.com/shakthisachintha/SRNE-Hybrid-Inverter-Monitor/blob/master/src/srnecommands.py
 
-Some MODBUS spec from SRNE: https://www.midnitesolar.com/pdfs/Solar_inverter_charger_communication_protocol.pdf
+Some related MODBUS spec from SRNE: https://www.midnitesolar.com/pdfs/Solar_inverter_charger_communication_protocol.pdf
+
+Possible hardware info (plug pro adapter): https://fccid.io/2ASAF-PLUGPRO03V50/
 
 
