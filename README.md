@@ -121,3 +121,7 @@ Found some resources online about the EASUN ISolar SMX II device. It's possible 
 SRNE Solar hf2430s80-h: https://www.srnesolar.com/product/best-hybrid-off-grid-inverter-3kw-hf2430s80-h
 
 These devices use the same modbus register addresses. Found this info in an other project: https://github.com/shakthisachintha/SRNE-Hybrid-Inverter-Monitor/blob/master/src/srnecommands.py
+
+Some MODBUS spec from SRNE: https://www.midnitesolar.com/pdfs/Solar_inverter_charger_communication_protocol.pdf
+
+
