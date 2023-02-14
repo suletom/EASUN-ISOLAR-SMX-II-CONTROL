@@ -13,7 +13,7 @@ const controller = function(args,timeoutsec=30) {
     var commands={};
     let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
 
-    try{ 
+    try{
         commands=JSON.parse(cdata);
     }catch(e){
         console.log(e);
@@ -84,7 +84,10 @@ const controller = function(args,timeoutsec=30) {
         //json output
         'outobj':{},
         //text output
-        'outsum':"\n"
+        'outsum':"\n",
+        //mobus last request helper
+        'lastrequest':""
+
     }    
 
 
@@ -767,6 +770,12 @@ function receivedata(data,stateobject){
                 console.log("Modbus CRC ok!");
             }
 
+            let rdata=stateobject.lastrequest.slice(datastart,data.length-2);
+
+            if (Buffer.compare(rdata,tmpbuf)){
+                console.log("Succesful set operation!");
+                exit(0);
+            }
         }
         
 
@@ -841,8 +850,9 @@ function getdatacmd(data,stateobject){
     process.stdout.write("Request: ");
     dumpdata(cmdtorun);
     
-
-    return Buffer.from(cmdtorun, 'hex');
+    let rbuf=Buffer.from(cmdtorun, 'hex');
+    stateobject.lastrequest=rbuf;
+    return rbuf;
 }
 
 exports.controller=controller;
