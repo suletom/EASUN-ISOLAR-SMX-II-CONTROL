@@ -4,13 +4,11 @@ let dgram = require('dgram');
 var localIpV4Address = require("local-ipv4-address");
 const { Buffer } = require('buffer');
 
-let logvar=[];
-
-function _log(...data){
-    logvar.push(data);
+function _log(lcallback,...data){
+    lcallback(data);
 }
 
-const controller = function(args,timeoutsec=30,actioncallback=null) {
+const controller = function(args,timeoutsec=30,actioncallback=function(){},logcallback=function(){}) {
 
     const group_len_const=20;
 
@@ -20,15 +18,16 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
     try{
         commands=JSON.parse(cdata);
     }catch(e){
-        _log(e);
+        _log(logcallback,e);
+        actioncallback(-1);
     }
 
-    _log("!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
-    _log("!!! On initial setup the datalogger ip address is the gateway (obtained by dhcp from the datalogger wifi AP) !!!");
-    _log("!!! Provide custom local ip if the machine that you are running this script from is available on a custom route not on the default one (vpn setup) !!!");
+    _log(logcallback,"!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
+    _log(logcallback,"!!! On initial setup the datalogger ip address is the gateway (obtained by dhcp from the datalogger wifi AP) !!!");
+    _log(logcallback,"!!! Provide custom local ip if the machine that you are running this script from is available on a custom route not on the default one (vpn setup) !!!");
 
-    _log("Quick examples:\n Query all inverter parameters: npm start get-smx-param [datalogger ip address]");
-    _log(" Set output priority(parameter 1) to SOL: npm start set-smx-param [datalogger ip address] 1 SOL ");
+    _log(logcallback,"Quick examples:\n Query all inverter parameters: npm start get-smx-param [datalogger ip address]");
+    _log(logcallback," Set output priority(parameter 1) to SOL: npm start set-smx-param [datalogger ip address] 1 SOL ");
 
     let customip="";
     let original_argv=args.slice();
@@ -39,28 +38,28 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
         if (m) {
             //if localip is provided before command -> error
             if (index==2) {
-                _log('Argument error: No COMMAND provided!');
-                _log("\nUSAGE: COMMAND [options] [localip=192.168.89.255]\n\nCOMMANDS:")
+                _log(logcallback,'Argument error: No COMMAND provided!');
+                _log(logcallback,"\nUSAGE: COMMAND [options] [localip=192.168.89.255]\n\nCOMMANDS:")
                 commands.commandsequences.forEach(function(cs){
-                    _log(cs.name+" "+cs.args+" \n ("+cs.desc+")\n");
+                    _log(logcallback,cs.name+" "+cs.args+" \n ("+cs.desc+")\n");
                 });
 
-                actioncallback(-1,logvar);
+                actioncallback(-1);
             }
             customip=el.substring(8);
-            _log("")
+            _log(logcallback,"")
             object.splice(index,1);
         }
     });
     
     var myargs = args.slice(2);
 
-    _log("\nUSAGE: COMMAND [options] [localip=192.168.89.255]\n\nCOMMANDS:")
+    _log(logcallback,"\nUSAGE: COMMAND [options] [localip=192.168.89.255]\n\nCOMMANDS:")
     commands.commandsequences.forEach(function(cs){
-        _log(cs.name+" "+cs.args+" \n ("+cs.desc+")\n");
+        _log(logcallback,cs.name+" "+cs.args+" \n ("+cs.desc+")\n");
     });
 
-    _log("\n");
+    _log(logcallback,"\n");
 
     let check_commandparam=""
 
@@ -90,17 +89,15 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
         'outobj':{},
         //text output
         'outsum':"\n",
-        //mobus last request helper
+        //modbus last request helper
         'lastrequest':"",
-        'callback': actioncallback
+        'callback': actioncallback,
+        'logcallback':logcallback
 
-    }    
-
-
+    }
     
     if (myargs.length==0){
-        _log("\nNo command supplied! Starting web ui mode.\n\n");
-        
+        _log(logcallback,"\nNo command supplied!\n");
         
     }else{
 
@@ -112,7 +109,7 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
                 foundcommand=1;
 
                 stateobject.global_commandsequence=myargs[0];
-                _log("Running: "+stateobject.global_commandsequence);
+                _log(logcallback,"Running: "+stateobject.global_commandsequence);
 
                 argscount=[];
                 cs.seq.forEach(function(cd){
@@ -129,7 +126,7 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
 
                         check_commandparam=(lastarg.match(/^[0-9]+$/) && ind>0 ?ind:0);
 
-                        _log("Starting from param: ",check_commandparam);
+                        _log(logcallback,"Starting from param: ",check_commandparam);
 
                         //check addresses to join to query together
                         let addrord=[];
@@ -172,23 +169,23 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
                 var arguniq=argscount.filter((v, i, a) => a.indexOf(v) === i);
                 
                 if (myargs.length<arguniq.length+2) {
-                    _log("Wrong number of arguments! Exiting...");
-                    actioncallback(-1,logvar);
+                    _log(logcallback,"Wrong number of arguments! Exiting...");
+                    actioncallback(-1);
                 }
 
                 //default 4 min timeout to prevent stucking node if not error event occures in tcp communication but no answer recived
                 setTimeout(function() {
-                    _log("Timeout occured...exiting!");
-                    actioncallback(-1,logvar);
+                    _log(logcallback,"Timeout occured...exiting!");
+                    actioncallback(-1);
                 }, (1000*timeoutsec));
 
 
                 stateobject.bymem.forEach(function(el,ind){
-                    _log("Query group: "+ind);
+                    _log(logcallback,"Query group: "+ind);
                     el.forEach(function(elb,indb){
-                        _log(elb.name,elb.address,elb.address.toString(16).padStart(4,'0'),"len: ",elb.typelen);
+                        _log(logcallback,elb.name,elb.address,elb.address.toString(16).padStart(4,'0'),"len: ",elb.typelen);
                     });
-                    _log("");
+                    _log(logcallback,"");
                 });
                 
 
@@ -199,8 +196,8 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
         });
 
         if (foundcommand==0){
-            _log("\nNo command supplied!\n\n");
-            actioncallback(-1,logvar);
+            _log(logcallback,"\nNo command supplied!\n\n");
+            actioncallback(-1);
         }
 
     }
@@ -216,7 +213,7 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
                     ip=customip;
                 }
                 
-                _log("Using local ip to create TCP server: "+(ip));
+                _log(stateobject.logcallback,"Using local ip to create TCP server: "+(ip));
 
                 starttcp(stateobject);
 
@@ -224,22 +221,22 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
                 let port=58899;
                 let command="set>server="+ip+":8899;";
                 
-                _log("Sending UDP packet(port: "+port+") to inform datalogger device to connect the TCP server:");
-                _log(command);
+                _log(stateobject.logcallback,"Sending UDP packet(port: "+port+") to inform datalogger device to connect the TCP server:");
+                _log(stateobject.logcallback,command);
 
                 client.on('listening', function () {
                     var address = client.address();
-                    _log('UDP server listening on ' + address.address + ":" + address.port);
+                    _log(stateobject.logcallback,'UDP server listening on ' + address.address + ":" + address.port);
                 });
 
                 client.on('error', (err) => {
-                    _log(`UDP server error:\n${err.stack}`);
+                    _log(stateobject.logcallback,`UDP server error:\n${err.stack}`);
                     client.close();
                 });
 
                 client.on('message',function(message, remote){
-                    _log(remote.address + ':' + remote.port +' - ' + message);
-                    _log("Got answer, closing UDP socket...");
+                    _log(stateobject.logcallback,remote.address + ':' + remote.port +' - ' + message);
+                    _log(stateobject.logcallback,"Got answer, closing UDP socket...");
                     client.close();
                 });
 
@@ -248,8 +245,8 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
             });
 
         }catch(e){
-            _log("Error: ",e);
-            stateobject.callback(-1,logvar);
+            _log(stateobject.logcallback,"Error: ",e);
+            stateobject.callback(-1);
         }
         
     }
@@ -260,11 +257,11 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
 
         let port=8899;
 
-        _log("starting TCP server(port: "+port+") to recieve data....");
+        _log(stateobject.logcallback,"starting TCP server(port: "+port+") to recieve data....");
 
         var server = net.createServer(function(socket) {
 
-            _log(`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
+            _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
             
             //socket.pipe(socket);
             socket.on('data',function(data) {
@@ -277,7 +274,7 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
 
             socket.on('error',function(error){
                 console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}..., exiting...`);
-                stateobject.callback(-1,logvar);
+                stateobject.callback(-1);
             });
 
             socket.on('close',function(){
@@ -285,8 +282,8 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
                 //this happens usually when the inverter drops the serial line
                 //to force the datalogger to reconnect we need to restart it
 
-                _log(`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting and trying to restart datalogger adapter...`);
-                _log("\n");
+                _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting and trying to restart datalogger adapter...`);
+                _log(stateobject.logcallback,"\n");
 
                 //close tcp server
                 server.close();
@@ -298,11 +295,11 @@ const controller = function(args,timeoutsec=30,actioncallback=null) {
 
             //get first command to send
             let cmdstr=getcommseqcmd(stateobject);
-            if (cmdstr === undefined) { _log("Missing command sequence, exiting..."); stateobject.callback(-1,logvar); }
+            if (cmdstr === undefined) { _log(stateobject.logcallback,"Missing command sequence, exiting..."); stateobject.callback(-1); }
 
             
             let tw=getdatacmd(cmdstr,stateobject);
-            //_log("write:",tw);
+            //_log(stateobject.logcallback,"write:",tw);
             socket.write(tw);
             
         });
@@ -327,7 +324,7 @@ function handle_modbus_command(command,cmd,stateobject) {
         addr = addr.toString(16).padStart(4,'0');
         type = stateobject.bymem[stateobject.bymem_index][0].type;
 
-        _log("Querying param from: "+stateobject.bymem[stateobject.bymem_index][0].num+" => "+stateobject.bymem[stateobject.bymem_index][0].name+"\n");
+        _log(stateobject.logcallback,"Querying param from: "+stateobject.bymem[stateobject.bymem_index][0].num+" => "+stateobject.bymem[stateobject.bymem_index][0].name+"\n");
         
     }
 
@@ -374,8 +371,8 @@ function handle_modbus_command(command,cmd,stateobject) {
         i++;
     });
 
-    //_log(setparam);
-    //_log(setval);
+    //_log(stateobject.logcallback,setparam);
+    //_log(stateobject.logcallback,setval);
 
     if (setparam!="" && setval!="") {
 
@@ -385,8 +382,8 @@ function handle_modbus_command(command,cmd,stateobject) {
             let reglen="0001";
             if (Number.isInteger(setparam.type)) {
                 reglen=setparam.type.toString(16).padStart(4,'0');
-                _log("Error: Not supported type:", setparam.type);
-                stateobject.callback(-1,logvar);
+                _log(stateobject.logcallback,"Error: Not supported type:", setparam.type);
+                stateobject.callback(-1);
             }    
 
             let specargparam=setparam.address+reglen;
@@ -402,15 +399,15 @@ function handle_modbus_command(command,cmd,stateobject) {
             if (Array.isArray(setparam.unit)) {
                 let listval=setparam.unit.indexOf(setval);
                 if (listval===-1){
-                    _log("Error: The requested value is not valid, values:", setparam.unit);
-                    stateobject.callback(-1,logvar);
+                    _log(stateobject.logcallback,"Error: The requested value is not valid, values:", setparam.unit);
+                    stateobject.callback(-1);
                 }
                 if (Number.isInteger(listval)){
                     
                     rv=listval.toString(16).padStart(4,'0');
                 }else{
-                    _log("Error: The requested value is not compatible with the parameter type ("+setparam.type+")!");
-                    stateobject.callback(-1,logvar);
+                    _log(stateobject.logcallback,"Error: The requested value is not compatible with the parameter type ("+setparam.type+")!");
+                    stateobject.callback(-1);
                 }
                 
             }else{
@@ -423,9 +420,9 @@ function handle_modbus_command(command,cmd,stateobject) {
                                 setval=parseInt(setval);    
                             }
                         }else{
-                            _log(setparam);
-                            _log("Error: The requested value ("+setval+") is not compatible with the parameter type!");
-                            stateobject.callback(-1,logvar);
+                            _log(stateobject.logcallback,setparam);
+                            _log(stateobject.logcallback,"Error: The requested value ("+setval+") is not compatible with the parameter type!");
+                            stateobject.callback(-1);
                         }
                         
                         setval=Math.round(setval/setparam.rate);
@@ -433,9 +430,9 @@ function handle_modbus_command(command,cmd,stateobject) {
 
                     break;
                     default:
-                        _log(setparam);
-                        _log("Error: The requested parameter is not writable now!");
-                        stateobject.callback(-1,logvar);
+                        _log(stateobject.logcallback,setparam);
+                        _log(stateobject.logcallback,"Error: The requested parameter is not writable now!");
+                        stateobject.callback(-1);
                 }
             }
             
@@ -461,7 +458,7 @@ function handle_modbus_command(command,cmd,stateobject) {
     command=command.replace("{CRC}",crc.substring(2)+crc.substring(0,2));
 
     if (setparam!="" && setval!="") {
-        _log("Constructed modbus RTU command:"+command);
+        _log(stateobject.logcallback,"Constructed modbus RTU command:"+command);
     }    
         
     return command;
@@ -474,8 +471,8 @@ function getcommseqcmd(stateobject){
     
 
     let obj=stateobject.commands.commandsequences.find(o => o.name === stateobject.global_commandsequence );
-    //_log(obj);
-    //_log(stateobject.command_seq);
+    //_log(stateobject.logcallback,obj);
+    //_log(stateobject.logcallback,stateobject.command_seq);
     return obj.seq[stateobject.command_seq];
 }
 
@@ -499,7 +496,7 @@ function crc16modbus(data){
 }
 
 //hex dump with color highlighted terminal output
-function dumpdata(data,handled=null){
+function dumpdata(data,handled=null,stateobject){
 
     let strdata=data.toString('hex');
     
@@ -538,14 +535,14 @@ function dumpdata(data,handled=null){
 
     });
 
-    _log(out);
+    _log(stateobject.logcallback,out);
 
 }
 
 
-function processpacket(data,def,offset=0){
+function processpacket(data,def,offset=0,stateobject){
 
-    //_log(def);
+    //_log(stateobject.logcallback,def);
 
     let handled=[];
     let outobj={};
@@ -576,28 +573,28 @@ function processpacket(data,def,offset=0){
 
     let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
     
-    _log("(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")\n");
+    _log(stateobject.logcallback,"(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")\n");
 
     //test for modbus exception
     if (rescode>128){
         
         let msg=['Illegal function','Illegal data address','Illegal data value','Slave device failure','Acknowledge','Slave device busy','Negative acknowledgment','Memory parity error',
         'Gateway path unavailable','Gateway target device failed to respond'].find(function(e,i){ return (i+1)==lenval; });
-        _log('Modbus exception: ',rescode.toString(16).padStart(2,'0'),lenval.toString(16).padStart(2,'0') , msg);
-        _log("\n");
+        _log(stateobject.logcallback,'Modbus exception: ',rescode.toString(16).padStart(2,'0'),lenval.toString(16).padStart(2,'0') , msg);
+        _log(stateobject.logcallback,"\n");
 
         modbusexception=true;
 
     }
 
     if (hcrc!=rcrc){
-        _log("Modbus CRC error!\n");
+        _log(stateobject.logcallback,"Modbus CRC error!\n");
     }
 
     if (hcrc!=rcrc || modbusexception){
 
         let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
-        _log(outt);
+        _log(stateobject.logcallback,outt);
 
         outobj[def.name]="N/A";
         outsum+=outt+"\n";
@@ -607,7 +604,7 @@ function processpacket(data,def,offset=0){
         //custom formats
         //1. string with fixed length
         if ( Number.isInteger(def.type) ){
-            _log("Getting from buffer: string:",def.type," from ",startpos," to ",startpos+def.type);
+            _log(stateobject.logcallback,"Getting from buffer: string:",def.type," from ",startpos," to ",startpos+def.type);
 
             //type with custom length: not needed -> string default
             //val=val.substring(startpos*2,startpos*2+(lenval*2));
@@ -646,7 +643,7 @@ function processpacket(data,def,offset=0){
         }else{
 
             //basic types supported by Buffer class: most seem to be 2 bytes long
-            _log("Getting from buffer: ",def.type,startpos);
+            _log(stateobject.logcallback,"Getting from buffer: ",def.type,startpos);
             val=data['read'+def.type](startpos);
 
             //hack: mark always 2 bytes: for debugging
@@ -667,7 +664,7 @@ function processpacket(data,def,offset=0){
         }
 
         let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
-        _log(stmp+"\n");
+        _log(stateobject.logcallback,stmp+"\n");
         
         
         if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
@@ -677,10 +674,10 @@ function processpacket(data,def,offset=0){
         
     }    
 
-    _log("Response:\n");
-    dumpdata(data,handled);
+    _log(stateobject.logcallback,"Response:\n");
+    dumpdata(data,handled,stateobject);
 
-    _log("\n\n-----------------\n");
+    _log(stateobject.logcallback,"\n\n-----------------\n");
 
     return {"outobj": outobj, "outsum": outsum};
 
@@ -697,11 +694,11 @@ function receivedata(data,stateobject){
         stateobject.bymem[stateobject.bymem_index].forEach(function(el,ind){
 
             let offset=0;
-            //_log('curr group:',stateobject.bymem[stateobject.bymem_index.group]);
+            //_log(stateobject.logcallback,'curr group:',stateobject.bymem[stateobject.bymem_index.group]);
             offset=2*(stateobject.bymem[stateobject.bymem_index][ind].address - stateobject.bymem[stateobject.bymem_index][0].address);
             
             //process classic register read packet
-            let tmp=processpacket(data,el,offset);
+            let tmp=processpacket(data,el,offset,stateobject);
             resarr.push({'ret': tmp,'index': el.index});
             
         });
@@ -722,7 +719,7 @@ function receivedata(data,stateobject){
         
         if (stateobject.bymem[stateobject.bymem_index+1] !== undefined ) {
             
-            _log('New group request: ',stateobject.bymem_index+1);
+            _log(stateobject.logcallback,'New group request: ',stateobject.bymem_index+1);
             stateobject.bymem_index=stateobject.bymem_index+1;
 
         }else{
@@ -737,19 +734,19 @@ function receivedata(data,stateobject){
         
         stateobject.command_seq++;
 
-        _log("Response:\n");
+        _log(stateobject.logcallback,"Response:\n");
 
-        dumpdata(data);
+        dumpdata(data,null,stateobject);
         
-        _log("String format:\n",data.toString());
+        _log(stateobject.logcallback,"String format:\n",data.toString());
 
-        //_log(stateobject.commands.commands);
+        //_log(stateobject.logcallback,stateobject.commands.commands);
         let tmpcomdef=stateobject.commands.commands.find(o => o.name === current_command );
-        //_log(tmpcomdef);
+        //_log(stateobject.logcallback,tmpcomdef);
 
         //if the command definition was linked to the "get" commands one(definition preaviusly copied), this is consdered as a modbus set operation -> check if it was succesful and update json data
         if (Array.isArray(tmpcomdef.definition) ){
-            _log("Modbus write operation result check...");
+            _log(stateobject.logcallback,"Modbus write operation result check...");
             //let origdef=stateobject.commands.commands.find(o => o.name === tmpcomdef.definition ).definition;
 
             //check crc and compare to request 
@@ -767,20 +764,20 @@ function receivedata(data,stateobject){
             let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
 
             if (!hcrc==rcrc){
-                _log("Modbus CRC error!");
+                _log(stateobject.logcallback,"Modbus CRC error!");
             }else{
-                _log("Modbus CRC ok!");
+                _log(stateobject.logcallback,"Modbus CRC ok!");
             }
 
             let rdata=stateobject.lastrequest.slice(datastart,data.length-2);
-            //_log(rdata);
-            //_log(tmpbuf);
+            //_log(stateobject.logcallback,rdata);
+            //_log(stateobject.logcallback,tmpbuf);
             if (Buffer.compare(rdata,tmpbuf)===0){
-                _log("Succesful set operation!");
-                stateobject.callback(0,logvar);
+                _log(stateobject.logcallback,"Succesful set operation!");
+                stateobject.callback(0);
             }else{
-                _log("Error while setting paramter!");
-                stateobject.callback(-1,logvar);
+                _log(stateobject.logcallback,"Error while setting paramter!");
+                stateobject.callback(-1);
             }
         }
         
@@ -791,9 +788,9 @@ function receivedata(data,stateobject){
     let cmdstr=getcommseqcmd(stateobject);
         
     if (cmdstr === undefined) { 
-        //_log(outsum);
+        //_log(stateobject.logcallback,outsum);
 
-        _log("JSON output:\n",stateobject.outobj);
+        _log(stateobject.logcallback,"JSON output:\n",stateobject.outobj);
         
         if (stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
             
@@ -804,8 +801,8 @@ function receivedata(data,stateobject){
             }
         }    
         
-        _log("DONE, exiting"); 
-        stateobject.callback(0,logvar);
+        _log(stateobject.logcallback,"DONE, exiting"); 
+        stateobject.callback(0);
     }
     
     
@@ -819,7 +816,7 @@ function receivedata(data,stateobject){
 
 function getdatacmd(data,stateobject){
 
-    _log("\nCommand: "+data);
+    _log(stateobject.logcallback,"\nCommand: "+data);
 
     let obj=stateobject.commands.commands.find(o => o.name === data );
     //definition array link following
@@ -853,8 +850,8 @@ function getdatacmd(data,stateobject){
     cmdtorun=cmdtorun.replace('{SEQ}',String(stateobject.global_tcp_seq).padStart(4, '0'));
     stateobject.global_tcp_seq++;
 
-    _log("Request: ");
-    dumpdata(cmdtorun);
+    _log(stateobject.logcallback,"Request: ");
+    dumpdata(cmdtorun,null,stateobject);
     
     let rbuf=Buffer.from(cmdtorun, 'hex');
     stateobject.lastrequest=rbuf;
@@ -862,5 +859,5 @@ function getdatacmd(data,stateobject){
 }
 
 exports.controller=controller;
-exports.logvar=logvar;
+
 
