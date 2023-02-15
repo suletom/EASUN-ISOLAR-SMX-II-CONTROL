@@ -8,7 +8,7 @@ function _log(lcallback,...data){
     lcallback(data);
 }
 
-const controller = function(args,timeoutsec=30,actioncallback=function(){},logcallback=function(){}) {
+const controller = function(args,timeoutsec=30,priority=0,actioncallback=function(){},logcallback=function(){}) {
 
     const group_len_const=20;
 
@@ -134,11 +134,17 @@ const controller = function(args,timeoutsec=30,actioncallback=function(){},logca
                             
                             if (ind>=check_commandparam){
 
+                                if (priority==1) {
+                                    if (typeof el.priority === 'undefined' || el.priority == 0 ){
+                                        return;
+                                    }
+                                }
+
                                 let addr=parseInt(el.address, 16);
                                 let to={'index': ind,'address':addr, 'name': el.name,'typelen': (Number.isInteger(el.type)?el.type:1)};
                                 let inb={ ...el, ...to};
                                 addrord.push(inb);
-                                
+
                             }
                         });
 
@@ -259,52 +265,61 @@ const controller = function(args,timeoutsec=30,actioncallback=function(){},logca
 
         _log(stateobject.logcallback,"starting TCP server(port: "+port+") to recieve data....");
 
-        var server = net.createServer(function(socket) {
+        
 
-            _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
-            
-            //socket.pipe(socket);
-            socket.on('data',function(data) {
+            var server = net.createServer(function(socket) {
 
-                let result=receivedata(data,stateobject);
+                _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
+                
+                //socket.pipe(socket);
+                socket.on('data',function(data) {
 
-                socket.write(result.command);
-              
-            });
+                    let result=receivedata(data,stateobject);
 
-            socket.on('error',function(error){
-                console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}..., exiting...`);
-                stateobject.callback(-1);
-            });
+                    socket.write(result.command);
+                
+                });
 
-            socket.on('close',function(){
+                socket.on('error',function(error){
+                    console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}..., exiting...`);
+                    stateobject.callback(-1);
+                });
 
-                //this happens usually when the inverter drops the serial line
-                //to force the datalogger to reconnect we need to restart it
+                socket.on('close',function(){
 
-                _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting and trying to restart datalogger adapter...`);
-                _log(stateobject.logcallback,"\n");
+                    //this happens usually when the inverter drops the serial line
+                    //to force the datalogger to reconnect we need to restart it
 
-                //close tcp server
-                server.close();
+                    _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting and trying to restart datalogger adapter...`);
+                    _log(stateobject.logcallback,"\n");
 
-                original_argv[2]="restart-wifi";
-                controller(original_argv);
+                    //close tcp server
+                    server.close();
+
+                    original_argv[2]="restart-wifi";
+                    controller(original_argv);
+                    
+                });
+
+                //get first command to send
+                let cmdstr=getcommseqcmd(stateobject);
+                if (cmdstr === undefined) { _log(stateobject.logcallback,"Missing command sequence, exiting..."); stateobject.callback(-1); }
+
+                
+                let tw=getdatacmd(cmdstr,stateobject);
+                //_log(stateobject.logcallback,"write:",tw);
+                socket.write(tw);
                 
             });
 
-            //get first command to send
-            let cmdstr=getcommseqcmd(stateobject);
-            if (cmdstr === undefined) { _log(stateobject.logcallback,"Missing command sequence, exiting..."); stateobject.callback(-1); }
+        try {
 
-            
-            let tw=getdatacmd(cmdstr,stateobject);
-            //_log(stateobject.logcallback,"write:",tw);
-            socket.write(tw);
-            
-        });
+            server.listen(port, '0.0.0.0');
 
-        server.listen(port, '0.0.0.0');
+        } catch (e) {
+            _log(stateobject.logcallback,"TCP Error: ",e);
+            stateobject.callback(-1);
+        }   
 
     }
 
@@ -819,8 +834,13 @@ function getdatacmd(data,stateobject){
     _log(stateobject.logcallback,"\nCommand: "+data);
 
     let obj=stateobject.commands.commands.find(o => o.name === data );
+
+    if (obj===undefined){
+        _log(stateobject.logcallback,"Unknown Exception(in getdatacmd): data: ",data," commands:",stateobject.commands.commands);
+    }
+
     //definition array link following
-    if (typeof obj.definition === 'string'){
+    if (obj.definition === 'string'){
         obj.definition=stateobject.commands.commands.find(o => o.name === obj.definition ).definition;
     }
 

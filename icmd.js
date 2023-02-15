@@ -19,6 +19,24 @@ if (process.argv.length<3){
 
     });
 
+    app.get('/query', function (req, res) {
+
+        controllerobject.controller(process.argv,30,
+            function(result){
+                process.exit(result);
+            },
+            function(log){
+                 log.forEach(element => {
+                    console.log(element);   
+                 });
+                 
+            }
+        );
+
+        res.send();
+
+    });
+
     let port=6789;
     app.listen(6789, function () {
 
@@ -28,7 +46,7 @@ if (process.argv.length<3){
     
 }    
 
-controllerobject.controller(process.argv,30,
+controllerobject.controller(process.argv,30,1,
     function(result){
         process.exit(result);
     },
