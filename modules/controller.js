@@ -92,7 +92,9 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
         //modbus last request helper
         'lastrequest':"",
         'callback': actioncallback,
-        'logcallback':logcallback
+        'logcallback':logcallback,
+        'resources': [],
+        'timeout': null
 
     }
     
@@ -180,7 +182,10 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 }
 
                 //default 4 min timeout to prevent stucking node if not error event occures in tcp communication but no answer recived
-                setTimeout(function() {
+                stateobject.timeout=setTimeout(function() {
+
+                    freeres(stateobject);
+
                     _log(logcallback,"Timeout occured...exiting!");
                     actioncallback(-1);
                 }, (1000*timeoutsec));
@@ -224,6 +229,8 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 starttcp(stateobject);
 
                 var client = dgram.createSocket('udp4');
+                stateobject.resources.push({'udpclient':client});
+
                 let port=58899;
                 let command="set>server="+ip+":8899;";
                 
@@ -246,12 +253,14 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                     client.close();
                 });
 
+                
+
                 client.send(command,0, command.length, port, devip);
 
             });
 
         }catch(e){
-            _log(stateobject.logcallback,"Error: ",e);
+            _log(stateobject.logcallback,"UDP Error: ",e);
             stateobject.callback(-1);
         }
         
@@ -275,6 +284,11 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 socket.on('data',function(data) {
 
                     let result=receivedata(data,stateobject);
+
+                    if (result==null) {
+                        freeres(stateobject);
+                        return;
+                    }
 
                     socket.write(result.command);
                 
@@ -311,6 +325,8 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 socket.write(tw);
                 
             });
+            
+            stateobject.resources.push({'tcpserver':server});
 
         try {
 
@@ -807,17 +823,11 @@ function receivedata(data,stateobject){
 
         _log(stateobject.logcallback,"JSON output:\n",stateobject.outobj);
         
-        if (stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
-            
-            try {
-                fs.writeFileSync('currentdata.json',JSON.stringify(stateobject.outobj));
-            } catch (err) {
-                console.error(err)
-            }
-        }    
-        
         _log(stateobject.logcallback,"DONE, exiting"); 
-        stateobject.callback(0);
+        stateobject.callback(0,stateobject);
+
+        return null;
+
     }
     
     
@@ -876,6 +886,31 @@ function getdatacmd(data,stateobject){
     let rbuf=Buffer.from(cmdtorun, 'hex');
     stateobject.lastrequest=rbuf;
     return rbuf;
+}
+
+function freeres(stateobject){
+
+    stateobject.resources.forEach(function(r){
+        if (r.udpclient!==undefined){
+            try{
+                r.udpclient.close();
+            }catch(e){
+
+            }
+        }
+        if (r.tcpserver!==undefined){
+            try{
+                r.tcpserver.close();
+            }catch(e){
+
+            }    
+        }
+    });
+
+    if (stateobject.timeout!==null){
+        clearTimeout(stateobject.timeout);
+    }
+
 }
 
 exports.controller=controller;

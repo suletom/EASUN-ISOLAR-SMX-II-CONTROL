@@ -21,9 +21,23 @@ if (process.argv.length<3){
 
     app.get('/query', function (req, res) {
 
-        controllerobject.controller(process.argv,30,
-            function(result){
-                process.exit(result);
+        let args=[process.argv[0],process.argv[1],'get-smx-param'];
+        if (req.query.ipaddress!==undefined){
+            args.push(req.query.ipaddress);
+        }
+        if (req.query.localip!==undefined){
+            args.push("localip="+req.query.localip);
+        }
+        console.log(args);
+        controllerobject.controller(args,30,0,
+            function(result,stateobject){
+                if (result==0){
+                    res.json(stateobject.outobj);
+                }else{
+                    res.json({"rv": 0});
+                }
+
+                res.send();
             },
             function(log){
                  log.forEach(element => {
@@ -33,7 +47,7 @@ if (process.argv.length<3){
             }
         );
 
-        res.send();
+        
 
     });
 
@@ -46,8 +60,19 @@ if (process.argv.length<3){
     
 }    
 
-controllerobject.controller(process.argv,30,1,
-    function(result){
+controllerobject.controller(process.argv,23,1,
+    function(result,stateobject){
+        if (result==0) {
+            if (objstateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
+                
+                try {
+                    fs.writeFileSync('currentdata.json',JSON.stringify(stateobject.outobj));
+                } catch (err) {
+                    console.error(err)
+                }
+
+            }    
+        }    
         process.exit(result);
     },
     function(log){
