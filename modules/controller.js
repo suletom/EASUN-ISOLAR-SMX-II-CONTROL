@@ -20,6 +20,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
     }catch(e){
         _log(logcallback,e);
         actioncallback(-1);
+        return;
     }
 
     _log(logcallback,"!!! 0. Please connect to the datalogger wifi access point or ensure the device is accessible on your network !!!");
@@ -45,6 +46,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 });
 
                 actioncallback(-1);
+                return;
             }
             customip=el.substring(8);
             _log(logcallback,"")
@@ -179,6 +181,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 if (myargs.length<arguniq.length+2) {
                     _log(logcallback,"Wrong number of arguments! Exiting...");
                     actioncallback(-1);
+                    return;
                 }
 
                 //default 4 min timeout to prevent stucking node if not error event occures in tcp communication but no answer recived
@@ -209,6 +212,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
         if (foundcommand==0){
             _log(logcallback,"\nNo command supplied!\n\n");
             actioncallback(-1);
+            return;
         }
 
     }

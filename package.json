@@ -21,6 +21,8 @@
   "dependencies": {
     "bootstrap": "^5.2.3",
     "express": "^4.18.2",
-    "local-ipv4-address": "0.0.2"
+    "express-basic-auth": "^1.2.1",
+    "local-ipv4-address": "0.0.2",
+    "node-red": "^3.0.2"
   }
 }
