@@ -94,6 +94,46 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
         //modbus last request helper
         'lastrequest':"",
         'callback': actioncallback,
+        'endcallback': function(rv){
+
+            _log(logcallback,"Freeing resources, closing connections...");
+
+            this.resources.forEach(function(r){
+                if (r.udpclient!==undefined){
+                    try{
+                        r.udpclient.close();
+                        r.udpclient=undefined;
+                    }catch(e){
+        
+                    }
+                }
+                if (r.tcpsocket!==undefined){
+                    try{
+                        r.tcpsocket.end();
+                        r.tcpsocket=undefined;
+                    }catch(e){
+        
+                    }    
+                }
+
+                if (r.tcpserver!==undefined){
+                    try{
+                        r.tcpserver.close();
+                        r.tcpserver=undefined;
+                    }catch(e){
+        
+                    }    
+                }
+               
+            });
+        
+            if (this.timeout!==null){
+                clearTimeout(this.timeout);
+            }
+        
+            this.callback(rv,this);
+            this.endcallback=function(rv){ console.log("Endcallback fireing again, dont't doing anything, result:",rv); };
+        },
         'logcallback':logcallback,
         'resources': [],
         'timeout': null
@@ -187,10 +227,12 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 //default 4 min timeout to prevent stucking node if not error event occures in tcp communication but no answer recived
                 stateobject.timeout=setTimeout(function() {
 
-                    freeres(stateobject);
-
+                    //freeres(stateobject);
+                    //actioncallback(-1);
                     _log(logcallback,"Timeout occured...exiting!");
-                    actioncallback(-1);
+
+                    stateobject.endcallback(-1);
+                    
                 }, (1000*timeoutsec));
 
 
@@ -265,7 +307,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
         }catch(e){
             _log(stateobject.logcallback,"UDP Error: ",e);
-            stateobject.callback(-1);
+            stateobject.endcallback(-1);
         }
         
     }
@@ -282,6 +324,8 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
             var server = net.createServer(function(socket) {
 
+                stateobject.resources.push({'tcpsocket':socket});
+
                 _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} connected on TCP`);
                 
                 //socket.pipe(socket);
@@ -290,7 +334,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                     let result=receivedata(data,stateobject);
 
                     if (result==null) {
-                        freeres(stateobject);
+                        
                         return;
                     }
 
@@ -299,8 +343,8 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 });
 
                 socket.on('error',function(error){
-                    console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}..., exiting...`);
-                    stateobject.callback(-1);
+                    _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}..., exiting...`);
+                    stateobject.endcallback(-1);
                 });
 
                 socket.on('close',function(){
@@ -308,24 +352,22 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                     //this happens usually when the inverter drops the serial line
                     //to force the datalogger to reconnect we need to restart it
 
-                    _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} Connection closed, exiting and trying to restart datalogger adapter...`);
+                    _log(stateobject.logcallback,`${socket.remoteAddress}:${socket.remotePort} Connection closed, socket closed....`);
                     _log(stateobject.logcallback,"\n");
 
-                    //close tcp server
-                    server.close();
-
-                    original_argv[2]="restart-wifi";
-                    controller(original_argv);
+                    //close resource and we can try to restart!
+                    stateobject.endcallback(-2);
                     
                 });
 
                 //get first command to send
                 let cmdstr=getcommseqcmd(stateobject);
-                if (cmdstr === undefined) { _log(stateobject.logcallback,"Missing command sequence, exiting..."); stateobject.callback(-1); }
+                if (cmdstr === undefined) { _log(stateobject.logcallback,"Missing command sequence, exiting..."); stateobject.endcallback(-1); return; }
 
                 
                 let tw=getdatacmd(cmdstr,stateobject);
-                //_log(stateobject.logcallback,"write:",tw);
+                _log(stateobject.logcallback,"Write to tcp:",tw);
+
                 socket.write(tw);
                 
             });
@@ -338,7 +380,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
         } catch (e) {
             _log(stateobject.logcallback,"TCP Error: ",e);
-            stateobject.callback(-1);
+            stateobject.endcallback(-1);
         }   
 
     }
@@ -418,7 +460,7 @@ function handle_modbus_command(command,cmd,stateobject) {
             if (Number.isInteger(setparam.type)) {
                 reglen=setparam.type.toString(16).padStart(4,'0');
                 _log(stateobject.logcallback,"Error: Not supported type:", setparam.type);
-                stateobject.callback(-1);
+                stateobject.endcallback(-1);
             }    
 
             let specargparam=setparam.address+reglen;
@@ -435,14 +477,14 @@ function handle_modbus_command(command,cmd,stateobject) {
                 let listval=setparam.unit.indexOf(setval);
                 if (listval===-1){
                     _log(stateobject.logcallback,"Error: The requested value is not valid, values:", setparam.unit);
-                    stateobject.callback(-1);
+                    stateobject.endcallback(-1);
                 }
                 if (Number.isInteger(listval)){
                     
                     rv=listval.toString(16).padStart(4,'0');
                 }else{
                     _log(stateobject.logcallback,"Error: The requested value is not compatible with the parameter type ("+setparam.type+")!");
-                    stateobject.callback(-1);
+                    stateobject.endcallback(-1);
                 }
                 
             }else{
@@ -457,7 +499,7 @@ function handle_modbus_command(command,cmd,stateobject) {
                         }else{
                             _log(stateobject.logcallback,setparam);
                             _log(stateobject.logcallback,"Error: The requested value ("+setval+") is not compatible with the parameter type!");
-                            stateobject.callback(-1);
+                            stateobject.endcallback(-1);
                         }
                         
                         setval=Math.round(setval/setparam.rate);
@@ -467,7 +509,7 @@ function handle_modbus_command(command,cmd,stateobject) {
                     default:
                         _log(stateobject.logcallback,setparam);
                         _log(stateobject.logcallback,"Error: The requested parameter is not writable now!");
-                        stateobject.callback(-1);
+                        stateobject.endcallback(-1);
                 }
             }
             
@@ -808,11 +850,11 @@ function receivedata(data,stateobject){
             //_log(stateobject.logcallback,rdata);
             //_log(stateobject.logcallback,tmpbuf);
             if (Buffer.compare(rdata,tmpbuf)===0){
-                _log(stateobject.logcallback,"Succesful set operation!");
-                stateobject.callback(0);
+                _log(stateobject.logcallback,"Successful set operation!");
+                stateobject.endcallback(0);
             }else{
                 _log(stateobject.logcallback,"Error while setting paramter!");
-                stateobject.callback(-1);
+                stateobject.endcallback(-1);
             }
         }
         
@@ -828,7 +870,7 @@ function receivedata(data,stateobject){
         _log(stateobject.logcallback,"JSON output:\n",stateobject.outobj);
         
         _log(stateobject.logcallback,"DONE, exiting"); 
-        stateobject.callback(0,stateobject);
+        stateobject.endcallback(0);
 
         return null;
 
@@ -854,7 +896,7 @@ function getdatacmd(data,stateobject){
     }
 
     //definition array link following
-    if (obj.definition === 'string'){
+    if (typeof obj.definition === 'string'){
         obj.definition=stateobject.commands.commands.find(o => o.name === obj.definition ).definition;
     }
 
@@ -871,6 +913,7 @@ function getdatacmd(data,stateobject){
         i++;
     });
 
+    //console.log(obj);
     //custom built modbus command
     cmdtorun=handle_modbus_command(cmdtorun,obj,stateobject);
 
@@ -892,30 +935,7 @@ function getdatacmd(data,stateobject){
     return rbuf;
 }
 
-function freeres(stateobject){
 
-    stateobject.resources.forEach(function(r){
-        if (r.udpclient!==undefined){
-            try{
-                r.udpclient.close();
-            }catch(e){
-
-            }
-        }
-        if (r.tcpserver!==undefined){
-            try{
-                r.tcpserver.close();
-            }catch(e){
-
-            }    
-        }
-    });
-
-    if (stateobject.timeout!==null){
-        clearTimeout(stateobject.timeout);
-    }
-
-}
 
 exports.controller=controller;
 

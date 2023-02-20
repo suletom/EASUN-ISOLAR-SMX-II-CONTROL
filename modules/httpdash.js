@@ -34,10 +34,10 @@ const httpdash = function(req,configobj){
                 let inp=`<input type="text" class="form-control" id="param${def.name}">`;
                 if (Array.isArray(def.unit)){
 
-                    inp=`<select class="form-control" id="param${def.name}">`;
+                    inp=`<select class="form-control" id="param${def.name}" data-id="${def.num}" onchange="setparamchange(this)">`;
 
                     def.unit.forEach(function(u,ind){
-                        inp+=`<option value="${ind}">${u}</option>`;
+                        inp+=`<option value="${u}">${u}</option>`;
                     });
                     inp+=`</select>`;
                 }
@@ -62,13 +62,15 @@ const httpdash = function(req,configobj){
             let timer=null;
 
             function togglemonitor(obj){
+
                 if (obj.classList.contains("running")){
-                    clearTimeout(timer);
+                    //clearTimeout(timer);
                     obj.classList.remove("running");
                 }else{
                     obj.classList.add("running");
                     monitor();
                 }   
+
             }
 
             function saveconfig(obj){
@@ -80,6 +82,26 @@ const httpdash = function(req,configobj){
                 let o=Object.fromEntries(fd.entries());
                 console.log(o);
                 fetch('/saveconfig',{ body: JSON.stringify(o), method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
+                    return response.json()
+                }).then(function(responsejson) {
+                    alert(responsejson.msg);
+                });
+
+            }
+
+            function setparamchange(obj){
+
+                if (confirm("Sure??")) {
+                    setparam(obj.dataset.id,obj.value);
+                }
+
+            }
+
+            function setparam(param,value){
+
+                let o={"paramid": param, "value": value};
+
+                fetch('/set',{ body: JSON.stringify(o), method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
                     return response.json()
                 }).then(function(responsejson) {
                     alert(responsejson.msg);
@@ -96,15 +118,17 @@ const httpdash = function(req,configobj){
                     if (responsejson.rv === undefined ) {
 
                         for (const [key, value] of Object.entries(responsejson)) {
+                            
                             let elem=document.querySelector('#param'+key);
                             if (elem !== null && elem !== undefined){
-                                elem.value=value;
+                                elem.value=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
                             }    
                         };
 
-                        timer=setTimeout(function(){ monitor(); },2000);
+                        //timer=setTimeout(function(){ monitor(); },2000);
                     }    
                 });
+
             }    
             </script>
         </head>

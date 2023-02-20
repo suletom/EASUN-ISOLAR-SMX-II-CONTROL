@@ -61,6 +61,51 @@ if (process.argv.length<3){
 
     });
 
+    app.post('/set', function (req, res) {
+
+        console.log("Parameter set called:");
+        //console.log(req.body);
+
+        let inp=req.body;
+
+        if ( inp.paramid!=undefined && (inp.value!=undefined) ){
+
+            let args=[process.argv[0],process.argv[1],'set-smx-param'];
+
+            if (configobj.ipaddress!==undefined){
+                args.push(configobj.ipaddress);
+            }
+            if (configobj.localipaddress!==undefined && configobj.localipaddress!=""){
+                args.push("localip="+configobj.localipaddress);
+            }
+            
+            args.push(inp.paramid);
+            args.push(inp.value);
+
+            console.log("arguments:",args);
+            controllerobject.controller(args,5,0,
+                function(result,stateobject){
+
+                    if (result==0){
+                        res.json({"rv": 1,"msg":"Modify OK!"});
+                    }else{
+                        res.json({"rv": 0,"msg":"Error!"});
+                    }
+                },
+                function(log){
+                    log.forEach(element => {
+                        console.log(element);   
+                    });
+                    
+                }
+            );
+
+        }else{
+            res.json({"rv": 0,"msg":"Param Error!"});
+        }
+
+    });
+
     app.get('/query', function (req, res) {
 
         let args=[process.argv[0],process.argv[1],'get-smx-param'];
@@ -71,13 +116,35 @@ if (process.argv.length<3){
         if (configobj.localipaddress!==undefined && configobj.localipaddress!=""){
             args.push("localip="+configobj.localipaddress);
         }
-        console.log(args);
+
+        //console.log(args);
 
         controllerobject.controller(args,30,0,
             function(result,stateobject){
                 if (result==0){
                     res.json(stateobject.outobj);
                 }else{
+
+                    //hack to restart stucked datalogger
+                    if (result==-2) {
+
+                        console.log("Trying to restart datalogger adapter...");
+
+                        args[2]="restart-wifi";
+                        controllerobject.controller(args,10,1,
+                            function(result,stateobject){
+                                console.log("Restart callback result:", result);
+                            },
+                            function(log){
+                                 log.forEach(element => {
+                                    console.log(element);   
+                                 });
+                                 
+                            }
+                        );   
+
+                    }    
+
                     res.json({"rv": 0});
                 }
 
@@ -102,12 +169,12 @@ if (process.argv.length<3){
 
     });
     
-}    
+}
 
 controllerobject.controller(process.argv,23,1,
     function(result,stateobject){
         if (result==0) {
-            if (objstateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
+            if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
                 
                 try {
                     fs.writeFileSync('currentdata.json',JSON.stringify(stateobject.outobj));
