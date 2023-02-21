@@ -108,6 +108,38 @@ if (process.argv.length<3){
 
     app.get('/query', function (req, res) {
 
+        let dov={};
+        let data=fs.readFileSync('currentdata.json',{encoding:'utf8', flag:'r'});
+        
+        try{
+            dov=JSON.parse(data);
+        }catch(e){
+            console.log(e);
+            
+        }
+
+        res.json(dov);
+        
+    });
+
+    let port=6789;
+    app.listen(6789, function () {
+
+        console.log("Web ui running on port "+port+"! Access: http://localhost:"+port);
+
+    });
+
+    monitor_lock=0;
+    monitor_current_object={};
+
+    function monitor(prio=0) {
+
+        if (monitor_lock) {
+            return false;
+        }
+
+        monitor_lock=1;
+
         let args=[process.argv[0],process.argv[1],'get-smx-param'];
 
         if (configobj.ipaddress!==undefined){
@@ -117,12 +149,25 @@ if (process.argv.length<3){
             args.push("localip="+configobj.localipaddress);
         }
 
-        //console.log(args);
-
-        controllerobject.controller(args,30,0,
+        controllerobject.controller(args,25,prio,
             function(result,stateobject){
                 if (result==0){
-                    res.json(stateobject.outobj);
+                    
+                    if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
+                        console.log("Wiriting data to json file...");
+                        
+                        monitor_current_object={...monitor_current_object,...stateobject.outobj};
+                        
+                        try {
+                            fs.writeFileSync('currentdata.json',JSON.stringify(monitor_current_object));
+                        } catch (err) {
+                            console.error(err)
+                        }
+        
+                    }    
+
+                    monitor_lock=0;
+
                 }else{
 
                     //hack to restart stucked datalogger
@@ -134,40 +179,58 @@ if (process.argv.length<3){
                         controllerobject.controller(args,10,1,
                             function(result,stateobject){
                                 console.log("Restart callback result:", result);
+                                monitor_lock=0;                                
                             },
                             function(log){
-                                 log.forEach(element => {
+                                    log.forEach(element => {
                                     console.log(element);   
-                                 });
-                                 
+                                    });
+                                    
                             }
                         );   
 
-                    }    
-
-                    res.json({"rv": 0});
+                    }else{
+                        monitor_lock=0;
+                    }
+                    
                 }
-
-                res.send();
+                
             },
             function(log){
-                 log.forEach(element => {
+                    log.forEach(element => {
                     console.log(element);   
-                 });
-                 
+                    });
+                    
             }
         );
+        return true;
+    };
 
+    let cv=0;
+
+    function scheduler(){
+        console.log("Scheduler run...",cv);
+        if (cv%50 == 0) {
+            console.log("Running long query");
+            if (monitor(0)){
+                cv=1;
+            }else{
+                console.log("Still in progress");
+            }
+            
+        }else{
+            console.log("Running fast query");
+            if (monitor(1)){
+                cv++;
+            }else{
+                console.log("Still in progress");
+            }
+        }
         
 
-    });
+    }
 
-    let port=6789;
-    app.listen(6789, function () {
-
-        console.log("Web ui running on port "+port+"! Access: http://localhost:"+port);
-
-    });
+    setInterval(function(){ scheduler(); },8000);
     
 }
 

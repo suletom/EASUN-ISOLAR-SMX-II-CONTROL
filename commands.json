@@ -64,7 +64,7 @@
                 {"num":"36","name":"MaxPVChargerCurrent","address":"E001","type":"UInt16BE","rate":0.1,"format":1,"unit": "A"},
                 {"num":"37","name":"BatteryChargeRecovery","address":"E00A","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
                 {"num":"38","name":"OutputVoltageSet","address":"E208","type":"UInt16BE","rate": 0.1,"format":1,"unit": "V"},
-                {"num":"39","name":"SystemDateTime","address":"020C","type":3,"format":100,"unit": ""},
+                {"num":"39","name":"SystemDateTime","address":"020C","type":3,"format":100,"unit": "","priority":1},
                 {"num":"40","name":"InputPasswordNotSupported","address":"E203","type":"UInt16BE","unit": ""},
                 {"num":"41","name":"ChangePasswordNotSupported","address":"E202","type":"UInt16BE","unit": ""},
                 {"num":"42","name":"CustomerID","address":"E117","type":"UInt16BE","unit": ""},

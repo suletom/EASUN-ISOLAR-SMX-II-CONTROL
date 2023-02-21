@@ -128,6 +128,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
             });
         
             if (this.timeout!==null){
+                
                 clearTimeout(this.timeout);
             }
         
@@ -236,6 +237,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 }, (1000*timeoutsec));
 
 
+                /* 
                 stateobject.bymem.forEach(function(el,ind){
                     _log(logcallback,"Query group: "+ind);
                     el.forEach(function(elb,indb){
@@ -243,7 +245,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                     });
                     _log(logcallback,"");
                 });
-                
+                */
 
                 sendudp(myargs[1],stateobject);
 

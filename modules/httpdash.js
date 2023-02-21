@@ -60,18 +60,7 @@ const httpdash = function(req,configobj){
             <script>
 
             let timer=null;
-
-            function togglemonitor(obj){
-
-                if (obj.classList.contains("running")){
-                    //clearTimeout(timer);
-                    obj.classList.remove("running");
-                }else{
-                    obj.classList.add("running");
-                    monitor();
-                }   
-
-            }
+           
 
             function saveconfig(obj){
 
@@ -125,16 +114,19 @@ const httpdash = function(req,configobj){
                             }    
                         };
 
-                        //timer=setTimeout(function(){ monitor(); },2000);
+                        timer=setTimeout(function(){ monitor(); },1000);
                     }    
                 });
 
-            }    
+            }
+
+            monitor();
+
             </script>
         </head>
         <body>
         <div class="container">
-            <button type="button" class="btn btn-success" onclick="togglemonitor(this)">Run monitor</button>
+            <!-- <button type="button" class="btn btn-success" onclick="togglemonitor(this)">Run monitor</button> -->
         </body>    
         <div class="container">
             <form>
