@@ -3,6 +3,7 @@ let fs = require('fs');
 const httpdash = function(req,configobj){
 
     let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
+    let svg=fs.readFileSync('etc/display.svg',{encoding:'utf8', flag:'r'});
 
     let commands={};
     try{
@@ -114,6 +115,40 @@ const httpdash = function(req,configobj){
                             }    
                         };
 
+                        if (responsejson.MachineState==4){
+                            document.querySelectorAll('#bypass-arrow,#bypass-arrow-end').forEach(function(el) {el.classList.add('show')});
+                        }
+
+                        if (responsejson.MachineState==5){
+                            document.querySelectorAll('#inverter,#load-arrow,#load-arrow-end').forEach(function(el) {el.classList.add('show')});
+                        }
+                        
+                        if (responsejson.LineVoltage>0){
+                                document.querySelectorAll('#mains').forEach(function(el) {el.classList.add('show')});
+                        }
+
+                        
+                        if (responsejson.PVVoltage>=120){
+                                document.querySelectorAll('#solar').forEach(function(el) {el.classList.add('show')});
+                                document.querySelectorAll('#solar-arrow,#solar-arrow-end').forEach(function(el) {el.classList.add('show')});
+                                document.querySelectorAll('#charger-arrow,#charger-arrow-end').forEach(function(el) {el.classList.add('show')});
+
+                                /*document.querySelectorAll('#inverter-arrow,#inverter-arrow-end').forEach(function(el) {el.classList.add('show')});*/
+                                
+                        }
+
+
+                        
+                        if (responsejson.LoadActivePower>0){
+                                document.querySelectorAll('#load').forEach(function(el) {el.classList.add('show')});
+                        }
+                        
+                        if (responsejson.BatteryCurrent<=0){
+                                document.querySelectorAll('#battery,#drain-arrow,#drain-arrow-end').forEach(function(el) {el.classList.add('show')});
+                        }else{
+                                document.querySelectorAll('#battery,#charger,#battery-arrow,#battery-arrow-end').forEach(function(el) {el.classList.add('show')});
+                        }
+
                         timer=setTimeout(function(){ monitor(); },1000);
                     }    
                 });
@@ -123,12 +158,65 @@ const httpdash = function(req,configobj){
             monitor();
 
             </script>
+            <style>
+            #display{
+                display: inline-block;
+                text-align:center;
+                width: 100%;
+            }
+            
+            #mains, #charger *,#inverter *,#solar *,#battery *,#load *,#mains * {
+                fill: rgba(255,255,255,0.2) !important;
+                stroke: rgba(255,255,255,0.2) !important;
+            }
+            
+            #mains.show, #charger.show *,#inverter.show *,#solar.show *,#battery.show *,#load.show *,#mains.show * {
+                fill: rgba(255,255,255,1) !important;
+                stroke: rgba(255,255,255,1) !important;
+            }
+            
+            #mains-arrow, #charger-arrow,#inverter-arrow,#solar-arrow,#battery-arrow,#load-arrow, #bypass-arrow, #drain-arrow {
+            
+                stroke: rgba(255,255,255,0.2) !important;
+            }
+            
+            #mains-arrow.show, #charger-arrow.show,#inverter-arrow.show,#solar-arrow.show,#battery-arrow.show,#load-arrow.show, #bypass-arrow.show, #drain-arrow.show {
+            
+                stroke: rgba(255,255,255,1) !important;
+            }
+            
+            
+            #charger-arrow-end *,
+            #inverter-arrow-end *,
+            #load-arrow-end *,
+            #solar-arrow-end *,
+            #battery-arrow-end *,
+            #drain-arrow-end *,
+            #bypass-arrow-end *{
+                stroke: rgba(255,255,255,0.2) !important;
+                fill: rgba(255,255,255,0.2) !important;
+            }
+            
+            #charger-arrow-end.show *,
+            #inverter-arrow-end.show *,
+            #load-arrow-end.show *,
+            #solar-arrow-end.show *,
+            #battery-arrow-end.show *,
+            #drain-arrow-end.show *,
+            #bypass-arrow-end.show *{
+                stroke: rgba(255,255,255,1) !important;
+                fill: rgba(255,255,255,1) !important;
+            }
+            
+            </style>
         </head>
         <body>
         <div class="container">
             <!-- <button type="button" class="btn btn-success" onclick="togglemonitor(this)">Run monitor</button> -->
         </body>    
         <div class="container">
+            <div class="d-flex justify-content-center">${svg}</div>
+
             <form>
                 <fieldset>
                 ${idata}    

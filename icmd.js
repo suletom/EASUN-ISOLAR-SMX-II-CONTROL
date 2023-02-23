@@ -36,9 +36,9 @@ if (process.argv.length<3){
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
        
-    console.log(__dirname+"/node_modules/bootstrap/dist/");
-    console.log(express.static(__dirname+"/node_modules/bootstrap/dist/"));
+    
     app.use('/static', express.static(__dirname+"/node_modules/bootstrap/dist/"));
+    app.use('/etc', express.static(__dirname+"/etc/"));
 
 
     app.post('/saveconfig',function (req, res) {
