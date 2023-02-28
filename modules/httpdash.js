@@ -32,10 +32,10 @@ const httpdash = function(req,configobj){
         if (Array.isArray(el.definition)){
             el.definition.forEach(function(def){
 
-                let inp=`<input type="text" class="form-control" id="param${def.name}">`;
+                let inp=`<input type="text" class="form-control notset" id="param${def.name}">`;
                 if (Array.isArray(def.unit)){
 
-                    inp=`<select class="form-control" id="param${def.name}" data-id="${def.num}" onchange="setparamchange(this)">`;
+                    inp=`<select class="form-control notset" id="param${def.name}" data-id="${def.num}" onchange="setparamchange(this)">`;
 
                     def.unit.forEach(function(u,ind){
                         inp+=`<option value="${u}">${u}</option>`;
@@ -81,9 +81,16 @@ const httpdash = function(req,configobj){
 
             function setparamchange(obj){
 
+                obj.classList.add('loading');
+
                 if (confirm("Sure??")) {
+                    
+                    console.log(obj.classList);
                     setparam(obj.dataset.id,obj.value);
+                }else{
+                    obj.classList.remove('loading');
                 }
+
 
             }
 
@@ -96,6 +103,16 @@ const httpdash = function(req,configobj){
                 }).then(function(responsejson) {
                     alert(responsejson.msg);
                 });
+            }
+
+            function sh(sel,show=1){
+                if (show) {
+                    document.querySelectorAll(sel).forEach(function(el) {el.classList.add('show')});
+                    document.querySelectorAll(sel).forEach(function(el) {el.classList.remove('hide')});
+                }else{
+                    document.querySelectorAll(sel).forEach(function(el) {el.classList.add('hide')});
+                    document.querySelectorAll(sel).forEach(function(el) {el.classList.remove('show')});
+                }    
             }
 
             function monitor() {
@@ -111,44 +128,99 @@ const httpdash = function(req,configobj){
                             
                             let elem=document.querySelector('#param'+key);
                             if (elem !== null && elem !== undefined){
-                                elem.value=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
+
+                                elem.classList.remove('notset');
+                                
+                                let oldvalue=elem.value;
+                                
+                                if (elem.classList.contains('loading') ){
+                                    //&& oldvalue!==elem.value
+                                    //console.log(oldvalue,elem.value);
+                                    if (responsejson[key+"_change"]!==undefined){
+                                        elem.classList.remove('loading');
+                                    }
+                                }else{
+                                    elem.value=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
+                                }
                             }    
                         };
 
                         if (responsejson.MachineState==4){
-                            document.querySelectorAll('#bypass-arrow,#bypass-arrow-end').forEach(function(el) {el.classList.add('show')});
+
+                            sh('#bypass-arrow,#bypass-arrow-end',1);
+                            sh('#inverter,#load-arrow,#load-arrow-end',0);
+                          
+                        }else{
+                            sh('#bypass-arrow,#bypass-arrow-end',0);
+
                         }
 
                         if (responsejson.MachineState==5){
-                            document.querySelectorAll('#inverter,#load-arrow,#load-arrow-end').forEach(function(el) {el.classList.add('show')});
+                            sh('#inverter,#load-arrow,#load-arrow-end',1);
+                          
                         }
                         
                         if (responsejson.LineVoltage>0){
-                                document.querySelectorAll('#mains').forEach(function(el) {el.classList.add('show')});
+                            sh('#mains',1);
+                       
+                        }else{
+                            sh('#mains',0);
+                         
                         }
-
                         
                         if (responsejson.PVVoltage>=120){
-                                document.querySelectorAll('#solar').forEach(function(el) {el.classList.add('show')});
-                                document.querySelectorAll('#solar-arrow,#solar-arrow-end').forEach(function(el) {el.classList.add('show')});
-                                document.querySelectorAll('#charger-arrow,#charger-arrow-end').forEach(function(el) {el.classList.add('show')});
-
-                                /*document.querySelectorAll('#inverter-arrow,#inverter-arrow-end').forEach(function(el) {el.classList.add('show')});*/
-                                
+                            sh('#solar',1);
+                            sh('#solar-arrow,#solar-arrow-end',1);
+        
+                        }else{
+                            sh('#solar',0);
+                            sh('#solar-arrow,#solar-arrow-end',0);
+                            
                         }
 
-
+                        if (responsejson.LineCurrent>0){
+                            sh('#charger-arrow,#charger-arrow-end',1);
+                         
+                        }else{
+                            sh('#charger-arrow,#charger-arrow-end',0);
+                           
+                        }
                         
                         if (responsejson.LoadActivePower>0){
-                                document.querySelectorAll('#load').forEach(function(el) {el.classList.add('show')});
+                            sh('#load',1);
+                         
+                        }else{
+                            sh('#load',0);
+                       
                         }
                         
-                        if (responsejson.BatteryCurrent<=0){
-                                document.querySelectorAll('#battery,#drain-arrow,#drain-arrow-end').forEach(function(el) {el.classList.add('show')});
+                        if (responsejson.BatteryCurrent>=0){
+                            sh('#battery,#drain-arrow,#drain-arrow-end',1);
+                            sh('#battery-arrow,#battery-arrow-end',0);
+
                         }else{
-                                document.querySelectorAll('#battery,#charger,#battery-arrow,#battery-arrow-end').forEach(function(el) {el.classList.add('show')});
+
+                            sh('#battery,#battery-arrow,#battery-arrow-end',1);
+                            sh('#drain-arrow,#drain-arrow-end',0);
+
                         }
 
+                        if (responsejson.LoadActivePower>0 && responsejson.MachineState!=4 && (responsejson.PVVoltage>=120 || responsejson.LineCurrent>0)){
+                            sh('#inverter-arrow,#inverter-arrow-end',1);
+                           
+                        }else{
+                            sh('#inverter-arrow,#inverter-arrow-end',0);
+                          
+                        }
+
+                        if ([1,2,4,6,7].includes(responsejson.BatteryChargeStep)){
+                            sh('#charger',1);
+                          
+                        }else{
+                            sh('#charger',0);
+                          
+                        }
+                        
                         timer=setTimeout(function(){ monitor(); },1000);
                     }    
                 });
@@ -208,6 +280,13 @@ const httpdash = function(req,configobj){
                 fill: rgba(255,255,255,1) !important;
             }
             
+            .loading {
+                background-color: orange;
+            }
+            .notset {
+                background-color: black;
+            }
+
             </style>
         </head>
         <body>

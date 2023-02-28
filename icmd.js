@@ -22,6 +22,10 @@ if (process.argv.length<3){
         
     }
 
+    let monitor_interval=null;
+    let client_seen=unixTimestamp();
+    let command_queue=[];
+
     var app = express();
 
     if (configobj["password"]!==undefined) {
@@ -38,9 +42,7 @@ if (process.argv.length<3){
        
     
     app.use('/static', express.static(__dirname+"/node_modules/bootstrap/dist/"));
-    app.use('/etc', express.static(__dirname+"/etc/"));
-
-
+    
     app.post('/saveconfig',function (req, res) {
 
         console.log("save:",req.body);
@@ -82,24 +84,13 @@ if (process.argv.length<3){
             args.push(inp.paramid);
             args.push(inp.value);
 
-            console.log("arguments:",args);
-            controllerobject.controller(args,5,0,
-                function(result,stateobject){
+            console.log("command -> queue:",args);
 
-                    if (result==0){
-                        res.json({"rv": 1,"msg":"Modify OK!"});
-                    }else{
-                        res.json({"rv": 0,"msg":"Error!"});
-                    }
-                },
-                function(log){
-                    log.forEach(element => {
-                        console.log(element);   
-                    });
-                    
-                }
-            );
+            command_queue.push(args);
 
+            res.json({"rv": 1,"msg": "Operation queued!"});
+
+            
         }else{
             res.json({"rv": 0,"msg":"Param Error!"});
         }
@@ -107,6 +98,8 @@ if (process.argv.length<3){
     });
 
     app.get('/query', function (req, res) {
+
+        client_seen=unixTimestamp();
 
         let dov={};
         let data=fs.readFileSync('currentdata.json',{encoding:'utf8', flag:'r'});
@@ -209,8 +202,52 @@ if (process.argv.length<3){
     let cv=0;
 
     function scheduler(){
+
+        console.log(unixTimestamp());
+
+        if (command_queue.length>0){
+
+            if (monitor_lock==0){
+
+                monitor_lock==1;
+
+                let args=command_queue.shift();
+
+                controllerobject.controller(args,5,0,
+                    function(result,stateobject){
+
+                        monitor_lock==0;
+
+                        if (result==0){
+                            console.log("Modify OK!",args);
+                        }else{
+                            console.log("Modify Error!",args);
+                        }
+                    },
+                    function(log){
+                        log.forEach(element => {
+                            console.log(element);   
+                        });
+                        
+                    }
+                );
+
+            }
+
+            return;
+
+        }
+
+        if (client_seen<unixTimestamp()-60){
+            if ((cv%10)!=0) {
+                console.log("Low freq, querying later");
+                cv++;
+                return;
+            }
+        }
+
         console.log("Scheduler run...",cv);
-        if (cv%50 == 0) {
+        if (cv%20 == 0) {
             console.log("Running long query");
             if (monitor(0)){
                 cv=1;
@@ -230,7 +267,7 @@ if (process.argv.length<3){
 
     }
 
-    setInterval(function(){ scheduler(); },8000);
+    monitor_interval=setInterval(function(){ scheduler(); },8000);
     
 }
 
@@ -255,4 +292,9 @@ controllerobject.controller(process.argv,23,1,
          });
          
     }
-);   
+);
+
+
+function unixTimestamp () {  
+    return Math.floor(Date.now() / 1000)
+}
