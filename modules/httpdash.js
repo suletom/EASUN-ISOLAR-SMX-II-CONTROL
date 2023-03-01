@@ -12,8 +12,6 @@ const httpdash = function(req,configobj){
         console.log(e);
     }
    
-
-
     function getconfval(attr){
         if (configobj[attr]!==undefined){
             return configobj[attr].replace(/&/g, "&amp;")
@@ -35,7 +33,7 @@ const httpdash = function(req,configobj){
                 let inp=`<input type="text" class="form-control notset" id="param${def.name}">`;
                 if (Array.isArray(def.unit)){
 
-                    inp=`<select class="form-control notset" id="param${def.name}" data-id="${def.num}" onchange="setparamchange(this)">`;
+                    inp=`<select class="form-control notset" id="param${def.name}" data-id="${def.num}" onchange="setparamchange(this,event)">`;
 
                     def.unit.forEach(function(u,ind){
                         inp+=`<option value="${u}">${u}</option>`;
@@ -75,11 +73,13 @@ const httpdash = function(req,configobj){
                     return response.json()
                 }).then(function(responsejson) {
                     alert(responsejson.msg);
+                }).catch(error => {
+                    console.log(error);
                 });
 
             }
 
-            function setparamchange(obj){
+            function setparamchange(obj,e){
 
                 obj.classList.add('loading');
 
@@ -91,6 +91,8 @@ const httpdash = function(req,configobj){
                     obj.classList.remove('loading');
                 }
 
+                e.preventDefault();
+                return false;
 
             }
 
@@ -102,6 +104,8 @@ const httpdash = function(req,configobj){
                     return response.json()
                 }).then(function(responsejson) {
                     alert(responsejson.msg);
+                }).catch(error => {
+                    console.log(error);
                 });
             }
 
@@ -134,11 +138,13 @@ const httpdash = function(req,configobj){
                                 let oldvalue=elem.value;
                                 
                                 if (elem.classList.contains('loading') ){
-                                    //&& oldvalue!==elem.value
-                                    //console.log(oldvalue,elem.value);
-                                    if (responsejson[key+"_change"]!==undefined){
+                                    if (oldvalue!==elem.value){
                                         elem.classList.remove('loading');
                                     }
+                                    //console.log(oldvalue,elem.value);
+                                    //if (responsejson[key+"_change"]!==undefined){
+                                    //    
+                                    //}
                                 }else{
                                     elem.value=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
                                 }
@@ -213,7 +219,9 @@ const httpdash = function(req,configobj){
                           
                         }
 
-                        if ([1,2,4,6,7].includes(responsejson.BatteryChargeStep)){
+                        if ([1,2,4,6,7].includes(responsejson.BatteryChargeStep) &&
+                            (responsejson.LineCurrent>0 || responsejson.PVVoltage>=120 )
+                        ){
                             sh('#charger',1);
                           
                         }else{
@@ -223,6 +231,9 @@ const httpdash = function(req,configobj){
                         
                         timer=setTimeout(function(){ monitor(); },1000);
                     }    
+                }).catch(error => {
+                    console.log(error);
+                    timer=setTimeout(function(){ monitor(); },1000);
                 });
 
             }
@@ -284,7 +295,7 @@ const httpdash = function(req,configobj){
                 background-color: orange;
             }
             .notset {
-                background-color: black;
+                background-color: grey;
             }
 
             </style>

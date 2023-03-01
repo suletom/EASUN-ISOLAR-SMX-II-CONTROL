@@ -824,7 +824,7 @@ function receivedata(data,stateobject){
         //_log(stateobject.logcallback,tmpcomdef);
 
         //if the command definition was linked to the "get" commands one(definition preaviusly copied), this is consdered as a modbus set operation -> check if it was succesful and update json data
-        if (Array.isArray(tmpcomdef.definition) ){
+        if (tmpcomdef != undefined && Array.isArray(tmpcomdef.definition) ){
             _log(stateobject.logcallback,"Modbus write operation result check...");
             //let origdef=stateobject.commands.commands.find(o => o.name === tmpcomdef.definition ).definition;
 

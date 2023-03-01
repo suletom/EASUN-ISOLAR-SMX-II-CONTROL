@@ -12,14 +12,18 @@ if (process.argv.length<3){
     console.log("\nNo command supplied! To explore modbus debug options or test from command line, use: npm start help\nStarting web ui mode....\n");
 
 
-    let config=fs.readFileSync('config.json',{encoding:'utf8', flag:'r'});
+    let config="";
+    try{
+        config=fs.readFileSync('config.json',{encoding:'utf8', flag:'r'});
+    }catch(e){
+        console.log(e);
+    }
     let configobj={};
 
     try{
         configobj=JSON.parse(config);
     }catch(e){
         console.log(e);
-        
     }
 
     let monitor_interval=null;
@@ -46,6 +50,10 @@ if (process.argv.length<3){
     app.post('/saveconfig',function (req, res) {
 
         console.log("save:",req.body);
+        
+        configobj=req.body;
+        console.log("Apply config:", configobj);
+
         try {
             fs.writeFileSync('config.json',JSON.stringify(req.body));
         } catch (err) {
@@ -102,13 +110,19 @@ if (process.argv.length<3){
         client_seen=unixTimestamp();
 
         let dov={};
-        let data=fs.readFileSync('currentdata.json',{encoding:'utf8', flag:'r'});
+        let data="";        
+
+        try{
+            data=fs.readFileSync('currentdata.json',{encoding:'utf8', flag:'r'});
+        }catch(e) {
+
+        }
+
         
         try{
             dov=JSON.parse(data);
         }catch(e){
-            console.log(e);
-            
+                        
         }
 
         res.json(dov);
