@@ -75,10 +75,12 @@ if (process.argv.length<3){
 
         console.log("Parameter set called:");
         //console.log(req.body);
+        res.json({"rv": 1,"msg": "Operation queued!"});
+        return;
 
         let inp=req.body;
 
-        if ( inp.paramid!=undefined && (inp.value!=undefined) ){
+        if ( inp.paramid!=undefined && (inp.value!=undefined) && inp.client!=undefined ){
 
             let args=[process.argv[0],process.argv[1],'set-smx-param'];
 

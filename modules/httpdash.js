@@ -24,16 +24,29 @@ const httpdash = function(req,configobj){
         return "";
     }
 
+    function makeid(length) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let counter = 0;
+        while (counter < length) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength));
+          counter += 1;
+        }
+        return result;
+    }
+
     let idata = ""
 
     commands.commands.forEach(function(el){
         if (Array.isArray(el.definition)){
             el.definition.forEach(function(def){
 
-                let inp=`<input type="text" class="form-control notset" id="param${def.name}">`;
+                let unit=(def.unit!==undefined && !Array.isArray(def.unit))?"("+def.unit+")":"";
+                let inp=`<input type="text" class="form-control notset" id="param${def.name}" data-unit="${unit}">`;
                 if (Array.isArray(def.unit)){
 
-                    inp=`<select class="form-control notset" id="param${def.name}" data-id="${def.num}" onchange="setparamchange(this,event)">`;
+                    inp=`<select class="form-control notset" id="param${def.name}" data-id="${def.num}" data-unit="${unit}" onchange="setparamchange(this,event)">`;
 
                     def.unit.forEach(function(u,ind){
                         inp+=`<option value="${u}">${u}</option>`;
@@ -41,17 +54,20 @@ const httpdash = function(req,configobj){
                     inp+=`</select>`;
                 }
 
+                
                 idata+=`
                 <div class="form-group">
-                    <label for="param${def.name}">${def.num}. ${def.name}</label>
+                    <label for="param${def.name}">${def.num}. ${def.name} ${unit}</label>
                     ${inp}
                 </div>`;
             });
             
         }
     });
+
+    let client=makeid();
     
-     let out=`<html>
+    let out=`<html>
         <head>
             <title>...</title>
             <script language="javascript" src="/static/js/bootstrap.min.js"></script>
@@ -82,31 +98,28 @@ const httpdash = function(req,configobj){
             function setparamchange(obj,e){
 
                 obj.classList.add('loading');
-
-                if (confirm("Sure??")) {
-                    
-                    console.log(obj.classList);
-                    setparam(obj.dataset.id,obj.value);
-                }else{
-                    obj.classList.remove('loading');
-                }
-
-                e.preventDefault();
-                return false;
+                setTimeout(function(){ setparam(obj.dataset,obj.value ); },1);
 
             }
 
             function setparam(param,value){
 
-                let o={"paramid": param, "value": value};
+                if (confirm("Sure??")) {
 
-                fetch('/set',{ body: JSON.stringify(o), method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
-                    return response.json()
-                }).then(function(responsejson) {
-                    alert(responsejson.msg);
-                }).catch(error => {
-                    console.log(error);
-                });
+                    let o={"paramid": param, "value": value};
+
+                    fetch('/set?client=${client}',{ body: JSON.stringify(o), method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
+                        return response.json()
+                    }).then(function(responsejson) {
+                        alert(responsejson.msg);
+                    }).catch(error => {
+                        console.log(error);
+                    });
+
+                }else{
+                    obj.classList.remove('loading');
+                }
+
             }
 
             function sh(sel,show=1){
@@ -121,7 +134,7 @@ const httpdash = function(req,configobj){
 
             function monitor() {
                 
-                fetch('/query').then(function(response) {
+                fetch('/query?client=${client}').then(function(response) {
 
                     return response.json()
                 }).then(function(responsejson) {
@@ -149,6 +162,16 @@ const httpdash = function(req,configobj){
                                     elem.value=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
                                 }
                             }    
+
+                            let delem=document.querySelector('#delem'+key);
+                            if (delem !== null && delem !== undefined){
+                                let u=document.querySelector('#param'+key);
+                                let bu="";
+                                if (u!==undefined && u.dataset.unit!==undefined) {
+                                    bu=u.dataset.unit;
+                                }    
+                                delem.innerHTML=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value)+" "+bu;
+                            }
                         };
 
                         if (responsejson.MachineState==4){
@@ -291,7 +314,7 @@ const httpdash = function(req,configobj){
                 fill: rgba(255,255,255,1) !important;
             }
             
-            .loading {
+            .loading,.loading:focus {
                 background-color: orange;
             }
             .notset {
@@ -301,12 +324,22 @@ const httpdash = function(req,configobj){
             </style>
         </head>
         <body>
-        <div class="container">
-            <!-- <button type="button" class="btn btn-success" onclick="togglemonitor(this)">Run monitor</button> -->
-        </body>    
+        
+            
+        
         <div class="container">
             <div class="d-flex justify-content-center">${svg}</div>
-
+            <div class="d-flex justify-content-center">
+                <div class="card-body"><label>PVPower</label><div id="delemPVPower"></div></div>
+                <div class="card-body"><label>BatteryCurrent</label><div id="delemBatteryCurrent"></div></div>
+                <div class="card-body"><label>BatteryVoltage</label><div id="delemBatteryVoltage"></div></div>
+                <div class="card-body"><label>LineCurrent</label><div id="delemLineCurrent"></div></div>
+                <div class="card-body"><label>LoadApparentPower</label><div id="delemLoadApparentPower"></div></div>
+                <div class="card-body"><label>MachineState</label><div id="delemMachineState"></div></div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="card-body"><label>CurrentFault</label><div id="delemCurrentFault"></div></div>
+            </div>    
             <form>
                 <fieldset>
                 ${idata}    
