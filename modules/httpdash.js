@@ -65,7 +65,7 @@ const httpdash = function(req,configobj){
         }
     });
 
-    let client=makeid();
+    let client=makeid(32);
     
     let out=`<html>
         <head>
