@@ -5,6 +5,11 @@ const httpdash = function(req,configobj){
     let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
     let svg=fs.readFileSync('etc/display.svg',{encoding:'utf8', flag:'r'});
 
+    let firststart=0;
+    if (Object.keys(configobj).length === 0){
+        firststart=1;
+    }
+
     let commands={};
     try{
         commands=JSON.parse(cdata);
@@ -88,6 +93,10 @@ const httpdash = function(req,configobj){
                 fetch('/saveconfig',{ body: JSON.stringify(o), method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
                     return response.json()
                 }).then(function(responsejson) {
+                    if (responsejson.rv==1){
+                        let c=document.querySelector('#config');
+                        c.classList.remove('hide');
+                    }
                     alert(responsejson.msg);
                 }).catch(error => {
                     console.log(error);
@@ -98,7 +107,7 @@ const httpdash = function(req,configobj){
             function setparamchange(obj,e){
 
                 obj.classList.add('loading');
-                setTimeout(function(){ setparam(obj.dataset,obj.value ); },1);
+                setTimeout(function(){ setparam(obj.dataset.id,obj.value ); },1);
 
             }
 
@@ -142,6 +151,10 @@ const httpdash = function(req,configobj){
                     if (responsejson.rv === undefined ) {
 
                         for (const [key, value] of Object.entries(responsejson)) {
+
+                            if (key=='msg') {
+                                alert(value.join(' '));
+                            }
                             
                             let elem=document.querySelector('#param'+key);
                             if (elem !== null && elem !== undefined){
@@ -197,7 +210,7 @@ const httpdash = function(req,configobj){
                          
                         }
                         
-                        if (responsejson.PVVoltage>=120){
+                        if (responsejson.PVVoltage>119){
                             sh('#solar',1);
                             sh('#solar-arrow,#solar-arrow-end',1);
         
@@ -242,11 +255,8 @@ const httpdash = function(req,configobj){
                           
                         }
 
-                        if ([1,2,4,6,7].includes(responsejson.BatteryChargeStep) &&
-                            (responsejson.LineCurrent>0 || responsejson.PVVoltage>=120 )
-                        ){
+                        if ( responsejson.LineCurrent>0 || responsejson.PVVoltage>119 ){
                             sh('#charger',1);
-                          
                         }else{
                             sh('#charger',0);
                           
@@ -321,6 +331,10 @@ const httpdash = function(req,configobj){
                 background-color: grey;
             }
 
+            .hide{
+                display: none;
+            }
+
             </style>
         </head>
         <body>
@@ -328,45 +342,49 @@ const httpdash = function(req,configobj){
             
         
         <div class="container">
-            <div class="d-flex justify-content-center">${svg}</div>
-            <div class="d-flex justify-content-center">
-                <div class="card-body"><label>PVPower</label><div id="delemPVPower"></div></div>
-                <div class="card-body"><label>BatteryCurrent</label><div id="delemBatteryCurrent"></div></div>
-                <div class="card-body"><label>BatteryVoltage</label><div id="delemBatteryVoltage"></div></div>
-                <div class="card-body"><label>LineCurrent</label><div id="delemLineCurrent"></div></div>
-                <div class="card-body"><label>LoadApparentPower</label><div id="delemLoadApparentPower"></div></div>
-                <div class="card-body"><label>MachineState</label><div id="delemMachineState"></div></div>
-            </div>
-            <div class="d-flex justify-content-center">
-                <div class="card-body"><label>CurrentFault</label><div id="delemCurrentFault"></div></div>
-            </div>    
-            <form>
-                <fieldset>
-                ${idata}    
-                </fieldset>
-            </form>    
-            <form id="settingsform">
-                <fieldset>
-                    <legend>Settings</legend>
-                    <div class="form-group">
-                        <label for="password">Http authentication password (plain text)</label>
-                        <input type="text" class="form-control" id="password" name="password" value="${getconfval("password")}">
-                    </div>
-                    <div class="form-group">
-                        <label for="ipaddress">Datalogger ip address</label>
-                        <input type="text" class="form-control" id="ipaddress" name="ipaddress" value="${getconfval("ipaddress")}" placeholder="192.168.1.129" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
-                    </div>
-                    <div class="form-group">
-                        <label for="localipaddress">Local ip address(back route from the datalogger)</label>
-                        <input type="text" class="form-control" id="localipaddress" name="localipaddress" value="${getconfval("localipaddress")}" placeholder="192.168.88.1" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email address</label>
-                        <input type="email" class="form-control" name="email" value="${getconfval("email")}" id="email" placeholder="name@example.com">
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="saveconfig(this)">Save/apply config!</button>
-                </fieldset>
-            </form>
+            <section id="dash" class="${firststart?'hide':''}">
+                <div class="d-flex justify-content-center">${svg}</div>
+                <div class="d-flex justify-content-center">
+                    <div class="card-body"><label>PVPower</label><div id="delemPVPower"></div></div>
+                    <div class="card-body"><label>BatteryCurrent</label><div id="delemBatteryCurrent"></div></div>
+                    <div class="card-body"><label>BatteryVoltage</label><div id="delemBatteryVoltage"></div></div>
+                    <div class="card-body"><label>LineCurrent</label><div id="delemLineCurrent"></div></div>
+                    <div class="card-body"><label>LoadApparentPower</label><div id="delemLoadApparentPower"></div></div>
+                    <div class="card-body"><label>MachineState</label><div id="delemMachineState"></div></div>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <div class="card-body"><label>CurrentFault</label><div id="delemCurrentFault"></div></div>
+                </div>    
+                <form>
+                    <fieldset>
+                    ${idata}    
+                    </fieldset>
+                </form>
+            </section>
+            <section id="settings">
+                <form id="settingsform">
+                    <fieldset>
+                        <legend>Settings</legend>
+                        <div class="form-group">
+                            <label for="password">Http authentication "admin" user password (plain text)</label>
+                            <input type="text" class="form-control" id="password" name="password" value="${getconfval("password")}">
+                        </div>
+                        <div class="form-group">
+                            <label for="ipaddress">Datalogger ip address</label>
+                            <input type="text" class="form-control" id="ipaddress" name="ipaddress" value="${getconfval("ipaddress")}" placeholder="192.168.1.129" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+                        </div>
+                        <div class="form-group">
+                            <label for="localipaddress">Local ip address(back route from the datalogger)</label>
+                            <input type="text" class="form-control" id="localipaddress" name="localipaddress" value="${getconfval("localipaddress")}" placeholder="192.168.88.1" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email address</label>
+                            <input type="email" class="form-control" name="email" value="${getconfval("email")}" id="email" placeholder="name@example.com">
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveconfig(this)">Save/apply config!</button>
+                    </fieldset>
+                </form>
+            </section>
         </div>    
         </body>
      <html>`

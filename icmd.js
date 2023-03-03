@@ -29,6 +29,8 @@ if (process.argv.length<3){
     let monitor_interval=null;
     let client_seen=unixTimestamp();
     let command_queue=[];
+    let command_result=[]; 
+    
 
     var app = express();
 
@@ -75,12 +77,10 @@ if (process.argv.length<3){
 
         console.log("Parameter set called:");
         //console.log(req.body);
-        res.json({"rv": 1,"msg": "Operation queued!"});
-        return;
-
+        
         let inp=req.body;
 
-        if ( inp.paramid!=undefined && (inp.value!=undefined) && inp.client!=undefined ){
+        if ( inp.paramid!=undefined && (inp.value!=undefined) && req.query.client!=undefined ){
 
             let args=[process.argv[0],process.argv[1],'set-smx-param'];
 
@@ -96,7 +96,13 @@ if (process.argv.length<3){
 
             console.log("command -> queue:",args);
 
-            command_queue.push(args);
+            let client="";
+            if (req.query.client != undefined){
+                client=req.query.client;
+            }    
+            command_queue.push({"client":client,"args":args});
+
+            
 
             res.json({"rv": 1,"msg": "Operation queued!"});
 
@@ -110,9 +116,11 @@ if (process.argv.length<3){
     app.get('/query', function (req, res) {
 
         client_seen=unixTimestamp();
+       
 
         let dov={};
         let data="";        
+        
 
         try{
             data=fs.readFileSync('currentdata.json',{encoding:'utf8', flag:'r'});
@@ -127,6 +135,26 @@ if (process.argv.length<3){
                         
         }
 
+        if (req.query.client != undefined){
+
+            let add=[];
+            command_result.forEach(function(el,index,obj){
+                //delete old data
+                if (el.date<unixTimestamp()-500){
+                    obj.splice(index,1);
+                }
+                if (el.client==req.query.client){
+                    add.push(el.msg+" - "+JSON.stringify(el.args.slice(2)));
+                    obj.splice(index,1);
+                    
+                }
+            });
+            if (add.length>0) {
+                let inp={"msg":add}; 
+                dov={...dov,...inp};
+            }    
+        }
+        
         res.json(dov);
         
     });
@@ -219,7 +247,7 @@ if (process.argv.length<3){
 
     function scheduler(){
 
-        console.log(unixTimestamp());
+        
 
         if (command_queue.length>0){
 
@@ -227,17 +255,22 @@ if (process.argv.length<3){
 
                 monitor_lock==1;
 
-                let args=command_queue.shift();
-
-                controllerobject.controller(args,5,0,
+                let tmpa=command_queue.shift();
+                console.log(tmpa.args);
+                controllerobject.controller(tmpa.args,5,0,
                     function(result,stateobject){
 
                         monitor_lock==0;
 
                         if (result==0){
-                            console.log("Modify OK!",args);
+                            console.log("Modify OK!",tmpa.args);
+                            
+                            command_result.push({"date":unixTimestamp(),"client": tmpa.client,"msg":"Modify OK!","args":tmpa.args});
+                            
                         }else{
-                            console.log("Modify Error!",args);
+
+                            command_result.push({"date":unixTimestamp(),"client": tmpa.client,"msg":"Modify Error!","args":tmpa.args});
+                            console.log("Modify Error!",tmpa.args);
                         }
                     },
                     function(log){
