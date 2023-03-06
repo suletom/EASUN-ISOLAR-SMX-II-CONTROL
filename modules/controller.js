@@ -228,24 +228,12 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 //default 4 min timeout to prevent stucking node if not error event occures in tcp communication but no answer recived
                 stateobject.timeout=setTimeout(function() {
 
-                    //freeres(stateobject);
-                    //actioncallback(-1);
+                    
                     _log(logcallback,"Timeout occured...exiting!");
 
                     stateobject.endcallback(-1);
                     
                 }, (1000*timeoutsec));
-
-
-                /* 
-                stateobject.bymem.forEach(function(el,ind){
-                    _log(logcallback,"Query group: "+ind);
-                    el.forEach(function(elb,indb){
-                        _log(logcallback,elb.name,elb.address,elb.address.toString(16).padStart(4,'0'),"len: ",elb.typelen);
-                    });
-                    _log(logcallback,"");
-                });
-                */
 
                 sendudp(myargs[1],stateobject);
 
@@ -449,10 +437,7 @@ function handle_modbus_command(command,cmd,stateobject) {
 
         i++;
     });
-
-    //_log(stateobject.logcallback,setparam);
-    //_log(stateobject.logcallback,setval);
-
+  
     if (setparam!="" && setval!="") {
 
         if ( command.indexOf('{ARGP'+setparamind+'}')!==-1) {
@@ -550,8 +535,7 @@ function getcommseqcmd(stateobject){
     
 
     let obj=stateobject.commands.commandsequences.find(o => o.name === stateobject.global_commandsequence );
-    //_log(stateobject.logcallback,obj);
-    //_log(stateobject.logcallback,stateobject.command_seq);
+
     return obj.seq[stateobject.command_seq];
 }
 
@@ -627,6 +611,7 @@ function processpacket(data,def,offset=0,stateobject){
     let outobj={};
     let outsum="";
     let modbusexception=false;
+    
 
     //modbus rtu response: fixed position to extract data from
     let val="";
@@ -635,123 +620,143 @@ function processpacket(data,def,offset=0,stateobject){
     //process.stdout.write("Response orig:\n");
     //dumpdata(data);
 
+    let startlen=11;
     //data starts at byte 11
-    startpos=11+offset;
+    startpos=startlen+offset;
 
-    //1 byte len
-    lenval=data[10];
-    rescode=data[9];
-    
-    let tmpbuf=data.slice(8,data.length-2);
-    let rcrc=data.slice(data.length-2,data.length);
-    //dumpdata(rcrc);
-    rcrc=rcrc.readUInt16BE().toString(16).padStart(4,'0');
-    //dumpdata(tmpbuf);
-    let chcrc=crc16modbus(tmpbuf);
-    chcrc=chcrc.toString(16).padStart(4,'0');
-
-    let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
-    
-    _log(stateobject.logcallback,"(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rcrc+")\n");
-
-    //test for modbus exception
-    if (rescode>128){
+    //checking packet length
+    if (data.length>startlen){
+                
+        lenval=data[10];
+        rescode=data[9];
         
-        let msg=['Illegal function','Illegal data address','Illegal data value','Slave device failure','Acknowledge','Slave device busy','Negative acknowledgment','Memory parity error',
-        'Gateway path unavailable','Gateway target device failed to respond'].find(function(e,i){ return (i+1)==lenval; });
-        _log(stateobject.logcallback,'Modbus exception: ',rescode.toString(16).padStart(2,'0'),lenval.toString(16).padStart(2,'0') , msg);
-        _log(stateobject.logcallback,"\n");
+        let tmpbuf=data.slice(8,data.length-2);
+        let rec_crc=data.slice(data.length-2,data.length);
+        
+        rec_crc=rec_crc.readUInt16BE().toString(16).padStart(4,'0');
+        
+        let chcrc=crc16modbus(tmpbuf);
+        chcrc=chcrc.toString(16).padStart(4,'0');
 
-        modbusexception=true;
+        let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
+        
+        _log(stateobject.logcallback,"(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rec_crc+")\n");
 
-    }
+        //test for modbus exception
+        if (rescode>128){
+            
+            let msg=['Illegal function','Illegal data address','Illegal data value','Slave device failure','Acknowledge','Slave device busy','Negative acknowledgment','Memory parity error',
+            'Gateway path unavailable','Gateway target device failed to respond'].find(function(e,i){ return (i+1)==lenval; });
+            _log(stateobject.logcallback,'Modbus exception: ',rescode.toString(16).padStart(2,'0'),lenval.toString(16).padStart(2,'0') , msg);
+            _log(stateobject.logcallback,"\n");
 
-    if (hcrc!=rcrc){
-        _log(stateobject.logcallback,"Modbus CRC error!\n");
-    }
+            modbusexception=true;
 
-    if (hcrc!=rcrc || modbusexception){
+        }
+
+        if (hcrc!=rec_crc){
+            _log(stateobject.logcallback,"Modbus CRC error!\n");
+        }
+
+        if (hcrc!=rec_crc || modbusexception){
+
+            let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
+            _log(stateobject.logcallback,outt);
+
+            outobj[def.name]="N/A";
+            outsum+=outt+"\n";
+
+        }else{
+
+            //custom formats
+            //1. string with fixed length
+            if ( Number.isInteger(def.type) ){
+                _log(stateobject.logcallback,"Getting from buffer: string:",def.type," from ",startpos," to ",startpos+def.type);
+
+                //type with custom length: not needed -> string default
+                //val=val.substring(startpos*2,startpos*2+(lenval*2));
+
+                for(let c=0;c<def.type*2;c++){
+                    handled[startpos*2+c]=1;
+                }
+
+
+                //check length again
+                if (data.length>startpos+(def.type*2)){
+
+
+
+                }
+                
+                //default handle as string
+                let nb=data.slice(startpos,startpos+(def.type*2));
+                nb=nb.toString('utf8').replace(/\0/g, '');
+
+                if (def.hasOwnProperty('format')){
+                    //datetime
+                    if (def.format===100){
+                        nb= "20"+data.readUInt8(startpos).toString().padStart(2,'0')+"-"+
+                            data.readUInt8(startpos+1).toString().padStart(2,'0')+"-"+
+                            data.readUInt8(startpos+2).toString().padStart(2,'0')+" "+
+                            data.readUInt8(startpos+3).toString().padStart(2,'0')+":"+
+                            data.readUInt8(startpos+4).toString().padStart(2,'0')+":"+
+                            data.readUInt8(startpos+5).toString().padStart(2,'0');
+                    }
+                    //fault codes
+                    if (def.format===101){
+                        nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
+                            "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
+                            "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+
+                            "FAULT3: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+" ";
+                            
+                    }
+                }
+                
+                val=nb;
+            
+                outobj[def.name]=val;
+            }else{
+
+                //basic types supported by Buffer class: most seem to be 2 bytes long
+                _log(stateobject.logcallback,"Getting from buffer: ",def.type,startpos);
+                val=data['read'+def.type](startpos);
+
+                //hack: mark always 2 bytes: for debugging
+                handled[startpos*2]=1;
+                handled[startpos*2+1]=1;
+                handled[startpos*2+2]=1;
+                handled[startpos*2+3]=1;
+
+                if (def.hasOwnProperty('rate')){
+                    val=val*def.rate;
+                }
+                
+                if (def.hasOwnProperty('format')){
+                    val=val.toFixed(def.format);
+                }
+                
+                outobj[def.name]=parseFloat(val);
+            }
+
+            let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
+            _log(stateobject.logcallback,stmp+"\n");
+            
+            
+            if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
+                outobj[def.name+"_text"]=def.unit[parseInt(val)];
+            }
+            outsum+=stmp+"\n";
+            
+        }
+    }else{
 
         let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
         _log(stateobject.logcallback,outt);
 
-        outobj[def.name]="N/A";
+        outobj[def.name]="N/A"; //<- added as value, can/must be checked later
         outsum+=outt+"\n";
 
-    }else{
-
-        //custom formats
-        //1. string with fixed length
-        if ( Number.isInteger(def.type) ){
-            _log(stateobject.logcallback,"Getting from buffer: string:",def.type," from ",startpos," to ",startpos+def.type);
-
-            //type with custom length: not needed -> string default
-            //val=val.substring(startpos*2,startpos*2+(lenval*2));
-
-            for(let c=0;c<def.type*2;c++){
-                handled[startpos*2+c]=1;
-            }
-            
-            //default handle as string
-            let nb=data.slice(startpos,startpos+(def.type*2));
-            nb=nb.toString('utf8').replace(/\0/g, '');
-
-            if (def.hasOwnProperty('format')){
-                //datetime
-                if (def.format===100){
-                    nb= "20"+data.readUInt8(startpos).toString().padStart(2,'0')+"-"+
-                        data.readUInt8(startpos+1).toString().padStart(2,'0')+"-"+
-                        data.readUInt8(startpos+2).toString().padStart(2,'0')+" "+
-                        data.readUInt8(startpos+3).toString().padStart(2,'0')+":"+
-                        data.readUInt8(startpos+4).toString().padStart(2,'0')+":"+
-                        data.readUInt8(startpos+5).toString().padStart(2,'0');
-                }
-                //fault codes
-                if (def.format===101){
-                    nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
-                        "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
-                        "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+
-                        "FAULT3: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+" ";
-                        
-                }
-            }
-            
-            val=nb;
-        
-            outobj[def.name]=val;
-        }else{
-
-            //basic types supported by Buffer class: most seem to be 2 bytes long
-            _log(stateobject.logcallback,"Getting from buffer: ",def.type,startpos);
-            val=data['read'+def.type](startpos);
-
-            //hack: mark always 2 bytes: for debugging
-            handled[startpos*2]=1;
-            handled[startpos*2+1]=1;
-            handled[startpos*2+2]=1;
-            handled[startpos*2+3]=1;
-
-            if (def.hasOwnProperty('rate')){
-                val=val*def.rate;
-            }
-            
-            if (def.hasOwnProperty('format')){
-                val=val.toFixed(def.format);
-            }
-            
-            outobj[def.name]=parseFloat(val);
-        }
-
-        let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
-        _log(stateobject.logcallback,stmp+"\n");
-        
-        
-        if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
-            outobj[def.name+"_text"]=def.unit[parseInt(val)];
-        }
-        outsum+=stmp+"\n";
-        
-    }    
+    }        
 
     _log(stateobject.logcallback,"Response:\n");
     dumpdata(data,handled,stateobject);
@@ -832,9 +837,9 @@ function receivedata(data,stateobject){
             let datastart=10;
             let tmpbuf=data.slice(datastart,data.length-2);
 
-            let rcrc=data.slice(data.length-2,data.length);
+            let rec_crc=data.slice(data.length-2,data.length);
             
-            rcrc=rcrc.readUInt16BE().toString(16).padStart(4,'0');
+            rec_crc=rec_crc.readUInt16BE().toString(16).padStart(4,'0');
             
             let chcrc=crc16modbus(tmpbuf);
 
@@ -842,7 +847,7 @@ function receivedata(data,stateobject){
 
             let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
 
-            if (!hcrc==rcrc){
+            if (!hcrc==rec_crc){
                 _log(stateobject.logcallback,"Modbus CRC error!");
             }else{
                 _log(stateobject.logcallback,"Modbus CRC ok!");
