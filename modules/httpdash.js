@@ -94,7 +94,7 @@ const httpdash = function(req,configobj){
                     return response.json()
                 }).then(function(responsejson) {
                     if (responsejson.rv==1){
-                        let c=document.querySelector('#config');
+                        let c=document.querySelector('#dash');
                         c.classList.remove('hide');
                     }
                     alert(responsejson.msg);
@@ -167,14 +167,16 @@ const httpdash = function(req,configobj){
                                     if (oldvalue!==elem.value){
                                         elem.classList.remove('loading');
                                     }
-                                    //console.log(oldvalue,elem.value);
-                                    //if (responsejson[key+"_change"]!==undefined){
-                                    //    
-                                    //}
                                 }else{
                                     elem.value=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
                                 }
-                            }    
+                            }
+
+                            if (key=="state"){
+                                dash.classList.remove('connected');
+                                dash.classList.remove('notconnected');
+                                dash.classList.add(value);
+                            }
 
                             let delem=document.querySelector('#delem'+key);
                             if (delem !== null && delem !== undefined){
@@ -335,6 +337,13 @@ const httpdash = function(req,configobj){
                 display: none;
             }
 
+            #dash.connected > div{
+                background-color: lightgreen;
+            }
+            #dash.notconnected > div{
+                background-color: #ffb3b2;
+            }
+
             </style>
         </head>
         <body>
@@ -342,8 +351,8 @@ const httpdash = function(req,configobj){
             
         
         <div class="container">
-            <section id="dash" class="${firststart?'hide':''}">
-                <div class="d-flex justify-content-center">${svg}</div>
+            <section id="dash" class="notconnected${firststart?' hide':''}">
+                <div id class="d-flex justify-content-center">${svg}</div>
                 <div class="d-flex justify-content-center">
                     <div class="card-body"><label>PVPower</label><div id="delemPVPower"></div></div>
                     <div class="card-body"><label>BatteryCurrent</label><div id="delemBatteryCurrent"></div></div>
@@ -352,9 +361,12 @@ const httpdash = function(req,configobj){
                     <div class="card-body"><label>LoadApparentPower</label><div id="delemLoadApparentPower"></div></div>
                     <div class="card-body"><label>MachineState</label><div id="delemMachineState"></div></div>
                 </div>
-                <div class="d-flex justify-content-center">
+                <div id="faults" class="d-flex justify-content-center">
                     <div class="card-body"><label>CurrentFault</label><div id="delemCurrentFault"></div></div>
                 </div>    
+                <div class="d-flex justify-content-center">
+                    <div class="card-body"><label>API url:</label><div id="apiurl"><a target="_blank" href="/query"><script>document.write(window.location.href+"query");</script></a></div></div>
+                </div>
                 <form>
                     <fieldset>
                     ${idata}    

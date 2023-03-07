@@ -6,6 +6,11 @@ const bodyParser = require('body-parser');
 const basicAuth = require('express-basic-auth')
 
 
+let real_time_monitor_interval=8000;
+let low_freq_monitor_at_nth_interval=10;
+let full_param_query_at_nth_interval=20;
+
+let current_data_store='currentdata.json';
 
 if (process.argv.length<3){
 
@@ -117,13 +122,26 @@ if (process.argv.length<3){
 
         client_seen=unixTimestamp();
        
-
         let dov={};
-        let data="";        
-        
+        let data="";     
+        let state={};   
+        let stats=null;
+
+        //check and pass last data date
+        try{
+            stats=fs.statSync(current_data_store);
+        }catch(e) {
+
+        }
+
+        if (stats!=null && unixTimestamp(stats.mtime) > unixTimestamp()-60 ){
+            state={"state":"connected","lastseen":unixTimestamp(stats.mtime)};
+        }else{
+            state={"state":"notconnected","lastseen":""};
+        }
 
         try{
-            data=fs.readFileSync('currentdata.json',{encoding:'utf8', flag:'r'});
+            data=fs.readFileSync(current_data_store,{encoding:'utf8', flag:'r'});
         }catch(e) {
 
         }
@@ -152,8 +170,11 @@ if (process.argv.length<3){
             if (add.length>0) {
                 let inp={"msg":add}; 
                 dov={...dov,...inp};
-            }    
+            }
         }
+
+        //console.log("satate:",state);
+        dov={...dov,...state};
         
         res.json(dov);
         
@@ -196,7 +217,7 @@ if (process.argv.length<3){
                         monitor_current_object={...monitor_current_object,...stateobject.outobj};
                         
                         try {
-                            fs.writeFileSync('currentdata.json',JSON.stringify(monitor_current_object));
+                            fs.writeFileSync(current_data_store,JSON.stringify(monitor_current_object));
                         } catch (err) {
                             console.error(err)
                         }
@@ -288,7 +309,7 @@ if (process.argv.length<3){
         }
 
         if (client_seen<unixTimestamp()-60){
-            if ((cv%10)!=0) {
+            if ((cv%low_freq_monitor_at_nth_interval)!=0) {
                 console.log("Low freq, querying later");
                 cv++;
                 return;
@@ -296,7 +317,7 @@ if (process.argv.length<3){
         }
 
         console.log("Scheduler run...",cv);
-        if (cv%20 == 0) {
+        if (cv%full_param_query_at_nth_interval == 0) {
             console.log("Running long query");
             if (monitor(0)){
                 cv=1;
@@ -316,17 +337,20 @@ if (process.argv.length<3){
 
     }
 
-    monitor_interval=setInterval(function(){ scheduler(); },8000);
+    monitor_interval=setInterval(function(){ scheduler(); },real_time_monitor_interval);
     
 }
 
+
+
+//cmd script mode
 controllerobject.controller(process.argv,23,1,
     function(result,stateobject){
         if (result==0) {
             if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
                 
                 try {
-                    fs.writeFileSync('currentdata.json',JSON.stringify(stateobject.outobj));
+                    fs.writeFileSync(current_data_store,JSON.stringify(stateobject.outobj));
                 } catch (err) {
                     console.error(err)
                 }
@@ -344,6 +368,11 @@ controllerobject.controller(process.argv,23,1,
 );
 
 
-function unixTimestamp () {  
-    return Math.floor(Date.now() / 1000)
+
+function unixTimestamp (d=null) {  
+    let bd=Date.now();
+    if (d!==null){
+        bd=d;
+    }
+    return Math.floor(bd / 1000)
 }

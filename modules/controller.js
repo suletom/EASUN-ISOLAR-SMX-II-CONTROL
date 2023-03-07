@@ -270,7 +270,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                 let port=58899;
                 let command="set>server="+ip+":8899;";
                 
-                _log(stateobject.logcallback,"Sending UDP packet(port: "+port+") to inform datalogger device to connect the TCP server:");
+                _log(stateobject.logcallback,"Sending UDP packet(to ip: "+devip+" port: "+port+") to inform datalogger device to connect our TCP server:");
                 _log(stateobject.logcallback,command);
 
                 client.on('listening', function () {
@@ -624,6 +624,9 @@ function processpacket(data,def,offset=0,stateobject){
     //data starts at byte 11
     startpos=startlen+offset;
 
+    //default error log string
+    let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
+
     //checking packet length
     if (data.length>startlen){
                 
@@ -658,10 +661,11 @@ function processpacket(data,def,offset=0,stateobject){
             _log(stateobject.logcallback,"Modbus CRC error!\n");
         }
 
-        if (hcrc!=rec_crc || modbusexception){
+        
 
-            let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
-            _log(stateobject.logcallback,outt);
+        if (hcrc!=rec_crc || modbusexception){
+    
+            _log(stateobject.logcallback,outt+"1");
 
             outobj[def.name]="N/A";
             outsum+=outt+"\n";
@@ -671,7 +675,7 @@ function processpacket(data,def,offset=0,stateobject){
             //custom formats
             //1. string with fixed length
             if ( Number.isInteger(def.type) ){
-                _log(stateobject.logcallback,"Getting from buffer: string:",def.type," from ",startpos," to ",startpos+def.type);
+                _log(stateobject.logcallback,"Getting from buffer: string:",def.type," from ",startpos," to ",startpos+(def.type*2));
 
                 //type with custom length: not needed -> string default
                 //val=val.substring(startpos*2,startpos*2+(lenval*2));
@@ -680,77 +684,101 @@ function processpacket(data,def,offset=0,stateobject){
                     handled[startpos*2+c]=1;
                 }
 
-
                 //check length again
-                if (data.length>startpos+(def.type*2)){
+                if (data.length>=startpos+(def.type*2)+2){
 
+                    //default handle as string
+                    let nb=data.slice(startpos,startpos+(def.type*2));
+                    nb=nb.toString('utf8').replace(/\0/g, '');
 
-
-                }
-                
-                //default handle as string
-                let nb=data.slice(startpos,startpos+(def.type*2));
-                nb=nb.toString('utf8').replace(/\0/g, '');
-
-                if (def.hasOwnProperty('format')){
-                    //datetime
-                    if (def.format===100){
-                        nb= "20"+data.readUInt8(startpos).toString().padStart(2,'0')+"-"+
-                            data.readUInt8(startpos+1).toString().padStart(2,'0')+"-"+
-                            data.readUInt8(startpos+2).toString().padStart(2,'0')+" "+
-                            data.readUInt8(startpos+3).toString().padStart(2,'0')+":"+
-                            data.readUInt8(startpos+4).toString().padStart(2,'0')+":"+
-                            data.readUInt8(startpos+5).toString().padStart(2,'0');
+                    if (def.hasOwnProperty('format')){
+                        //datetime
+                        if (def.format===100){
+                            nb= "20"+data.readUInt8(startpos).toString().padStart(2,'0')+"-"+
+                                data.readUInt8(startpos+1).toString().padStart(2,'0')+"-"+
+                                data.readUInt8(startpos+2).toString().padStart(2,'0')+" "+
+                                data.readUInt8(startpos+3).toString().padStart(2,'0')+":"+
+                                data.readUInt8(startpos+4).toString().padStart(2,'0')+":"+
+                                data.readUInt8(startpos+5).toString().padStart(2,'0');
+                        }
+                        //fault codes
+                        if (def.format===101){
+                            nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
+                                "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
+                                "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+
+                                "FAULT3: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+" ";
+                                
+                        }
                     }
-                    //fault codes
-                    if (def.format===101){
-                        nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
-                            "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
-                            "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+
-                            "FAULT3: "+data.readUInt16BE(startpos+6)+": "+def.unit[data.readUInt16BE(startpos+6)]+" ";
-                            
+                    
+                    val=nb;
+                    outobj[def.name]=val;
+
+                    let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
+                    _log(stateobject.logcallback,stmp+"\n");
+                    
+                    
+                    if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
+                        outobj[def.name+"_text"]=def.unit[parseInt(val)];
                     }
+                    outsum+=stmp+"\n";
+
+                }else{
+                    
+                    _log(stateobject.logcallback,outt+"2");
+
+                    outobj[def.name]="N/A"; //<- added as value, can/must be checked later
+                    outsum+=outt+"\n";
                 }
-                
-                val=nb;
-            
-                outobj[def.name]=val;
+
             }else{
 
                 //basic types supported by Buffer class: most seem to be 2 bytes long
                 _log(stateobject.logcallback,"Getting from buffer: ",def.type,startpos);
-                val=data['read'+def.type](startpos);
 
-                //hack: mark always 2 bytes: for debugging
-                handled[startpos*2]=1;
-                handled[startpos*2+1]=1;
-                handled[startpos*2+2]=1;
-                handled[startpos*2+3]=1;
+                //check length again
+                if (data.length>=startpos+2+2){
 
-                if (def.hasOwnProperty('rate')){
-                    val=val*def.rate;
-                }
-                
-                if (def.hasOwnProperty('format')){
-                    val=val.toFixed(def.format);
-                }
-                
-                outobj[def.name]=parseFloat(val);
+                    val=data['read'+def.type](startpos);
+
+                    //hack: mark always 2 bytes: for debugging
+                    handled[startpos*2]=1;
+                    handled[startpos*2+1]=1;
+                    handled[startpos*2+2]=1;
+                    handled[startpos*2+3]=1;
+
+                    if (def.hasOwnProperty('rate')){
+                        val=val*def.rate;
+                    }
+                    
+                    if (def.hasOwnProperty('format')){
+                        val=val.toFixed(def.format);
+                    }
+                    
+                    outobj[def.name]=parseFloat(val);
+
+                    let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
+                    _log(stateobject.logcallback,stmp+"\n");
+                    
+                    
+                    if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
+                        outobj[def.name+"_text"]=def.unit[parseInt(val)];
+                    }
+                    outsum+=stmp+"\n";
+
+                }else{
+                    
+                    _log(stateobject.logcallback,outt+"3 "+data.length+">"+(startpos+2+2));
+
+                    outobj[def.name]="N/A"; //<- added as value, can/must be checked later
+                    outsum+=outt+"\n";
+                }    
             }
-
-            let stmp=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t "+val+" "+(Array.isArray(def.unit)?( def.unit[parseInt(val)]!==undefined? (" => "+def.unit[parseInt(val)]): '' ):def.unit);
-            _log(stateobject.logcallback,stmp+"\n");
-            
-            
-            if (Array.isArray(def.unit) && def.unit[parseInt(val)]!==undefined ) {
-                outobj[def.name+"_text"]=def.unit[parseInt(val)];
-            }
-            outsum+=stmp+"\n";
             
         }
     }else{
 
-        let outt=(def.hasOwnProperty('num')?def.num.padStart(2,'0')+" ":"")+def.name+":\t \t NA : ERROR IN RESPONSE!";
+
         _log(stateobject.logcallback,outt);
 
         outobj[def.name]="N/A"; //<- added as value, can/must be checked later
