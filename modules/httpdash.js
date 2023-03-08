@@ -393,6 +393,33 @@ const httpdash = function(req,configobj){
                             <label for="email">Email address</label>
                             <input type="email" class="form-control" name="email" value="${getconfval("email")}" id="email" placeholder="name@example.com">
                         </div>
+                        <div class="form-group">
+                            <label for="smtp">SMTP server</label>
+                            <input type="text" class="form-control" name="smtp" value="${getconfval("smtp")}" id="smtp" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="smtpuser">SMTP user</label>
+                            <input type="text" class="form-control" name="smtpuser" value="${getconfval("smtpuser")}" id="smtpuser" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="smtppass">SMTP pass (plain text)</label>
+                            <input type="text" class="form-control" name="smtppass" value="${getconfval("smtppass")}" id="smtppass" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="smtpauth">SMTP auth</label>
+                            <select class="form-control" name="smtpauth" id="smtpauth">
+                                <option ${getconfval("smtpauth")=="auto"?'selected':''} value="auto">Auto (port: 25 plaintext/starttls)</option>
+                                <option ${getconfval("smtpauth")=="ssl"?'selected':''} value="ssl">SSL (port: 465)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="telegrambt">Telegram bot token</label>
+                            <input type="text" class="form-control" name="telegrambt" value="${getconfval("telegrambt")}" id="telegrambt" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="telegramcid">Telegram conversation id</label>
+                            <input type="text" class="form-control" name="telegramcid" value="${getconfval("telegramcid")}" id="telegramcid" placeholder="">
+                        </div>
                         <button type="button" class="btn btn-primary" onclick="saveconfig(this)">Save/apply config!</button>
                     </fieldset>
                 </form>

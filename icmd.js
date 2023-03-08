@@ -3,7 +3,9 @@ const httpdash = require("./modules/httpdash.js");
 let fs = require('fs');
 var express = require('express');
 const bodyParser = require('body-parser');
-const basicAuth = require('express-basic-auth')
+const basicAuth = require('express-basic-auth');
+const notifier = require("./modules/notifier.js");
+
 
 
 let real_time_monitor_interval=8000;
@@ -65,10 +67,16 @@ if (process.argv.length<3){
             fs.writeFileSync('config.json',JSON.stringify(req.body));
         } catch (err) {
             console.error(err)
+
             res.json({"rv": 0,"msg":"Error!"});
+            notifier.notifier(configobj,"TEST message: Save error!","Save error!");
+
+            return;
         } 
 
-        res.json({"rv": 1,"msg":"Save ok!"});
+        notifier.notifier(configobj,"TEST message: Save ok!","Save ok!");
+
+        res.json({"rv": 1,"msg":"Save ok! Please check sent test notification(s)!"});
 
     });
 
