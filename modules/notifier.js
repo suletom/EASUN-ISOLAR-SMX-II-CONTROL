@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const fetch = require('cross-fetch');
 
 const notifier = function(configobj,subject,msg,callback=null){
 
@@ -10,6 +11,8 @@ const notifier = function(configobj,subject,msg,callback=null){
         }
         return false;
     }
+
+
 
     console.log("Sendig notify:",subject,msg);
 
@@ -54,6 +57,18 @@ const notifier = function(configobj,subject,msg,callback=null){
 
     }
 
+    if ( !isempty(configobj.telegrambt) &&
+         !isempty(configobj.telegramcid) ){
+
+            let tm="["+subject+"] "+msg;
+            let api=`https://api.telegram.org/bot${encodeURIComponent(configobj.telegrambt)}/sendMessage?chat_id=${encodeURIComponent(configobj.telegramcid)}&text=${encodeURIComponent(tm)}`;
+            fetch(api)
+            .then(response => {
+               console.log("Telegram response:",response);
+            });
+
+    }
+    
 
 
 }

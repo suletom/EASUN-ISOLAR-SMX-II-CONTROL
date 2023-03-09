@@ -5,6 +5,7 @@ var express = require('express');
 const bodyParser = require('body-parser');
 const basicAuth = require('express-basic-auth');
 const notifier = require("./modules/notifier.js");
+const detect = require("./modules/detect.js");
 
 
 
@@ -18,6 +19,7 @@ if (process.argv.length<3){
 
     console.log("\nNo command supplied! To explore modbus debug options or test from command line, use: npm start help\nStarting web ui mode....\n");
 
+    detect.detect();
 
     let config="";
     try{
