@@ -19,7 +19,6 @@ if (process.argv.length<3){
 
     console.log("\nNo command supplied! To explore modbus debug options or test from command line, use: npm start help\nStarting web ui mode....\n");
 
-    detect.detect();
 
     let config="";
     try{
@@ -85,6 +84,15 @@ if (process.argv.length<3){
     app.get('/', function (req, res) {
 
         res.send(httpdash.httpdash(req,configobj));
+
+    });
+
+    app.get('/detect', function (req, res) {
+
+        detect.detect(function(obj){
+            res.json(obj);
+        });
+        
 
     });
 
