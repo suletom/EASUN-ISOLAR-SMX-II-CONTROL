@@ -311,7 +311,6 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
         _log(stateobject.logcallback,"starting TCP server(port: "+port+") to recieve data....");
 
         
-
             var server = net.createServer(function(socket) {
 
                 stateobject.resources.push({'tcpsocket':socket});
@@ -364,6 +363,8 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
             
             stateobject.resources.push({'tcpserver':server});
 
+        
+        
         try {
 
             server.listen(port, '0.0.0.0');

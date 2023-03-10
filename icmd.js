@@ -7,7 +7,12 @@ const basicAuth = require('express-basic-auth');
 const notifier = require("./modules/notifier.js");
 const detect = require("./modules/detect.js");
 
-
+process.on('uncaughtException', function(err) {
+    if(err.errno === 'EADDRINUSE')
+        console.log("Error: EADDRINUSE, perhaps port already used...Details:",err);
+    else
+        console.log(err);
+});  
 
 let real_time_monitor_interval=8000;
 let low_freq_monitor_at_nth_interval=10;
