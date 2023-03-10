@@ -82,6 +82,22 @@ const httpdash = function(req,configobj){
             let timer=null;
            
 
+            function startwiz(){
+
+                fetch('/detect').then(function(response) {
+                    return response.json()
+                }).then(function(responsejson) {
+                    if (confirm("Found datalogger on ip: "+responsejson+"! Want to Use it?")){
+                        document.querySelector('#ipaddress').value=responsejson;
+                    }
+                }).catch(error => {
+                    console.log(error);
+                });
+
+            }
+
+            ${firststart?'startwiz();':''}
+
             function saveconfig(obj){
 
                 let f=document.querySelector('#settingsform');
