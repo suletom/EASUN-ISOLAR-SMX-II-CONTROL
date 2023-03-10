@@ -1,0 +1,17 @@
+Priority list:
+
+0. show important data on dashboard: +
+1. show units: +
+2. set parameters with client result: +
+3. buffer size check: wrong packet detection: +
+4. Notifications:
+    0 smtp, telegram: +
+    1 watchdog
+    2 Parameter watch
+    3 flapping detection
+5. portscan/wizard on init: +
+6. store data
+7. software battery soc calculation
+8. graphs
+
+FIX: TCP address in use by other process!
