@@ -1,8 +1,11 @@
 var os = require('os');
 let dgram = require('dgram');
 var Netmask = require('netmask').Netmask
+var localIpV4Address = require("local-ipv4-address");
 
 const detect = function(callback){
+
+    let fired=0;
 
     function tryport(dip,cb=null){
         
@@ -13,7 +16,7 @@ const detect = function(callback){
         let timeout=setTimeout(function(){ try { client.close(); }catch(e) { console.log(e); } console.log("."); },2000);
 
         let port=58899;
-        let ip="0.0.0.0";
+        let ip=localIpV4Address();
 
         let command="set>server="+ip+":8899;";
                 
@@ -32,9 +35,9 @@ const detect = function(callback){
             
             let str=message.toString();
             if (str.match(/^rsp>server/)){
-                if (cb!==null) cb(remote.address);
+                if (cb!==null && fired===0)  { fired=1; cb(remote.address); }
             }    
-                client.close();
+            client.close();
         });
 
         client.send(command,0, command.length, port, dip);
