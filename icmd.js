@@ -35,6 +35,7 @@ if (process.argv.length<3){
     }
 
     let monitor_interval=null;
+    let scheduler_tick=0;
     let client_seen=unixTimestamp();
     let command_queue=[];
     let command_result=[]; 
@@ -76,6 +77,8 @@ if (process.argv.length<3){
         } 
 
         notifier.notifier(configobj,"TEST message: Save ok!","Save ok!");
+
+        scheduler_tick=0;
 
         res.json({"rv": 1,"msg":"Save ok! Please check sent test notification(s)!"});
 
@@ -282,11 +285,9 @@ if (process.argv.length<3){
         return true;
     };
 
-    let cv=0;
+    
 
     function scheduler(){
-
-        
 
         if (command_queue.length>0){
 
@@ -327,18 +328,18 @@ if (process.argv.length<3){
         }
 
         if (client_seen<unixTimestamp()-60){
-            if ((cv%low_freq_monitor_at_nth_interval)!=0) {
+            if ((scheduler_tick%low_freq_monitor_at_nth_interval)!=0) {
                 console.log("Low freq, querying later");
-                cv++;
+                scheduler_tick++;
                 return;
             }
         }
 
-        console.log("Scheduler run...",cv);
-        if (cv%full_param_query_at_nth_interval == 0) {
+        console.log("Scheduler run...",scheduler_tick);
+        if (scheduler_tick%full_param_query_at_nth_interval == 0) {
             console.log("Running long query");
             if (monitor(0)){
-                cv=1;
+                scheduler_tick=1;
             }else{
                 console.log("Still in progress");
             }
@@ -346,7 +347,7 @@ if (process.argv.length<3){
         }else{
             console.log("Running fast query");
             if (monitor(1)){
-                cv++;
+                scheduler_tick++;
             }else{
                 console.log("Still in progress");
             }
