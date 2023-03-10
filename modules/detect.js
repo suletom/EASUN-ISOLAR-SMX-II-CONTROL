@@ -28,7 +28,7 @@ const detect = function(callback){
         });
 
         client.on('message',function(message, remote){
-            console.log("Got answer, closing UDP socket...",message);
+            console.log("Got answer, closing UDP socket, ip:"+remote.address + ':' + remote.port +' -> ' + message);
             if (cb!==null) cb(message);
             client.close();
         });
