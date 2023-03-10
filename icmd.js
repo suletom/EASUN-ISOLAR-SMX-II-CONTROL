@@ -9,10 +9,10 @@ const detect = require("./modules/detect.js");
 
 process.on('uncaughtException', function(err) {
     if(err.errno === 'EADDRINUSE')
-        console.log("Error: EADDRINUSE, perhaps port already used...Details:",err);
+        console.log("Process Exception: EADDRINUSE, perhaps port already used...Details:",err);
     else
-        console.log(err);
-});  
+        console.log("Process Exception: ",err);
+});
 
 let real_time_monitor_interval=8000;
 let low_freq_monitor_at_nth_interval=10;
