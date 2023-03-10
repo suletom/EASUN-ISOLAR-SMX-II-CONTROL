@@ -29,8 +29,12 @@ const detect = function(callback){
 
         client.on('message',function(message, remote){
             console.log("Got answer, closing UDP socket, ip:"+remote.address + ':' + remote.port +' -> ' + message);
-            if (cb!==null) cb(message);
-            client.close();
+            
+            let str=message.toString();
+            if (str.match(/^rsp>server/)){
+                if (cb!==null) cb(remote.address);
+            }    
+                client.close();
         });
 
         client.send(command,0, command.length, port, dip);
