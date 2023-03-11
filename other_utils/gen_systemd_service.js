@@ -24,8 +24,8 @@ Description=ICMD INVERTER MONITOR
 [Service]
 ExecStart=${bin}
 Restart=always
-User=nobody
-Group=nogroup
+User=root
+Group=root
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
 WorkingDirectory=${pathn}
