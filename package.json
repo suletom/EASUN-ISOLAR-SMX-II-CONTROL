@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node icmd.js",
-    "gen-ha-config": "node ha_template_generator/gen.js"
+    "gen-ha-config": "node ha_template_generator/gen.js",
+    "systemd-install": "node other_utils/gen_systemd_service.js"
   },
   "repository": {
     "type": "git",
