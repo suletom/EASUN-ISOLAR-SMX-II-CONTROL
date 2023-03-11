@@ -2,6 +2,7 @@ let net = require('net');
 let fs = require('fs');
 let dgram = require('dgram');
 const { Buffer } = require('buffer');
+var os = require('os');
 
 function _log(lcallback,...data){
     lcallback(data);
