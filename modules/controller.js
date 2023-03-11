@@ -1,7 +1,6 @@
 let net = require('net');
 let fs = require('fs');
 let dgram = require('dgram');
-var localIpV4Address = require("local-ipv4-address");
 const { Buffer } = require('buffer');
 
 function _log(lcallback,...data){
@@ -255,9 +254,28 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
     function sendudp(devip,stateobject){
 
-        try{
 
-            localIpV4Address().then(function(ip){
+        var interfaces = os.networkInterfaces();
+        var addresses = [];
+        for (var k in interfaces) {
+            for (var k2 in interfaces[k]) {
+                var address = interfaces[k][k2];
+                if (address.family === 'IPv4' && !address.internal) {
+                    addresses.push(address.address);
+                }
+            }
+        }
+
+        if (addresses.length==0){
+            _log(stateobject.logcallback,"UDP Error: Can't determine local ipv4 address!");
+            stateobject.endcallback(-1);
+        }
+
+        let ip=addresses[0];
+
+        /*try{
+
+            localIpV4Address().then(function(ip){*/
             
                 if (customip!=""){
                     ip=customip;
@@ -296,12 +314,14 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
                 client.send(command,0, command.length, port, devip);
 
-            });
+            //});
 
+        /*    
         }catch(e){
             _log(stateobject.logcallback,"UDP Error: ",e);
             stateobject.endcallback(-1);
         }
+        */
         
     }
 

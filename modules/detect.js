@@ -1,7 +1,7 @@
 var os = require('os');
 let dgram = require('dgram');
 var Netmask = require('netmask').Netmask
-var localIpV4Address = require("local-ipv4-address");
+
 
 const detect = function(callback){
 
@@ -16,7 +16,7 @@ const detect = function(callback){
         let timeout=setTimeout(function(){ try { client.close(); }catch(e) { console.log(e); } console.log("."); },2000);
 
         let port=58899;
-        let ip=localIpV4Address();
+        let ip="0.0.0.0";
 
         let command="set>server="+ip+":8899;";
                 
