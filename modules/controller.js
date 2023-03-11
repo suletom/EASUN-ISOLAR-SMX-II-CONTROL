@@ -212,6 +212,8 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
                             }
                         });
+
+                        _log(logcallback,"All params count: ",stateobject.bymem.length);
                        
                     }
                     
@@ -235,6 +237,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
                     
                 }, (1000*timeoutsec));
 
+                _log(logcallback,"Call sendudp...");
                 sendudp(myargs[1],stateobject);
 
             }
