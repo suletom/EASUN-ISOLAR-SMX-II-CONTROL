@@ -129,7 +129,7 @@ const httpdash = function(req,configobj){
 
             function setparam(param,value){
 
-                if (confirm("Sure??")) {
+                if (confirm("Sure?? ("+paramid+" -> "+value+")")) {
 
                     let o={"paramid": param, "value": value};
 
@@ -184,7 +184,10 @@ const httpdash = function(req,configobj){
                                         elem.classList.remove('loading');
                                     }
                                 }else{
-                                    elem.value=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
+                                    let newval=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
+                                    if (newval!=elem.value) {
+                                        elem.value=newval;
+                                    }
                                 }
                             }
 

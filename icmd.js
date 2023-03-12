@@ -233,7 +233,8 @@ if (process.argv.length<3){
             args.push("localip="+configobj.localipaddress);
         }
 
-        controllerobject.controller(args,25,prio,
+        //need longer timeout to catch tcp disconnect when device is frozen
+        controllerobject.controller(args,40,prio,
             function(result,stateobject){
                 if (result==0){
                     
@@ -368,7 +369,7 @@ if (process.argv.length<3){
 
 
 //cmd script mode
-controllerobject.controller(process.argv,23,1,
+controllerobject.controller(process.argv,35,1,
     function(result,stateobject){
         if (result==0) {
             if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
