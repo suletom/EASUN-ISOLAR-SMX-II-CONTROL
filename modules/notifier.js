@@ -35,7 +35,8 @@ const notifier = function(configobj,subject,msg,callback=null){
             auth: {
                 user: configobj.smtpuser, // generated ethereal user
                 pass: configobj.smtppass, // generated ethereal password
-            }
+            },
+            tls: {rejectUnauthorized: false}
         };
         //console.log(to);
 
