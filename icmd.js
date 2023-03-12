@@ -216,6 +216,7 @@ if (process.argv.length<3){
     monitor_lock=0;
     monitor_current_object={};
 
+    // 0 -> full quuery 1 -> only important
     function monitor(prio=0) {
 
         if (monitor_lock) {
@@ -240,7 +241,7 @@ if (process.argv.length<3){
                     
                     if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
                         console.log("Wiriting data to json file...");
-                        
+                                                
                         monitor_current_object={...monitor_current_object,...stateobject.outobj};
                         
                         try {

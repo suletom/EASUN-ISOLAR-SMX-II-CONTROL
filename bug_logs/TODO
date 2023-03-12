@@ -6,7 +6,7 @@ Priority list:
 3. buffer size check: wrong packet detection: +
 4. Notifications:
     0 smtp, telegram: +
-    1 watchdog
+    1 watchdog: connection watch -> msg if not data too old
     2 Parameter watch
     3 flapping detection
 5. portscan/wizard on init: +
