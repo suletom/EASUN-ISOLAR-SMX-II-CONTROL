@@ -160,7 +160,7 @@ if (process.argv.length<3){
 
         }
 
-        if (stats!=null && unixTimestamp(stats.mtime) > unixTimestamp()-60 ){
+        if (stats!=null && unixTimestamp(stats.mtime) > unixTimestamp()-120 ){
             state={"state":"connected","lastseen":unixTimestamp(stats.mtime)};
         }else{
             state={"state":"notconnected","lastseen":""};
