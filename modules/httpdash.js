@@ -129,7 +129,7 @@ const httpdash = function(req,configobj){
 
             function setparam(param,value){
 
-                if (confirm("Sure?? ("+paramid+" -> "+value+")")) {
+                if (confirm("Sure?? ("+param+" -> "+value+")")) {
 
                     let o={"paramid": param, "value": value};
 
