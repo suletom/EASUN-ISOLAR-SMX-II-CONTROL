@@ -12,7 +12,7 @@ const notifier = function(configobj,subject,msg,callback=null){
         return false;
     }
 
-
+    let send_started=0;
 
     console.log("Sendig notify:",subject,msg);
 
@@ -24,6 +24,7 @@ const notifier = function(configobj,subject,msg,callback=null){
         !isempty(configobj.smtpauth)
     ) {
 
+        send_started=1;
         console.log("Sending by smtp....");
 
         let port=configobj.smtpauth=="auto"?25:465;
@@ -61,6 +62,7 @@ const notifier = function(configobj,subject,msg,callback=null){
     if ( !isempty(configobj.telegrambt) &&
          !isempty(configobj.telegramcid) ){
 
+            send_started=1;
             let tm="["+subject+"] "+msg;
             let api=`https://api.telegram.org/bot${encodeURIComponent(configobj.telegrambt)}/sendMessage?chat_id=${encodeURIComponent(configobj.telegramcid)}&text=${encodeURIComponent(tm)}`;
             fetch(api)
@@ -70,7 +72,7 @@ const notifier = function(configobj,subject,msg,callback=null){
 
     }
     
-
+    return send_started;
 
 }
 

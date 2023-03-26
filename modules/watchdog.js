@@ -1,3 +1,4 @@
+
 const notifier = require("./modules/notifier.js");
 
 class watchdog { 
@@ -9,6 +10,34 @@ class watchdog {
 
     run(configobj,currentdata,watch){
 
+        this.param_missing=false;
+
+        let thisobj=this;
+
+        for(let i=0;i<watch.length;i++){
+            let w=watch[i];
+            if (typeof thisobj[w.cond] === 'function'){
+                if (w.add!=undefined) {
+                    thisobj[w.cond](currentdata,w.add);
+                }else{
+                    thisobj[w.cond](currentdata,w.add);
+                }
+            }
+        };
+
+        if (this.errors.length==0){
+            console.log("-------->>>> WATCHDOG: ALL GOOD! :) --------");
+        }else{
+            console.log("-------->>>> WATCHDOG:");
+
+            let started=notifier.notifier(configobj,"SOLAR ALERT "+configobj.ipaddress,JSON.stringify(this.errors));
+            console.log(this.errors);
+
+            if (started) {
+                this.errors=[];
+            }
+
+        }    
         
     }
 
@@ -21,7 +50,7 @@ class watchdog {
                 return true;
             }else{
                 console.log("Param error: ",param," -> ",data[param]);
-                param_missing=true;
+                this.param_missing=true;
             }
 
         }
@@ -31,41 +60,41 @@ class watchdog {
 
     check_connection(data) {
         
-        if (param_ok("state",data)) {
+        if (this.param_ok("state",data)) {
 
             if (data.state!="connected"){
-                errors.push({"error":"Device not available","date":unixTimestamp()});
+                this._pusherror("Device not available");
             }
 
         }
 
     }
 
-    check_param_missing() {
+    check_param_missing(data) {
 
-        if (param_missing) {
-            errors.push({"error":"Required params missing","date":unixTimestamp()});
+        if (this.param_missing) {
+            this._pusherror("Required params missing");
         }
 
     }
 
-    check_fault_code(){
+    check_fault_code(data){
 
-        if (param_ok("CurrentFault",data)) {
-            let errarr=data["CurrentFault"].match(/0: OK/);
+        if (this.param_ok("CurrentFault",data)) {
+            let errarr=data["CurrentFault"].match(/0: OK/g);
             if (errarr.length!=4) {
-                errors.push({"error":"Fault code","date":unixTimestamp(),"info":data["CurrentFault"]});
+                this._pusherror("Fault code",data["CurrentFault"]);
             }
         }
 
     }
 
-    check_numeric_value(param,min,max){
+    check_numeric_value(data,add){
 
-        if (param_ok(param,data)) {
+        if (this.param_ok(add.param,data)) {
             
-            if (data[param]<min || data[param]>max) {
-                errors.push({"error":"Param "+param+" value not in range","date":unixTimestamp(),"info":data[param]+" not between "+min+" - "+max });
+            if (data[param]<add.min || data[param]>add.max) {
+                this._pusherror("Param "+param+" value not in range",data[param]+" not between "+min+" - "+max );
             }
         }
 
@@ -77,6 +106,12 @@ class watchdog {
             bd=d;
         }
         return Math.floor(bd / 1000)
+    }
+
+    _pusherror(err,info=null){
+        
+        this.errors.push({"error":err,"date":this.unixTimestamp(),"info": info });
+        
     }
 
 }

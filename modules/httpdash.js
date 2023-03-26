@@ -74,7 +74,7 @@ const httpdash = function(req,configobj){
     
     let out=`<html>
         <head>
-            <title>...</title>
+            <title>EASUN ISOLAR SMX II Control</title>
             <script language="javascript" src="/static/js/bootstrap.min.js"></script>
             <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
             <script>
@@ -123,11 +123,11 @@ const httpdash = function(req,configobj){
             function setparamchange(obj,e){
 
                 obj.classList.add('loading');
-                setTimeout(function(){ setparam(obj.dataset.id,obj.value ); },1);
+                setTimeout(function(){ setparam(obj.dataset.id,obj.value,obj); },1);
 
             }
 
-            function setparam(param,value){
+            function setparam(param,value,obj){
 
                 if (confirm("Sure?? ("+param+" -> "+value+")")) {
 
@@ -178,6 +178,9 @@ const httpdash = function(req,configobj){
                                 elem.classList.remove('notset');
                                 
                                 let oldvalue=elem.value;
+
+                                console.log("elem.value:",elem.value);
+                                console.log("oldval:",oldvalue);
                                 
                                 if (elem.classList.contains('loading') ){
                                     if (oldvalue!==elem.value){
@@ -185,7 +188,10 @@ const httpdash = function(req,configobj){
                                     }
                                 }else{
                                     let newval=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
-                                    if (newval!=elem.value) {
+
+                                    console.log("newval:",newval);
+
+                                    if (newval!=oldvalue) {
                                         elem.value=newval;
                                     }
                                 }

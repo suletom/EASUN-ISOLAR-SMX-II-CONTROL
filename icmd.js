@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const basicAuth = require('express-basic-auth');
 const notifier = require("./modules/notifier.js");
 const detect = require("./modules/detect.js");
+const watchdog = require("./modules/watchdog.js");
 
 process.on('uncaughtException', function(err) {
     if(err.errno === 'EADDRINUSE')
@@ -171,7 +172,6 @@ if (process.argv.length<3){
         }catch(e) {
 
         }
-
         
         try{
             dov=JSON.parse(data);
@@ -212,9 +212,20 @@ if (process.argv.length<3){
         console.log("Web ui running on port "+port+"! Access: http://localhost:"+port);
 
     });
-
+    
     monitor_lock=0;
     monitor_current_object={};
+
+
+    //start our watchdog
+    let wd = new watchdog();
+    let wt=[
+            {'cond': 'check_connection'},
+            {'cond': 'check_fault_code'},
+            {'cond': 'check_param_missing'}
+            ];
+    setInterval(function(){ wd.run(monitor_current_object,wt); },30000);
+
 
     // 0 -> full quuery 1 -> only important
     function monitor(prio=0) {
