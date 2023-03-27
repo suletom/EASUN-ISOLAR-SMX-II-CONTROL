@@ -223,6 +223,7 @@ if (process.argv.length<3){
 
     wt.push({'cond': 'check_connection'});
     wt.push({'cond': 'check_fault_code'});
+    wt.push({'cond': 'check_numeric_value','add': {'param': 'MachineState','min': 5 ,'max': 5}});
     wt.push({'cond': 'check_param_missing'});
             
     setInterval(function(){ wd.run(configobj,monitor_current_object,wt); },30000);

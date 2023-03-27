@@ -214,6 +214,14 @@ const httpdash = function(req,configobj){
                             }
                         };
 
+                        let errinf=document.querySelector('#delemCurrentFault').text;
+                        let errcar=errinf.match(/0: OK/g);
+                        if (errcar.length!=4){
+                            document.querySelector('#delemCurrentFault').classList.add("fault");
+                        }else{
+                            document.querySelector('#delemCurrentFault').classList.remove("fault");
+                        }
+
                         if (responsejson.MachineState==4){
 
                             sh('#bypass-arrow,#bypass-arrow-end',1);
@@ -367,6 +375,11 @@ const httpdash = function(req,configobj){
             }
             #dash.notconnected > div{
                 background-color: #ffb3b2;
+            }
+
+            .fault{
+                background-color: red;
+                color: white;
             }
 
             </style>
