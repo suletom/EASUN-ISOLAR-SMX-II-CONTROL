@@ -212,15 +212,18 @@ const httpdash = function(req,configobj){
                                 }    
                                 delem.innerHTML=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value)+" "+bu;
                             }
+
+                            if (key=='CurrentFault'){
+                                let errcar=value.match(/0: OK/g);
+                                if (errcar.length!=4){
+                                    document.querySelector('#delemCurrentFault').classList.add("fault");
+                                }else{
+                                    document.querySelector('#delemCurrentFault').classList.remove("fault");
+                                }
+                            }    
                         };
 
-                        let errinf=document.querySelector('#delemCurrentFault').text;
-                        let errcar=errinf.match(/0: OK/g);
-                        if (errcar.length!=4){
-                            document.querySelector('#delemCurrentFault').classList.add("fault");
-                        }else{
-                            document.querySelector('#delemCurrentFault').classList.remove("fault");
-                        }
+                        
 
                         if (responsejson.MachineState==4){
 
