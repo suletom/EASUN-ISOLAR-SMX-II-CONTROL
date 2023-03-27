@@ -93,8 +93,8 @@ class watchdog {
 
         if (this.param_ok(add.param,data)) {
             
-            if (data[param]<add.min || data[param]>add.max) {
-                this._pusherror("Param "+param+" value not in range",data[param]+" not between "+min+" - "+max );
+            if (data[add.param]<add.min || data[add.param]>add.max) {
+                this._pusherror("Param "+add.param+" value not in range",data[add.param]+" not between "+add.min+" - "+add.max );
             }
         }
 
