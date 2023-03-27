@@ -219,15 +219,15 @@ if (process.argv.length<3){
 
     //start our watchdog
     let wd = new watchdog();
-    let wt=[
-            {'cond': 'check_connection'},
-            {'cond': 'check_fault_code'},
-            {'cond': 'check_param_missing'}
-            ];
-    setInterval(function(){ wd.run(monitor_current_object,wt); },30000);
+    let wt=[];
 
+    wt.push({'cond': 'check_connection'});
+    wt.push({'cond': 'check_fault_code'});
+    wt.push({'cond': 'check_param_missing'});
+            
+    setInterval(function(){ wd.run(configobj,monitor_current_object,wt); },30000);
 
-    // 0 -> full quuery 1 -> only important
+    // 0 -> full query   1 -> only important
     function monitor(prio=0) {
 
         if (monitor_lock) {
