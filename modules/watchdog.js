@@ -1,5 +1,5 @@
 
-const notifier = require("./modules/notifier.js");
+const notifier = require("./notifier.js");
 
 class watchdog { 
 
