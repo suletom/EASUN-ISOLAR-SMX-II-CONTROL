@@ -1,66 +1,62 @@
-
+let fs = require('fs');
+const helper = require("./helper.js");
 
 class paramstorage { 
 
     constructor() {
         this.currentdata={};
         this.history=[];
+        this.current_data_store="currentdata.json";
+        this.lastwrite=null;
+    }
+
+    get(){
+
+        let ret={};
+        if (this.history.length==0 || this.currentdata["lastseen"]<helper.unixTimestamp()-60){
+            this.currentdata["state"]="notconnected";
+        }else{
+            ret=this.currentdata;
+        }
+        
+        return ret;
     }
 
     store(jsobject,completedata=0){
-
-
         
-                                                
-        monitor_current_object={...monitor_current_object,...stateobject.outobj};
+        jsobject["timestamp"]=helper.unixTimestamp();
+        jsobject["state"]="connected";
+        jsobject["lastseen"]=jsobject["timestamp"];
         
-        try {
-            fs.writeFileSync(current_data_store,JSON.stringify(monitor_current_object));
-        } catch (err) {
-            console.error(err)
-        }
-
-        if (completedata){
-            console.log("Wiriting data to json file...");
-        }
-
-
-
-    }
-
-    run(configobj,currentdata,watch){
-
-        this.param_missing=false;
-
-        let thisobj=this;
-
-        for(let i=0;i<watch.length;i++){
-            let w=watch[i];
-            if (typeof thisobj[w.cond] === 'function'){
-                if (w.add!=undefined) {
-                    thisobj[w.cond](currentdata,w.add);
-                }else{
-                    thisobj[w.cond](currentdata,w.add);
-                }
-            }
-        };
-
-        if (this.errors.length==0){
-            console.log("-------->>>> WATCHDOG: ALL GOOD! :) --------");
+        //0->full prio
+        if (completedata==0){
+            this.currentdata=jsobject;
         }else{
-            console.log("-------->>>> WATCHDOG:");
+            this.currentdata={...this.currentdata,...jsobject};
+        }
 
-            let started=notifier.notifier(configobj,"SOLAR ALERT "+configobj.ipaddress,JSON.stringify(this.errors));
-            console.log(this.errors);
-
-            if (started) {
-                this.errors=[];
+        if (this.history.length>0){
+            //hold past 2 days in memory
+            let da=helper.unixTimestamp() - 48 * 3600 * 1000;
+            while(this.history[0].timestamp<da){
+                this.history.shift();
             }
-
-        }    
+            
+        }
         
-    }
+        this.history.push(this.currentdata);
+        
+        if (this.lastwrite==null || completedata==0){
+            console.log("Wiriting data to json file...");
+            this.lastwrite=helper.unixTimestamp();
+            try {
+                fs.writeFileSync(this.current_data_store,JSON.stringify(this.currentdata));
+            } catch (err) {
+                console.error(err)
+            }
+        }    
 
+    }
 
 }
 

@@ -7,6 +7,10 @@ const basicAuth = require('express-basic-auth');
 const notifier = require("./modules/notifier.js");
 const detect = require("./modules/detect.js");
 const watchdog = require("./modules/watchdog.js");
+const paramstore = require("./modules/storage.js");
+let store = new paramstore();
+const helper = require("./modules/helper.js");
+
 
 process.on('uncaughtException', function(err) {
     if(err.errno === 'EADDRINUSE')
@@ -19,12 +23,11 @@ let real_time_monitor_interval=8000;
 let low_freq_monitor_at_nth_interval=10;
 let full_param_query_at_nth_interval=20;
 
-let current_data_store='currentdata.json';
+//let current_data_store='currentdata.json';
 
 if (process.argv.length<3){
 
     console.log("\nNo command supplied! To explore modbus debug options or test from command line, use: npm start help\nStarting web ui mode....\n");
-
 
     let config="";
     try{
@@ -42,11 +45,10 @@ if (process.argv.length<3){
 
     let monitor_interval=null;
     let scheduler_tick=0;
-    let client_seen=unixTimestamp();
+    let client_seen=helper.unixTimestamp();
     let command_queue=[];
     let command_result=[]; 
     
-
     var app = express();
 
     if (configobj["password"]!==undefined) {
@@ -60,7 +62,6 @@ if (process.argv.length<3){
 
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
-       
     
     app.use('/static', express.static(__dirname+"/node_modules/bootstrap/dist/"));
     
@@ -102,14 +103,12 @@ if (process.argv.length<3){
             res.json(obj);
         });
         
-
     });
 
     app.post('/set', function (req, res) {
 
         console.log("Parameter set called:");
-        //console.log(req.body);
-        
+                
         let inp=req.body;
 
         if ( inp.paramid!=undefined && (inp.value!=undefined) && req.query.client!=undefined ){
@@ -134,10 +133,7 @@ if (process.argv.length<3){
             }    
             command_queue.push({"client":client,"args":args});
 
-            
-
             res.json({"rv": 1,"msg": "Operation queued!"});
-
             
         }else{
             res.json({"rv": 0,"msg":"Param Error!"});
@@ -147,44 +143,16 @@ if (process.argv.length<3){
 
     app.get('/query', function (req, res) {
 
-        client_seen=unixTimestamp();
+        client_seen=helper.unixTimestamp();
        
-        let dov={};
-        let data="";     
-        let state={};   
-        let stats=null;
-
-        //check and pass last data date
-        try{
-            stats=fs.statSync(current_data_store);
-        }catch(e) {
-
-        }
-
-        if (stats!=null && unixTimestamp(stats.mtime) > unixTimestamp()-120 ){
-            state={"state":"connected","lastseen":unixTimestamp(stats.mtime)};
-        }else{
-            state={"state":"notconnected","lastseen":""};
-        }
-
-        try{
-            data=fs.readFileSync(current_data_store,{encoding:'utf8', flag:'r'});
-        }catch(e) {
-
-        }
-        
-        try{
-            dov=JSON.parse(data);
-        }catch(e){
-                        
-        }
+        let dov=store.get();
 
         if (req.query.client != undefined){
 
             let add=[];
             command_result.forEach(function(el,index,obj){
                 //delete old data
-                if (el.date<unixTimestamp()-500){
+                if (el.date<helper.unixTimestamp()-500){
                     obj.splice(index,1);
                 }
                 if (el.client==req.query.client){
@@ -198,10 +166,7 @@ if (process.argv.length<3){
                 dov={...dov,...inp};
             }
         }
-
-        //console.log("satate:",state);
-        dov={...dov,...state};
-        
+              
         res.json(dov);
         
     });
@@ -214,8 +179,6 @@ if (process.argv.length<3){
     });
     
     monitor_lock=0;
-    monitor_current_object={};
-
 
     //start our watchdog
     let wd = new watchdog();
@@ -226,7 +189,7 @@ if (process.argv.length<3){
     //wt.push({'cond': 'check_numeric_value','add': {'param': 'MachineState','min': 5 ,'max': 5}});
     wt.push({'cond': 'check_param_missing'});
             
-    setInterval(function(){ wd.run(configobj,monitor_current_object,wt); },30000);
+    setInterval(function(){ wd.run(configobj,store.get(),wt); },30000);
 
     // 0 -> full query   1 -> only important
     function monitor(prio=0) {
@@ -252,16 +215,7 @@ if (process.argv.length<3){
                 if (result==0){
                     
                     if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
-                        console.log("Wiriting data to json file...");
-                                                
-                        monitor_current_object={...monitor_current_object,...stateobject.outobj};
-                        
-                        try {
-                            fs.writeFileSync(current_data_store,JSON.stringify(monitor_current_object));
-                        } catch (err) {
-                            console.error(err)
-                        }
-        
+                       store.store(stateobject.outobj,prio);
                     }    
 
                     monitor_lock=0;
@@ -324,11 +278,11 @@ if (process.argv.length<3){
                         if (result==0){
                             console.log("Modify OK!",tmpa.args);
                             
-                            command_result.push({"date":unixTimestamp(),"client": tmpa.client,"msg":"Modify OK!","args":tmpa.args});
+                            command_result.push({"date":helper.unixTimestamp(),"client": tmpa.client,"msg":"Modify OK!","args":tmpa.args});
                             
                         }else{
 
-                            command_result.push({"date":unixTimestamp(),"client": tmpa.client,"msg":"Modify Error!","args":tmpa.args});
+                            command_result.push({"date":helper.unixTimestamp(),"client": tmpa.client,"msg":"Modify Error!","args":tmpa.args});
                             console.log("Modify Error!",tmpa.args);
                         }
                     },
@@ -346,7 +300,7 @@ if (process.argv.length<3){
 
         }
 
-        if (client_seen<unixTimestamp()-60){
+        if (client_seen<helper.unixTimestamp()-60){
             if ((scheduler_tick%low_freq_monitor_at_nth_interval)!=0) {
                 console.log("Low freq, querying later");
                 scheduler_tick++;
@@ -387,11 +341,7 @@ controllerobject.controller(process.argv,35,1,
         if (result==0) {
             if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
                 
-                try {
-                    fs.writeFileSync(current_data_store,JSON.stringify(stateobject.outobj));
-                } catch (err) {
-                    console.error(err)
-                }
+                store.store(stateobject.outobj);
 
             }    
         }    
@@ -407,10 +357,3 @@ controllerobject.controller(process.argv,35,1,
 
 
 
-function unixTimestamp (d=null) {  
-    let bd=Date.now();
-    if (d!==null){
-        bd=d;
-    }
-    return Math.floor(bd / 1000)
-}

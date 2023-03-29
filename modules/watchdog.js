@@ -1,4 +1,4 @@
-
+const helper = require("./helper.js");
 const notifier = require("./notifier.js");
 
 class watchdog { 
@@ -99,18 +99,10 @@ class watchdog {
         }
 
     }
-
-    unixTimestamp (d=null) {  
-        let bd=Date.now();
-        if (d!==null){
-            bd=d;
-        }
-        return Math.floor(bd / 1000)
-    }
-
+  
     _pusherror(err,info=null){
         
-        this.errors.push({"error":err,"date":this.unixTimestamp(),"info": info });
+        this.errors.push({"error":err,"date":helper.unixTimestamp(),"info": info });
         
     }
 
