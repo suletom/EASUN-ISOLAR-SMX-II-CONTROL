@@ -64,6 +64,7 @@ if (process.argv.length<3){
     app.use(bodyParser.json());
     
     app.use('/static', express.static(__dirname+"/node_modules/bootstrap/dist/"));
+    app.use('/statice', express.static(__dirname+"/node_modules/@json-editor/json-editor/dist/"));
     
     app.post('/saveconfig',function (req, res) {
 
@@ -86,6 +87,7 @@ if (process.argv.length<3){
         notifier.notifier(configobj,"TEST message: Save ok!","Save ok!");
 
         scheduler_tick=0;
+        console.log("Setting full query next....");
 
         res.json({"rv": 1,"msg":"Save ok! Please check sent test notification(s)!"});
 

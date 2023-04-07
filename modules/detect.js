@@ -13,7 +13,7 @@ const detect = function(callback){
 
         let client = dgram.createSocket('udp4');
 
-        let timeout=setTimeout(function(){ try { client.close(); }catch(e) { console.log(e); } console.log("."); },2000);
+        let timeout=setTimeout(function(){ try { client.close(); }catch(e) { console.log(e); } },2000);
 
         let port=58899;
         let ip="0.0.0.0";

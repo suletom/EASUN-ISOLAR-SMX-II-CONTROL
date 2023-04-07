@@ -8,10 +8,11 @@ Priority list:
     0 smtp, telegram: +
     1 watchdog: connection watch -> msg if not data too old +
     2 Parameter watch +
-    3 flapping detection
+    3 flapping detection....
 5. portscan/wizard on init: +
-6. store data...
-7. software battery soc calculation
-8. graphs
+6. store data: +
+7. configurable actions....
+8. software battery soc calculation
+9. graphs
 
 FIX: TCP address in use by other process! +

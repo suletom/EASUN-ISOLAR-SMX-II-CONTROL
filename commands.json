@@ -26,12 +26,12 @@
         {"name": "set_smx_param","cmd": "{SEQ}0001{LEN}ff04ff10{ARGP2}{ARGV3}{CRC}", "definition": "get_smx_param"},
         {"name": "get_smx_param","cmd": "{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}", "definition":
             [
-                {"num":"1","name":"OutputPriority","address":"E204","type":"UInt16BE","unit": ["SOL","UTI","SBU"]},
+                {"num":"1","name":"OutputPriority","address":"E204","type":"UInt16BE","unit": ["SOL","UTI","SBU"],"priority":1},
                 {"num":"2","name":"OutputFrequency","address":"E209","type":"UInt16BE","rate": 0.01,"format":1,"unit": "Hz" },
                 {"num":"3","name":"AcInputVoltageRange","address":"E20B","type":"UInt16BE","unit": ["APL","UPS"]},
                 {"num":"4","name":"TurnToMainsVoltage","address":"E01B","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
                 {"num":"5","name":"TurnToInverterVoltage","address":"E022","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},
-                {"num":"6","name":"ChargerSourcePriority","address":"E20F","type":"UInt16BE","unit": ["CSO","CUB","SNU","OSO"]},
+                {"num":"6","name":"ChargerSourcePriority","address":"E20F","type":"UInt16BE","unit": ["CSO","CUB","SNU","OSO"],"priority":1},
                 {"num":"7","name":"MaxChargerCurrent","address":"E20A","type":"UInt16BE","rate":0.1,"format":1,"unit": "A"},
                 {"num":"8","name":"BatteryType","address":"E004","type":"UInt16BE","unit": ["USE","SLd","FLd","GEL","LF07/LF08/LF09","NCA"]},
                 {"num":"9","name":"BatteryBoostChargeVoltage","address":"E008","type":"UInt16BE","rate": 0.2,"format":1,"unit": "V"},

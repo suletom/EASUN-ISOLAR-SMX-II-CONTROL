@@ -8,6 +8,36 @@ class watchdog {
         this.param_missing=false;
     }
 
+    get_ui(){
+
+        let fns=Object.getOwnPropertyNames( watchdog.prototype );
+       
+        let conds=[];
+
+        for(let i=0;i<fns.length;i++){
+            let fn=fns[i];
+            let m=fn.match(/^check_(.*)$/);
+            if (m) {
+                if (typeof this[m[1]+"_ui"] == "function" ){
+
+                }
+            }
+            
+        }
+
+        return `
+        <script>
+
+        </script>
+        <div id="wui">
+            <a href="javascript: void(0);" onclick="addaction()">Add action</a>
+            <div class="acts">
+
+            </div>
+        </div>`
+
+    }
+
     run(configobj,currentdata,watch){
 
         this.param_missing=false;
@@ -17,6 +47,7 @@ class watchdog {
         for(let i=0;i<watch.length;i++){
             let w=watch[i];
             if (typeof thisobj[w.cond] === 'function'){
+                console.log("checking: "+w.cond);
                 if (w.add!=undefined) {
                     thisobj[w.cond](currentdata,w.add);
                 }else{
@@ -53,6 +84,9 @@ class watchdog {
                 this.param_missing=true;
             }
 
+        }else{
+            console.log("Param error: ",param," -> ",data[param]);
+            this.param_missing=true;
         }
 
         return false;

@@ -7,6 +7,7 @@ class paramstorage {
         this.currentdata={};
         this.history=[];
         this.current_data_store="currentdata.json";
+        this.history_store="history";
         this.lastwrite=null;
     }
 
@@ -52,9 +53,61 @@ class paramstorage {
             try {
                 fs.writeFileSync(this.current_data_store,JSON.stringify(this.currentdata));
             } catch (err) {
-                console.error(err)
+                console.error(err);
             }
         }    
+
+        //store current available data in every case
+        console.log("Wiriting data history stucture...");
+        this.storehistory();
+
+    }
+
+    storehistory(){
+
+        let date0=new Date();
+        let year=date0.getFullYear();
+        let mon=date0.getMonth()+1;
+        let day=date0.getDate();
+        let hour=date0.getHours();
+        let min=date0.getMinutes();
+        let sec=date0.getSeconds();
+
+        mon=mon.toString().padStart(2,"0");
+        day=day.toString().padStart(2,"0");
+        hour=hour.toString().padStart(2,"0");
+        min=min.toString().padStart(2,"0");
+        sec=sec.toString().padStart(2,"0");
+
+        try {
+            if (!fs.existsSync(this.history_store)){
+                fs.mkdirSync(this.history_store);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
+        try {
+            if (!fs.existsSync(this.history_store+"/"+year+"-"+mon)){
+                fs.mkdirSync(this.history_store+"/"+year+"-"+mon);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
+        try {
+            if (!fs.existsSync(this.history_store+"/"+year+"-"+mon+"/"+day)){
+                fs.mkdirSync(this.history_store+"/"+year+"-"+mon+"/"+day);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
+        try {
+            fs.writeFileSync(this.history_store+"/"+year+"-"+mon+"/"+day+"/"+hour+"_"+min+"_"+sec+".json",JSON.stringify(this.currentdata));
+        } catch (err) {
+            console.error(err);
+        }
 
     }
 

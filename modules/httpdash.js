@@ -76,19 +76,111 @@ const httpdash = function(req,configobj){
         <head>
             <title>EASUN ISOLAR SMX II Control</title>
             <script language="javascript" src="/static/js/bootstrap.min.js"></script>
+            <script language="javascript" src="/statice/jsoneditor.js"></script>
             <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
             <script>
 
+            var editor=null;
+
+            window.onload = function() {
+                editor = new JSONEditor(document.getElementById('editorholder'),{
+                    theme: 'bootstrap5',
+                    schema: {
+                        type: "object",
+                        title: "CONFIGURATION",
+                        properties: {
+                            password: {
+                                type: "string",
+                                title: "Http authentication 'admin' user password (plain text)"
+                            },
+                            ipaddress: {
+                                type: "string",
+                                title: "Datalogger ip address"
+                            },
+                            localipaddress: {
+                                type: "string",
+                                title: "Local ip address(back route from the datalogger)"
+                            },
+                            email: {
+                                type: "string",
+                                title: "Email address (for notifications)"
+                            },
+                            smtp: {
+                                type: "string",
+                                title: "SMTP server"
+                            },
+                            smtpuser: {
+                                type: "string",
+                                title: "SMTP user"
+                            },
+                            smtppass: {
+                                type: "string",
+                                title: "SMTP pass (plain text)"
+                            },
+                            smtpauth: {
+                                type: "string",
+                                title: "Datalogger ip address",
+                                enum: ["auto","ssl"],
+                                default: "auto"
+                            },
+                            telegrambt: {
+                                type: "string",
+                                title: "Telegram bot token"
+                            },
+                            telegramcid: {
+                                type: "string",
+                                title: "Telegram conversation id"
+                            },
+                            actions: {
+                                type: "array",
+                                format: "table",
+                                title: "Custom actions",
+                                items: {
+                                    "type": "object",
+                                    "title": "Action",
+                                    "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "cat",
+                                            "dog",
+                                            "bird",
+                                            "reptile",
+                                            "other"
+                                          ],
+                                          "default": "dog"
+                                        }
+                                    }    
+                                }
+                            },
+                        
+                        }
+                    }
+                });
+
+                editor.on('ready',() => {
+                    
+                    ${firststart?'startwiz();':' editor.setValue('+JSON.stringify(configobj)+');'}
+                });
+
+                
+
+            };    
+
             let timer=null;
            
-
             function startwiz(){
 
                 fetch('/detect').then(function(response) {
                     return response.json()
                 }).then(function(responsejson) {
                     if (confirm("Found datalogger on ip: "+responsejson+"! Want to Use it?")){
-                        document.querySelector('#ipaddress').value=responsejson;
+                        
+                        let all=editor.getValue();
+                        all["ipaddress"]=responsejson;
+                        editor.setValue(all);
+                        //document.getElementById("root[ipaddress]").value=responsejson;
+                        
                     }
                 }).catch(error => {
                     console.log(error);
@@ -96,15 +188,24 @@ const httpdash = function(req,configobj){
 
             }
 
-            ${firststart?'startwiz();':''}
+           
 
             function saveconfig(obj){
+                
+                const errors = editor.validate();
 
-                let f=document.querySelector('#settingsform');
-                console.log(f);
-                let fd=new FormData(f);
-                console.log(fd);
-                let o=Object.fromEntries(fd.entries());
+                if (errors.length) {
+                    alert(errors);
+                    return;
+                }
+
+                //let f=document.querySelector('#settingsform');
+                //console.log(f);
+                //let fd=new FormData(f);
+                //console.log(fd);
+                //let o=Object.fromEntries(fd.entries());
+
+                let o = editor.getValue();
                 console.log(o);
                 fetch('/saveconfig',{ body: JSON.stringify(o), method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
                     return response.json()
@@ -148,11 +249,12 @@ const httpdash = function(req,configobj){
             }
 
             function sh(sel,show=1){
+                
                 if (show) {
                     document.querySelectorAll(sel).forEach(function(el) {el.classList.add('show')});
-                    document.querySelectorAll(sel).forEach(function(el) {el.classList.remove('hide')});
+                    //document.querySelectorAll(sel).forEach(function(el) {el.classList.remove('hide')});
                 }else{
-                    document.querySelectorAll(sel).forEach(function(el) {el.classList.add('hide')});
+                    //document.querySelectorAll(sel).forEach(function(el) {el.classList.add('hide')});
                     document.querySelectorAll(sel).forEach(function(el) {el.classList.remove('show')});
                 }    
             }
@@ -166,32 +268,38 @@ const httpdash = function(req,configobj){
                     
                     if (responsejson.rv === undefined ) {
 
-                        for (const [key, value] of Object.entries(responsejson)) {
+                        for (const [key, jvalue] of Object.entries(responsejson)) {
 
                             if (key=='msg') {
-                                alert(value.join(' '));
+                                alert(jvalue.join('; '));
                             }
                             
                             let elem=document.querySelector('#param'+key);
                             if (elem !== null && elem !== undefined){
 
-                                elem.classList.remove('notset');
+                                if (elem.classList.contains('notset')) elem.classList.remove('notset');
                                 
                                 let oldvalue=elem.value;
 
-                                console.log("elem.value:",elem.value);
-                                console.log("oldval:",oldvalue);
+                                if (key=="OutputPriority") {
+                                    console.log("oldval:",oldvalue);
+                                }
                                 
                                 if (elem.classList.contains('loading') ){
-                                    if (oldvalue!==elem.value){
+                                    if (oldvalue!=jvalue){
                                         elem.classList.remove('loading');
                                     }
                                 }else{
-                                    let newval=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value);
+                                    let newval=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:jvalue);
 
-                                    console.log("newval:",newval);
+                                    if (key=="OutputPriority") {
+                                        console.log("newval:",newval);
+                                    }
 
                                     if (newval!=oldvalue) {
+                                        if (key=="OutputPriority") {
+                                            console.log("setting: not eq");
+                                        }
                                         elem.value=newval;
                                     }
                                 }
@@ -200,7 +308,7 @@ const httpdash = function(req,configobj){
                             if (key=="state"){
                                 dash.classList.remove('connected');
                                 dash.classList.remove('notconnected');
-                                dash.classList.add(value);
+                                dash.classList.add(jvalue);
                             }
 
                             let delem=document.querySelector('#delem'+key);
@@ -210,31 +318,27 @@ const httpdash = function(req,configobj){
                                 if (u!==undefined && u.dataset.unit!==undefined) {
                                     bu=u.dataset.unit;
                                 }    
-                                delem.innerHTML=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:value)+" "+bu;
+                                delem.innerHTML=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:jvalue)+" "+bu;
                             }
 
                             if (key=='CurrentFault'){
-                                let errcar=value.match(/0: OK/g);
+                                let errcar=jvalue.match(/0: OK/g);
                                 if (errcar.length!=4){
                                     document.querySelector('#delemCurrentFault').classList.add("fault");
                                 }else{
                                     document.querySelector('#delemCurrentFault').classList.remove("fault");
                                 }
                             }    
+
                         };
-
                         
-
                         if (responsejson.MachineState==4){
-
                             sh('#bypass-arrow,#bypass-arrow-end',1);
                             sh('#inverter,#load-arrow,#load-arrow-end',0);
                           
                         }else{
                             sh('#bypass-arrow,#bypass-arrow-end',0);
-
                         }
-
                         if (responsejson.MachineState==5){
                             sh('#inverter,#load-arrow,#load-arrow-end',1);
                           
@@ -257,7 +361,6 @@ const httpdash = function(req,configobj){
                             sh('#solar-arrow,#solar-arrow-end',0);
                             
                         }
-
                         if (responsejson.LineCurrent>0){
                             sh('#charger-arrow,#charger-arrow-end',1);
                          
@@ -274,25 +377,24 @@ const httpdash = function(req,configobj){
                        
                         }
                         
-                        if (responsejson.BatteryCurrent>=0){
-                            sh('#battery,#drain-arrow,#drain-arrow-end',1);
-                            sh('#battery-arrow,#battery-arrow-end',0);
+                        if (responsejson.BatteryCurrent!=undefined){
 
-                        }else{
-
-                            sh('#battery,#battery-arrow,#battery-arrow-end',1);
-                            sh('#drain-arrow,#drain-arrow-end',0);
-
+                            if (responsejson.BatteryCurrent>=0){
+                                sh('#battery,#drain-arrow,#drain-arrow-end',1);
+                                sh('#battery-arrow,#battery-arrow-end',0);
+                            }else{
+                                sh('#battery,#battery-arrow,#battery-arrow-end',1);
+                                sh('#drain-arrow,#drain-arrow-end',0);
+                            }
                         }
 
-                        if (responsejson.LoadActivePower>0 && responsejson.MachineState!=4 && (responsejson.PVVoltage>=120 || responsejson.LineCurrent>0)){
+                        if (responsejson.LoadActivePower>0 && responsejson.MachineState!=4 && (responsejson.PVVoltage>=119 || responsejson.LineCurrent>0)){
                             sh('#inverter-arrow,#inverter-arrow-end',1);
                            
                         }else{
                             sh('#inverter-arrow,#inverter-arrow-end',0);
                           
                         }
-
                         if ( responsejson.LineCurrent>0 || responsejson.PVVoltage>119 ){
                             sh('#charger',1);
                         }else{
@@ -408,7 +510,10 @@ const httpdash = function(req,configobj){
                 <div class="d-flex justify-content-center">
                     <div class="card-body"><label>API url:</label><div id="apiurl"><a target="_blank" href="/query"><script>document.write(window.location.href+"query");</script></a></div></div>
                 </div>
-                <form>
+                <button class="btn" onclick="document.querySelector('#allparams').classList.contains('hide')?document.querySelector('#allparams').classList.remove('hide'):document.querySelector('#allparams').classList.add('hide')">
+                Show/Hide all params         
+                </button>
+                <form id="allparams" class="hide">
                     <fieldset>
                     ${idata}    
                     </fieldset>
@@ -416,54 +521,10 @@ const httpdash = function(req,configobj){
             </section>
             <section id="settings">
                 <form id="settingsform">
-                    <fieldset>
-                        <legend>Settings</legend>
-                        <div class="form-group">
-                            <label for="password">Http authentication "admin" user password (plain text)</label>
-                            <input type="text" class="form-control" id="password" name="password" value="${getconfval("password")}">
-                        </div>
-                        <div class="form-group">
-                            <label for="ipaddress">Datalogger ip address</label>
-                            <input type="text" class="form-control" id="ipaddress" name="ipaddress" value="${getconfval("ipaddress")}" placeholder="192.168.1.129" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
-                        </div>
-                        <div class="form-group">
-                            <label for="localipaddress">Local ip address(back route from the datalogger)</label>
-                            <input type="text" class="form-control" id="localipaddress" name="localipaddress" value="${getconfval("localipaddress")}" placeholder="192.168.88.1" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email address</label>
-                            <input type="email" class="form-control" name="email" value="${getconfval("email")}" id="email" placeholder="name@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="smtp">SMTP server</label>
-                            <input type="text" class="form-control" name="smtp" value="${getconfval("smtp")}" id="smtp" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label for="smtpuser">SMTP user</label>
-                            <input type="text" class="form-control" name="smtpuser" value="${getconfval("smtpuser")}" id="smtpuser" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label for="smtppass">SMTP pass (plain text)</label>
-                            <input type="text" class="form-control" name="smtppass" value="${getconfval("smtppass")}" id="smtppass" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label for="smtpauth">SMTP auth</label>
-                            <select class="form-control" name="smtpauth" id="smtpauth">
-                                <option ${getconfval("smtpauth")=="auto"?'selected':''} value="auto">Auto (port: 25 plaintext/starttls)</option>
-                                <option ${getconfval("smtpauth")=="ssl"?'selected':''} value="ssl">SSL (port: 465)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="telegrambt">Telegram bot token</label>
-                            <input type="text" class="form-control" name="telegrambt" value="${getconfval("telegrambt")}" id="telegrambt" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label for="telegramcid">Telegram conversation id</label>
-                            <input type="text" class="form-control" name="telegramcid" value="${getconfval("telegramcid")}" id="telegramcid" placeholder="">
-                        </div>
-                        <button type="button" class="btn btn-primary" onclick="saveconfig(this)">Save/apply config!</button>
-                    </fieldset>
-                </form>
+                    <div id="editorholder">
+
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="saveconfig(this)">Save/apply config!</button>
             </section>
         </div>    
         </body>
