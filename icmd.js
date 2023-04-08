@@ -43,6 +43,19 @@ if (process.argv.length<3){
         console.log(e);
     }
 
+    if (configobj["actions"] == undefined){
+
+        configobj["actions"]=[
+            {"action_check_connection":"notify"},
+            {"action_check_numeric_value":"notify","param":"BatteryVoltage","min":25.5,"max":29.3},
+            {"action_check_numeric_value":"notify","param":"MachineState","min":5,"max":5},
+            {"action_check_fault_code":"notify"},
+            {"action_check_param_missing":"notify"}
+        ];
+
+
+    }
+
     let monitor_interval=null;
     let scheduler_tick=0;
     let client_seen=helper.unixTimestamp();

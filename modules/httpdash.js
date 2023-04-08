@@ -139,7 +139,8 @@ const httpdash = function(req,configobj,ui_schema){
                                 items: {
                                     title: "Action",
                                     anyOf:  ${JSON.stringify(ui_schema)}
-                                }
+                                },
+                                default: [{"action_check_connection":"notify"}]
                             },
                         
                         }
