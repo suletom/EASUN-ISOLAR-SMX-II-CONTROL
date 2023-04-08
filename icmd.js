@@ -49,6 +49,9 @@ if (process.argv.length<3){
     let command_queue=[];
     let command_result=[]; 
     
+    //start our watchdog
+    let wd = new watchdog();
+
     var app = express();
 
     if (configobj["password"]!==undefined) {
@@ -89,13 +92,14 @@ if (process.argv.length<3){
         scheduler_tick=0;
         console.log("Setting full query next....");
 
+        wd.truncate();
         res.json({"rv": 1,"msg":"Save ok! Please check sent test notification(s)!"});
 
     });
 
     app.get('/', function (req, res) {
 
-        res.send(httpdash.httpdash(req,configobj));
+        res.send(httpdash.httpdash(req,configobj,wd.get_ui_schema()));
 
     });
 
@@ -182,16 +186,15 @@ if (process.argv.length<3){
     
     monitor_lock=0;
 
-    //start our watchdog
-    let wd = new watchdog();
-    let wt=[];
+    
+    //let wt=[];
 
-    wt.push({'cond': 'check_connection'});
-    wt.push({'cond': 'check_fault_code'});
+    //wt.push({'cond': 'check_connection'});
+    //wt.push({'cond': 'check_fault_code'});
     //wt.push({'cond': 'check_numeric_value','add': {'param': 'MachineState','min': 5 ,'max': 5}});
-    wt.push({'cond': 'check_param_missing'});
+    //wt.push({'cond': 'check_param_missing'});
             
-    setInterval(function(){ wd.run(configobj,store.get(),wt); },30000);
+    setInterval(function(){ wd.run(configobj,store.get()); },30000);
 
     // 0 -> full query   1 -> only important
     function monitor(prio=0) {

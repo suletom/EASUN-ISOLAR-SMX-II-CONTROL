@@ -1,12 +1,12 @@
 let fs = require('fs');
 
-const httpdash = function(req,configobj){
+const httpdash = function(req,configobj,ui_schema){
 
     let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
     let svg=fs.readFileSync('etc/display.svg',{encoding:'utf8', flag:'r'});
 
     let firststart=0;
-    if (Object.keys(configobj).length === 0){
+    if (typeof configobj["ipaddress"] == undefined){
         firststart=1;
     }
 
@@ -85,6 +85,7 @@ const httpdash = function(req,configobj){
             window.onload = function() {
                 editor = new JSONEditor(document.getElementById('editorholder'),{
                     theme: 'bootstrap5',
+                    no_additional_properties: true,
                     schema: {
                         type: "object",
                         title: "CONFIGURATION",
@@ -136,21 +137,8 @@ const httpdash = function(req,configobj){
                                 format: "table",
                                 title: "Custom actions",
                                 items: {
-                                    "type": "object",
-                                    "title": "Action",
-                                    "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "cat",
-                                            "dog",
-                                            "bird",
-                                            "reptile",
-                                            "other"
-                                          ],
-                                          "default": "dog"
-                                        }
-                                    }    
+                                    title: "Action",
+                                    anyOf:  ${JSON.stringify(ui_schema)}
                                 }
                             },
                         
@@ -188,17 +176,15 @@ const httpdash = function(req,configobj){
 
             }
 
-           
-
             function saveconfig(obj){
                 
                 const errors = editor.validate();
 
                 if (errors.length) {
-                    alert(errors);
+                    alert(JSON.stringify(errors));
                     return;
                 }
-
+                
                 //let f=document.querySelector('#settingsform');
                 //console.log(f);
                 //let fd=new FormData(f);
@@ -281,9 +267,9 @@ const httpdash = function(req,configobj){
                                 
                                 let oldvalue=elem.value;
 
-                                if (key=="OutputPriority") {
-                                    console.log("oldval:",oldvalue);
-                                }
+                                //if (key=="OutputPriority") {
+                                //    console.log("oldval:",oldvalue);
+                                //}
                                 
                                 if (elem.classList.contains('loading') ){
                                     if (oldvalue!=jvalue){
@@ -292,14 +278,14 @@ const httpdash = function(req,configobj){
                                 }else{
                                     let newval=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:jvalue);
 
-                                    if (key=="OutputPriority") {
-                                        console.log("newval:",newval);
-                                    }
+                                    //if (key=="OutputPriority") {
+                                    //    console.log("newval:",newval);
+                                    //}
 
                                     if (newval!=oldvalue) {
-                                        if (key=="OutputPriority") {
-                                            console.log("setting: not eq");
-                                        }
+                                        //if (key=="OutputPriority") {
+                                        //    console.log("setting: not eq");
+                                        //}
                                         elem.value=newval;
                                     }
                                 }
