@@ -8,6 +8,32 @@ class watchdog {
         this.param_missing=[];
     }
 
+    get_current(){
+
+        let ret=[];
+        for(let j=0;j<this.errors.length;j++){
+    
+            
+            if (this.errors[j]["goal"] == "notify" && typeof this.errors[j]["notified"] == "undefined"){
+                senderrors.push(this.errors[j]);
+                this.errors[j]["notified"]=this.errors[j]["notified"]
+            }
+
+            let tmp={
+                "errordate": helper.fdate(this.errors[j]["date"]),
+            };
+
+            if (this.errors[j]["notified"] != undefined ) {
+                tmp["notifieddate"]= helper.fdate(this.errors[j]["notified"]);
+            }
+
+            ret.push({...this.errors[j],...tmp});
+
+        }
+
+        return ret;
+    }
+
     get_ui_schema(){
 
         let fns=Object.getOwnPropertyNames( watchdog.prototype );
@@ -129,8 +155,8 @@ class watchdog {
             }
 
         }else{
-            console.log("Param error: ",param," -> ",data[param]);
-            this.param_missing.push(param+" -> "+data[param]);
+            console.log("Param error: ",param," -> undefined",data);
+            this.param_missing.push(param+" -> undefined");
         }
 
         return false;
