@@ -43,9 +43,13 @@ const httpdash = function(req,configobj,ui_schema){
 
     let idata = ""
 
+    let allparamlist=[];
+
     commands.commands.forEach(function(el){
         if (Array.isArray(el.definition)){
             el.definition.forEach(function(def){
+
+                allparamlist.push(def.name);
 
                 let unit=(def.unit!==undefined && !Array.isArray(def.unit))?"("+def.unit+")":"";
                 let inp=`<input type="text" class="form-control notset" id="param${def.name}" data-unit="${unit}">`;
@@ -143,6 +147,12 @@ const httpdash = function(req,configobj,ui_schema){
                                 default: [{"action_check_connection":"notify"}]
                             },
                         
+                        },
+                        "definitions": {
+                            "inverterparam": {
+                              "type": "string",
+                              "enum": ${JSON.stringify(allparamlist)}
+                            }
                         }
                     }
                 });

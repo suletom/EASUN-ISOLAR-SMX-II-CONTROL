@@ -134,7 +134,7 @@ class watchdog {
             if (m!=="" && typeof thisobj[m[1]] === 'function'){
                 console.log("checking: "+m[1]);
                 
-                thisobj[m[1]](currentdata,goal,w);
+                thisobj[m[1]](i,currentdata,goal,w);
                 
             }
         };
@@ -187,68 +187,66 @@ class watchdog {
         return false;
     }
 
-    check_connection(data,goal,add=null) {
+    check_connection(ind,data,goal,add=null) {
         
         if (this.param_ok("state",data)) {
 
             if (data.state!="connected"){
-                this._pusherror("Device not available",goal);
+                this._pusherror(ind,"Device not available",goal);
             }else{
-                this._pushok("Device not available",goal);
+                this._pushok(ind,"Device not available",goal);
             }
 
         }
 
     }
 
-    check_param_missing(data,goal,add=null) {
+    check_param_missing(ind,data,goal,add=null) {
 
         if (this.param_missing.length>0) {
-            this._pusherror("Required params missing",goal,this.param_missing.join("; "));
+            this._pusherror(ind,"Required params missing",goal,this.param_missing.join("; "));
         }else{
-            this._pushok("Required params missing",goal);
+            this._pushok(ind,"Required params missing",goal);
         }
 
     }
 
-    check_fault_code(data,goal,add=null){
+    check_fault_code(ind,data,goal,add=null){
 
         if (this.param_ok("CurrentFault",data)) {
             let errarr=data["CurrentFault"].match(/0: OK/g);
             if (errarr.length!=4) {
-                this._pusherror("Fault code",goal,data["CurrentFault"]);
+                this._pusherror(ind,"Fault code",goal,data["CurrentFault"]);
             }else{
-                this._pushok("Fault code",goal,data["CurrentFault"]);
+                this._pushok(ind,"Fault code",goal,data["CurrentFault"]);
             }
         }
 
     }
 
     check_numeric_value_ui(){
-        return {"param": { "type": "string", "title": "Parameter" }, "min": { "type": "number", "title": "min" }, "max": { "type": "number", "title": "max" } };
+        return {"param": {"type": "string", "title": "Parameter", "$ref": "#/definitions/inverterparam"},
+                "min": { "type": "number", "title": "min" },
+                "max": { "type": "number", "title": "max" } 
+            };
     }
 
-    check_numeric_value(data,goal,add=null){
+    check_numeric_value(ind,data,goal,add=null){
 
         if (this.param_ok(add.param,data)) {
             
             if (data[add.param]<add.min || data[add.param]>add.max) {
-                this._pusherror("Param "+add.param+" value not in range",goal,data[add.param]+" not between "+add.min+" - "+add.max );
+                this._pusherror(ind,"Param "+add.param+" value not in range",goal,data[add.param]+" not between "+add.min+" - "+add.max );
             }else{
-                this._pushok("Param "+add.param+" value not in range",goal);
+                this._pushok(ind,"Param "+add.param+" value not in range",goal);
             }
         }
 
     }
 
-    _unseterror(err){
-
-        let seen=this.errors.find(function(el){ el.error==err; });
-    }
-  
-    _pusherror(err,goal,info=null){
+    _pusherror(ind,err,goal,info=null){
         
-        let seen=this.errors.findIndex(function(el){ return el.error==err; });
+        let seen=this.errors.findIndex(function(el){ return el.error==ind+". "+err; });
         
         if (this.errors[seen] !=undefined && typeof this.errors[seen]["notified"] != "undefined"){
             
@@ -261,15 +259,15 @@ class watchdog {
             this.errors[seen]["lastpresent"]=helper.unixTimestamp();
             
         }else{
-            this.errors.push({"error":err,"date":helper.unixTimestamp(),"goal": goal,"info": info,"present": 1,"lastpresent": helper.unixTimestamp(),"ok":0 });
+            this.errors.push({"error":ind+". "+err,"date":helper.unixTimestamp(),"goal": goal,"info": info,"present": 1,"lastpresent": helper.unixTimestamp(),"ok":0 });
         }    
         
     }
 
-    _pushok(err,goal,info=null){
+    _pushok(ind,err,goal,info=null){
        
         for(let i=0; i<this.errors.length;i++){
-            if (this.errors[i]["error"]==err){
+            if (this.errors[i]["error"]==ind+". "+err){
                 if (this.errors[i]["ok"]==undefined){
                     this.errors[i]["ok"]=1;
                 }else{
