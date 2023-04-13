@@ -259,8 +259,7 @@ const httpdash = function(req,configobj,ui_schema){
                             if (key=='notif'){
                                 let nots=""; 
                                 jvalue.forEach(function(el){
-                                    console.log(el.lastokdate);
-                                    var vv="...."+el.lastokdate;
+                                    
                                     nots+=\`<tr class="alert alert-warning">
                                             <td>\${el.errordate}</td>
                                             <td>\${el.error}</td>
@@ -269,7 +268,7 @@ const httpdash = function(req,configobj,ui_schema){
                                             \${el.lastpresentdate}
                                             <td>
                                             <td>OK: \${el.ok}
-                                            \${vv}
+                                            \${lastokdate}
                                             <td>
                                          </tr>\`;
                                 });

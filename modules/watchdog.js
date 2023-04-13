@@ -261,7 +261,7 @@ class watchdog {
             this.errors[seen]["lastpresent"]=helper.unixTimestamp();
             
         }else{
-            this.errors.push({"error":err,"date":helper.unixTimestamp(),"goal": goal,"info": info,"present": 1,"lastpresent": helper.unixTimestamp() });
+            this.errors.push({"error":err,"date":helper.unixTimestamp(),"goal": goal,"info": info,"present": 1,"lastpresent": helper.unixTimestamp(),"ok":0 });
         }    
         
     }
