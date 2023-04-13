@@ -728,6 +728,7 @@ function processpacket(data,def,offset=0,stateobject){
                         }
                         //fault codes
                         if (def.format===101){
+                            //def.unit[data.readUInt16BE(startpos)]
                             nb = "FAULT0: "+data.readUInt16BE(startpos)+": "+def.unit[data.readUInt16BE(startpos)]+" "+
                                 "FAULT1: "+data.readUInt16BE(startpos+2)+": "+def.unit[data.readUInt16BE(startpos+2)]+" "+
                                 "FAULT2: "+data.readUInt16BE(startpos+4)+": "+def.unit[data.readUInt16BE(startpos+4)]+" "+

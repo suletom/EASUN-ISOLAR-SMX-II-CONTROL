@@ -16,7 +16,6 @@ class watchdog {
             
             if (this.errors[j]["goal"] == "notify" && typeof this.errors[j]["notified"] == "undefined"){
                 senderrors.push(this.errors[j]);
-                this.errors[j]["notified"]=this.errors[j]["notified"]
             }
 
             let tmp={
@@ -89,18 +88,30 @@ class watchdog {
         let watch=[];
 
         if (typeof configobj["actions"] != undefined) {
-            watch=configobj.actions;
+            watch=[...configobj.actions];
         }
+
+        //check_param_missing -> always last
+        watch.sort(function(a,b){
+            
+            if ( a["action_check_param_missing"] != undefined){
+                
+                return 1;
+            }
+           
+            return -1;
+        });
 
         for(let i=0;i<watch.length;i++){
             let w=watch[i];
-            console.log(w);
-
+            
             let m="";
             let goal="";
             for (const [key, value] of Object.entries(w)) {
                 m=key.match(/^action_(.*)$/);
                 if (m) {
+
+                    
                     goal=value;
                     break;
                 } 

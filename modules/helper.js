@@ -25,7 +25,7 @@ class etc{
         min=min.toString().padStart(2,"0");
         sec=sec.toString().padStart(2,"0");
 
-        return year+"-"+mon+"-"+day+" "+hour+"-"+min+"-"+sec;
+        return year+"-"+mon+"-"+day+" "+hour+":"+min+":"+sec;
 
     };
 

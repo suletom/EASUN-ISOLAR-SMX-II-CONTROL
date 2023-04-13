@@ -185,13 +185,7 @@ const httpdash = function(req,configobj,ui_schema){
                     alert(JSON.stringify(errors));
                     return;
                 }
-                
-                //let f=document.querySelector('#settingsform');
-                //console.log(f);
-                //let fd=new FormData(f);
-                //console.log(fd);
-                //let o=Object.fromEntries(fd.entries());
-
+            
                 let o = editor.getValue();
                 console.log(o);
                 fetch('/saveconfig',{ body: JSON.stringify(o), method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
@@ -263,9 +257,9 @@ const httpdash = function(req,configobj,ui_schema){
 
 
                             if (key=='notif'){
-                                let nots="";
-                                value.forEach(function(el){
-                                    nots+=\`<div><div>\${el.error}</div><div>\${el.errordate}</div><div>\${el.info}</div></div>\`;
+                                let nots=""; 
+                                jvalue.forEach(function(el){
+                                    nots+=\`<tr class="alert alert-warning"><td>\${el.errordate}</td> <td>\${el.error}</td> <td>\${JSON.stringify(el.info)}</td><td>\${el.notifieddate?el.notifieddate:'-'}<td></tr>\`;
                                 });
                                 let n=document.querySelector('#notifs');
                                 n.innerHTML=nots;
@@ -293,9 +287,10 @@ const httpdash = function(req,configobj,ui_schema){
                             }
 
                             if (key=="state"){
-                                dash.classList.remove('connected');
-                                dash.classList.remove('notconnected');
-                                dash.classList.add(jvalue);
+                                document.querySelector("body").classList.remove('connected');
+                                document.querySelector("body").classList.remove('notconnected');
+                                document.querySelector("body").classList.add(jvalue);
+                                
                             }
 
                             let delem=document.querySelector('#delem'+key);
@@ -462,10 +457,10 @@ const httpdash = function(req,configobj,ui_schema){
                 display: none;
             }
 
-            #dash.connected > div{
-                background-color: lightgreen;
+            .connected{
+                background-color: #d2f8d2;
             }
-            #dash.notconnected > div{
+            .notconnected{
                 background-color: #ffb3b2;
             }
 
@@ -476,12 +471,10 @@ const httpdash = function(req,configobj,ui_schema){
 
             </style>
         </head>
-        <body>
-        
-            
+        <body class="notconnected">
         
         <div class="container">
-            <section id="dash" class="notconnected${firststart?' hide':''}">
+            <section id="dash" class="${firststart?' hide':''}">
                 <div id class="d-flex justify-content-center">${svg}</div>
                 <div class="d-flex justify-content-center">
                     <div class="card-body"><label>PVPower</label><div id="delemPVPower"></div></div>
@@ -495,7 +488,7 @@ const httpdash = function(req,configobj,ui_schema){
                     <div class="card-body"><label>CurrentFault</label><div id="delemCurrentFault"></div></div>
                 </div>  
                 <div id="notif-cont" class="d-flex justify-content-center">
-                    <div class="card-body"><label>Notifications</label><div id="notifs"></div></div>
+                    <div class="card-body"><label>Notifications</label><table id="notifs" class="table"></table></div>
                 </div>  
                 <div class="d-flex justify-content-center">
                     <div class="card-body"><label>API url:</label><div id="apiurl"><a target="_blank" href="/query"><script>document.write(window.location.href+"query");</script></a></div></div>
