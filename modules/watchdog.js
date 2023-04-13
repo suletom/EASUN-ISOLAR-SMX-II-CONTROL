@@ -24,14 +24,20 @@ class watchdog {
 
             if (this.errors[j]["notified"] != undefined ) {
                 tmp["notifieddate"]= helper.fdate(this.errors[j]["notified"]);
+            }else{
+                tmp["notifieddate"]="";
             }
 
             if (this.errors[j]["lastok"] != undefined ) {
                 tmp["lastokdate"]= helper.fdate(this.errors[j]["lastok"]);
+            }else{
+                tmp["lastokdate"]="";
             }
 
             if (this.errors[j]["lastpresent"] != undefined ) {
                 tmp["lastpresentdate"]= helper.fdate(this.errors[j]["lastpresent"]);
+            }else{
+                tmp["lastpresentdate"]="";
             }
 
             ret.push({...this.errors[j],...tmp});
