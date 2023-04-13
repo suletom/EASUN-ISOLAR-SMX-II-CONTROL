@@ -268,7 +268,7 @@ const httpdash = function(req,configobj,ui_schema){
                                             \${el.lastpresentdate}
                                             <td>
                                             <td>OK: \${el.ok}
-                                            \${lastokdate}
+                                            \${el.lastokdate}
                                             <td>
                                          </tr>\`;
                                 });
