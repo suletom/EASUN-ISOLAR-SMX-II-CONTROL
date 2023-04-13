@@ -259,7 +259,14 @@ const httpdash = function(req,configobj,ui_schema){
                             if (key=='notif'){
                                 let nots=""; 
                                 jvalue.forEach(function(el){
-                                    nots+=\`<tr class="alert alert-warning"><td>\${el.errordate}</td> <td>\${el.error}</td> <td>\${JSON.stringify(el.info)}</td><td>\${el.notifieddate?el.notifieddate:'-'}<td></tr>\`;
+                                    nots+=\`<tr class="alert alert-warning">
+                                            <td>\${el.errordate}</td>
+                                            <td>\${el.error}</td>
+                                            <td>\${JSON.stringify(el.info)}</td>
+                                            <td>SENT: \${el.notifieddate?el.notifieddate:'-'}<td>
+                                            <td>ERR: \${el.present} \${el.lastpresentdate?el.lastpresentdate:'-'}<td>
+                                            <td>OK: \${el.ok} \${el.lastokdate?el.lastokdate:'-'}<td>
+                                         </tr>\`;
                                 });
                                 let n=document.querySelector('#notifs');
                                 n.innerHTML=nots;

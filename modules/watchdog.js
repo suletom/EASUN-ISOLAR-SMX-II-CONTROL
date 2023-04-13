@@ -26,6 +26,14 @@ class watchdog {
                 tmp["notifieddate"]= helper.fdate(this.errors[j]["notified"]);
             }
 
+            if (this.errors[j]["lastok"] != undefined ) {
+                tmp["lastokdate"]= helper.fdate(this.errors[j]["lastok"]);
+            }
+
+            if (this.errors[j]["lastpresent"] != undefined ) {
+                tmp["lastpresentdate"]= helper.fdate(this.errors[j]["lastpresent"]);
+            }
+
             ret.push({...this.errors[j],...tmp});
 
         }
@@ -179,6 +187,8 @@ class watchdog {
 
             if (data.state!="connected"){
                 this._pusherror("Device not available",goal);
+            }else{
+                this._pushok("Device not available",goal);
             }
 
         }
@@ -189,6 +199,8 @@ class watchdog {
 
         if (this.param_missing.length>0) {
             this._pusherror("Required params missing",goal,this.param_missing.join("; "));
+        }else{
+            this._pushok("Required params missing",goal);
         }
 
     }
@@ -199,6 +211,8 @@ class watchdog {
             let errarr=data["CurrentFault"].match(/0: OK/g);
             if (errarr.length!=4) {
                 this._pusherror("Fault code",goal,data["CurrentFault"]);
+            }else{
+                this._pushok("Fault code",goal,data["CurrentFault"]);
             }
         }
 
@@ -214,6 +228,8 @@ class watchdog {
             
             if (data[add.param]<add.min || data[add.param]>add.max) {
                 this._pusherror("Param "+add.param+" value not in range",goal,data[add.param]+" not between "+add.min+" - "+add.max );
+            }else{
+                this._pushok("Param "+add.param+" value not in range",goal);
             }
         }
 
@@ -226,13 +242,36 @@ class watchdog {
   
     _pusherror(err,goal,info=null){
         
-        let seen=this.errors.find(function(el){ return el.error==err; });
+        let seen=this.errors.findIndex(function(el){ return el.error==err; });
+        
+        if (this.errors[seen] !=undefined && typeof this.errors[seen]["notified"] != "undefined"){
+            
+            if (this.errors[seen]["present"]!=undefined){
+                this.errors[seen]["present"]+=1;
+            }else{
+                this.errors[seen]["present"]=1;
+            }
 
-        if (seen !=undefined && typeof seen["notified"] != "undefined"){
-            seen["lastpresent"]=helper.unixTimestamp();
+            this.errors[seen]["lastpresent"]=helper.unixTimestamp();
+            
         }else{
-            this.errors.push({"error":err,"date":helper.unixTimestamp(),"goal": goal,"info": info });
+            this.errors.push({"error":err,"date":helper.unixTimestamp(),"goal": goal,"info": info,"present": 1,"lastpresent": helper.unixTimestamp() });
         }    
+        
+    }
+
+    _pushok(err,goal,info=null){
+       
+        for(let i=0; i<this.errors.length;i++){
+            if (this.errors[i]["error"]==err){
+                if (this.errors[i]["ok"]==undefined){
+                    this.errors[i]["ok"]=1;
+                }else{
+                    this.errors[i]["ok"]+=1;
+                }
+                this.errors[i]["lastok"]=helper.unixTimestamp();
+            }
+        }
         
     }
 
