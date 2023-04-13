@@ -264,8 +264,12 @@ const httpdash = function(req,configobj,ui_schema){
                                             <td>\${el.errordate}</td>
                                             <td>\${el.error}</td>
                                             <td>\${JSON.stringify(el.info)}</td>
-                                            <td>ERR: \${el.present} \${el.lastpresentdate}<td>
-                                            <td>OK: \${el.ok} \${el.lastokdate}<td>
+                                            <td>ERR: \${el.present} 
+                                            \${el.lastpresentdate}
+                                            <td>
+                                            <td>OK: \${el.ok}
+                                            \${el.lastokdate}
+                                            <td>
                                          </tr>\`;
                                 });
                                 let n=document.querySelector('#notifs');
