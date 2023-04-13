@@ -28,7 +28,7 @@ class watchdog {
                 tmp["notifieddate"]="";
             }
 
-            if (this.errors[j]["lastok"] != undefined ) {
+            if (typeof this.errors[j]["lastok"] != 'undefined' && this.errors[j]["lastok"] != undefined ) {
                 tmp["lastokdate"]= helper.fdate(this.errors[j]["lastok"]);
             }else{
                 tmp["lastokdate"]="";
