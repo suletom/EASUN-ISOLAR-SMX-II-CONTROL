@@ -68,10 +68,10 @@ if (process.argv.length<3){
     var app = express();
 
     if (configobj["password"]!==undefined) {
-        console.log("Using web auth: admin/"+configobj["password"]);
+        console.log("Using web auth: smx/"+configobj["password"]);
         app.use(basicAuth({
-            users: { 'admin': configobj["password"] },
-            unauthorizedResponse: function(){ return "Provide admin user password to continue!";},
+            users: { 'smx': configobj["password"] },
+            unauthorizedResponse: function(){ return "Provide 'smx' user password to continue!";},
             challenge: true
         }));
     };
@@ -184,6 +184,8 @@ if (process.argv.length<3){
                 let inp={"msg":add}; 
                 dov={...dov,...inp};
             }
+            let wg={'notif':wd.get_current()};
+            dov={...dov,...wg};
         }
               
         res.json(dov);

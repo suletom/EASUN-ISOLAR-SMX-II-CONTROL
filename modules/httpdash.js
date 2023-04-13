@@ -92,7 +92,7 @@ const httpdash = function(req,configobj,ui_schema){
                         properties: {
                             password: {
                                 type: "string",
-                                title: "Http authentication 'admin' user password (plain text)"
+                                title: "Http authentication 'smx' user password (plain text)"
                             },
                             ipaddress: {
                                 type: "string",
@@ -260,6 +260,16 @@ const httpdash = function(req,configobj,ui_schema){
                             if (key=='msg') {
                                 alert(jvalue.join('; '));
                             }
+
+
+                            if (key=='notif'){
+                                let nots="";
+                                value.forEach(function(el){
+                                    nots+=\`<div><div>\${el.error}</div><div>\${el.errordate}</div><div>\${el.info}</div></div>\`;
+                                });
+                                let n=document.querySelector('#notifs');
+                                n.innerHTML=nots;
+                            }
                             
                             let elem=document.querySelector('#param'+key);
                             if (elem !== null && elem !== undefined){
@@ -267,11 +277,7 @@ const httpdash = function(req,configobj,ui_schema){
                                 if (elem.classList.contains('notset')) elem.classList.remove('notset');
                                 
                                 let oldvalue=elem.value;
-
-                                //if (key=="OutputPriority") {
-                                //    console.log("oldval:",oldvalue);
-                                //}
-                                
+                          
                                 if (elem.classList.contains('loading') ){
                                     if (oldvalue!=jvalue){
                                         elem.classList.remove('loading');
@@ -279,14 +285,8 @@ const httpdash = function(req,configobj,ui_schema){
                                 }else{
                                     let newval=(responsejson[key+"_text"]!==undefined?responsejson[key+"_text"]:jvalue);
 
-                                    //if (key=="OutputPriority") {
-                                    //    console.log("newval:",newval);
-                                    //}
-
                                     if (newval!=oldvalue) {
-                                        //if (key=="OutputPriority") {
-                                        //    console.log("setting: not eq");
-                                        //}
+                                      
                                         elem.value=newval;
                                     }
                                 }
@@ -493,7 +493,10 @@ const httpdash = function(req,configobj,ui_schema){
                 </div>
                 <div id="faults" class="d-flex justify-content-center">
                     <div class="card-body"><label>CurrentFault</label><div id="delemCurrentFault"></div></div>
-                </div>    
+                </div>  
+                <div id="notif-cont" class="d-flex justify-content-center">
+                    <div class="card-body"><label>Notifications</label><div id="notifs"></div></div>
+                </div>  
                 <div class="d-flex justify-content-center">
                     <div class="card-body"><label>API url:</label><div id="apiurl"><a target="_blank" href="/query"><script>document.write(window.location.href+"query");</script></a></div></div>
                 </div>

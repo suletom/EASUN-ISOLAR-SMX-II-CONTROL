@@ -1,18 +1,16 @@
 class etc{
 
-    constructor() {
-
-    }
-
+    
     static unixTimestamp = function(d=null) {  
         let bd=Date.now();
         if (d!==null){
             bd=d;
         }
-        return Math.floor(bd / 1000)
-    }
+        return Math.floor(bd / 1000);
+    };
 
     static fdate = function(ts){
+
         var date0 = new Date(ts * 1000);
         let year=date0.getFullYear();
         let mon=date0.getMonth()+1;
@@ -29,7 +27,7 @@ class etc{
 
         return year+"-"+mon+"-"+day+" "+hour+"-"+min+"-"+sec;
 
-    }
+    };
 
 }
 
