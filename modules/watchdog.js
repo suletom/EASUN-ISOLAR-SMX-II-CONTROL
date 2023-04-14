@@ -132,7 +132,7 @@ class watchdog {
             }
             
             if (m!=="" && typeof thisobj[m[1]] === 'function'){
-                console.log("checking: "+m[1]);
+                console.log("checking: "+i+". "+m[1]);
                 
                 thisobj[m[1]](i,currentdata,goal,w);
                 
@@ -248,7 +248,7 @@ class watchdog {
         
         let seen=this.errors.findIndex(function(el){ return el.error==ind+". "+err; });
         
-        if (this.errors[seen] !=undefined && typeof this.errors[seen]["notified"] != "undefined"){
+        if (this.errors[seen] !=undefined){
             
             if (this.errors[seen]["present"]!=undefined){
                 this.errors[seen]["present"]+=1;
