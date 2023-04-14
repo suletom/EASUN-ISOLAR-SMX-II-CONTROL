@@ -20,7 +20,7 @@ process.on('uncaughtException', function(err) {
 });
 
 let real_time_monitor_interval=8000;
-let low_freq_monitor_at_nth_interval=10;
+let low_freq_monitor_at_nth_interval=4;
 let full_param_query_at_nth_interval=20;
 
 //let current_data_store='currentdata.json';
@@ -200,15 +200,7 @@ if (process.argv.length<3){
     });
     
     monitor_lock=0;
-
-    
-    //let wt=[];
-
-    //wt.push({'cond': 'check_connection'});
-    //wt.push({'cond': 'check_fault_code'});
-    //wt.push({'cond': 'check_numeric_value','add': {'param': 'MachineState','min': 5 ,'max': 5}});
-    //wt.push({'cond': 'check_param_missing'});
-            
+        
     setInterval(function(){ wd.run(configobj,store.get()); },30000);
 
     // 0 -> full query   1 -> only important

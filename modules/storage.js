@@ -14,12 +14,11 @@ class paramstorage {
     get(){
 
         let ret={};
-        if (this.history.length==0 || this.currentdata["lastseen"]<helper.unixTimestamp()-60){
+        if (this.history.length==0 || this.currentdata["lastseen"]<helper.unixTimestamp()-100){
             this.currentdata["state"]="notconnected";
-        }else{
-            ret=this.currentdata;
         }
-        
+        ret=this.currentdata;
+                
         return ret;
     }
 
@@ -55,7 +54,7 @@ class paramstorage {
             } catch (err) {
                 console.error(err);
             }
-        }    
+        }
 
         //store current available data in every case
         console.log("Wiriting data history stucture...");
