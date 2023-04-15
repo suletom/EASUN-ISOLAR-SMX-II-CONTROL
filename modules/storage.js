@@ -9,6 +9,67 @@ class paramstorage {
         this.current_data_store="currentdata.json";
         this.history_store="history";
         this.lastwrite=null;
+        this.history_days=8;
+    }
+
+    loadhistory(){
+
+        
+        let ts=helper.unixTimestamp();
+        let end=ts-(3600*24*this.history_days);
+        let tmpdata=[];
+
+        while(ts>end) {
+            
+            let dateobj=helper.fdateobj(ts);
+            let dn=this.history_store+"/"+dateobj.year+"-"+dateobj.mon+"/"+dateobj.day+"/";
+
+            //dateobj.hour+"_"+dateobj.min+"_"+dateobj.sec+".json";
+
+            let dircontent=[];
+            fs.readdir(dn, function (err, files) {
+                
+                if (err) {
+                    console.log('Unable to scan directory: ' + err);
+                }else{
+                
+                    files.forEach(function (file) {
+                        dircontent.push(file.name);
+                    });
+                }    
+            });
+
+            dircontent.sort();
+
+            for(let i=0;i<dircontent.length;i++){
+
+                if (fs.existsSync(dircontent)){
+               
+                    let data="";
+                    try{
+                        data=fs.readFileSync(dn+dircontent,{encoding:'utf8', flag:'r'});
+                    }catch(e){
+                        console.log(e);
+                    }
+                    let dataobj={};
+    
+                    try{
+                        dataobj=JSON.parse(data);
+                    }catch(e){
+                        console.log(e);
+                    }
+
+                    tmpdata.push(dataobj);
+    
+                }
+
+            }
+           
+            ts=ts-(24*3600);
+
+        }
+
+        
     }
 
     get(){
@@ -36,8 +97,8 @@ class paramstorage {
         }
 
         if (this.history.length>0){
-            //hold past 2 days in memory
-            let da=helper.unixTimestamp() - 48 * 3600 * 1000;
+            //hold past 8 days in memory
+            let da=helper.unixTimestamp() - (24 * 3600 * this.history_days);
             while(this.history[0].timestamp<da){
                 this.history.shift();
             }
