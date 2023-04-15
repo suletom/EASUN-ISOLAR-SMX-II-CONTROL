@@ -12,7 +12,7 @@ Priority list:
 5. portscan/wizard on init: +
 6. store data: +
 7. configurable actions: +
-8. software battery soc calculation
+8. software battery soc calculation:...
 9. graphs
 
 FIX: TCP address in use by other process! +
