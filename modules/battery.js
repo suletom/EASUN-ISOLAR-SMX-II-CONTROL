@@ -68,7 +68,7 @@ class battery {
 
         }
 
-        let finalah=capacity_ah-calcah;
+        let finalah=capacity_ah+calcah;
 
         console.log("BATTERYMODEL Calculated final ah: "+finalah);
         
