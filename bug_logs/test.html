@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+
+</head>
+<body>
+    
+<div id="editorholder">
+
+</div>
+
+
+
+
+
+<script>
+    editor = new JSONEditor(document.getElementById('editorholder'),{
+                    theme: 'bootstrap5',
+                    schema: {
+                        type: "object",
+                        title: "CONFIGURATION",
+                        properties: {
+                            password: {
+                                type: "string",
+                                title: "Http authentication 'admin' user password (plain text)"
+                            },
+                            actions: {
+                                type: "array",
+                                format: "tabs",
+                                title: "Custom actions",
+                                items: {
+                                    title: "Action",
+                                    anyOf:  [
+                                            {
+                                                "title":"check_fault_code",
+                                                
+                                                "type":"object",
+                                                "id":"check_fault_code",
+                                                "properties":{
+                                                    "goal":{
+                                                    "title":"Goal",
+                                                    "type":"string",
+                                                    "enum":[
+                                                        "log",
+                                                        "notify"
+                                                    ]
+                                                    }
+                                                }
+                                                
+                                            },
+                                            {
+                                                "title":"check_numeric_value",
+                                               
+                                                "type":"object",
+                                                "id":"check_numeric_value",
+                                                "properties":{
+                                                    "param":{
+                                                    "type":"string",
+                                                    "title":"Paramter"
+                                                    },
+                                                    "min":{
+                                                    "type":"number",
+                                                    "title":"min"
+                                                    },
+                                                    "max":{
+                                                    "type":"number",
+                                                    "title":"max"
+                                                    },
+                                                    "goal":{
+                                                    "title":"Goal",
+                                                    "type":"string",
+                                                    "enum":[
+                                                        "log",
+                                                        "notify"
+                                                    ]
+                                                    }
+                                                }
+                                                
+                                            }
+                                            ]
+                                }
+                            },
+                        
+                        }
+                    }
+                });
+</script>
+</body>
+</html>
