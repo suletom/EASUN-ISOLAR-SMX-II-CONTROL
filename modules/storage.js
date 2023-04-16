@@ -1,4 +1,5 @@
 let fs = require('fs');
+const { exit } = require('process');
 const helper = require("./helper.js");
 
 class paramstorage { 
@@ -10,16 +11,20 @@ class paramstorage {
         this.history_store="history";
         this.lastwrite=null;
         this.history_days=8;
+
+        console.log("Loading recent history from files...");
+        this.loadhistory();
+  
     }
 
     loadhistory(){
-
         
-        let ts=helper.unixTimestamp();
-        let end=ts-(3600*24*this.history_days);
+        let now=helper.unixTimestamp();
+        let ts=now-(3600*24*this.history_days);
+        
         let tmpdata=[];
 
-        while(ts>end) {
+        while(ts<=now) {
             
             let dateobj=helper.fdateobj(ts);
             let dn=this.history_store+"/"+dateobj.year+"-"+dateobj.mon+"/"+dateobj.day+"/";
@@ -27,27 +32,25 @@ class paramstorage {
             //dateobj.hour+"_"+dateobj.min+"_"+dateobj.sec+".json";
 
             let dircontent=[];
-            fs.readdir(dn, function (err, files) {
-                
-                if (err) {
-                    console.log('Unable to scan directory: ' + err);
-                }else{
-                
-                    files.forEach(function (file) {
-                        dircontent.push(file.name);
-                    });
-                }    
-            });
 
+            console.log("Reading dir: "+dn);
+            try{
+                dircontent=fs.readdirSync(dn);
+            }catch(e){
+                console.log("Dir cound not be read:"+dn);
+            }
+         
             dircontent.sort();
 
             for(let i=0;i<dircontent.length;i++){
-
-                if (fs.existsSync(dircontent)){
+                
+                if (fs.existsSync(dn+dircontent[i])){
                
                     let data="";
                     try{
-                        data=fs.readFileSync(dn+dircontent,{encoding:'utf8', flag:'r'});
+                        //console.log("Parseing file: "+dn+dircontent[i]);
+                        //console.log(dn+dircontent[i]);
+                        data=fs.readFileSync(dn+dircontent[i],{encoding:'utf8', flag:'r'});
                     }catch(e){
                         console.log(e);
                     }
@@ -65,11 +68,16 @@ class paramstorage {
 
             }
            
-            ts=ts-(24*3600);
+            ts=ts+(24*3600);
 
         }
-
+        console.log("Read: "+tmpdata.length+" files");
         
+        this.history=tmpdata;
+
+        //for (let i=0;i<tmpdata.length;i++){
+        //    console.log(helper.fdate(tmpdata[i]['timestamp']));
+        //}
     }
 
     get(){
@@ -81,6 +89,10 @@ class paramstorage {
         ret=this.currentdata;
                 
         return ret;
+    }
+
+    gethistory(){
+        return this.history;
     }
 
     store(jsobject,completedata=0){

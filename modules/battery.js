@@ -2,15 +2,17 @@ const helper = require("./helper.js");
 
 class battery { 
     
-    calcsoc(capacity_ah,added_consuption_w,historydata){
+    static calcsoc(capacity_ah,added_consuption_w,historydata){
+        
 
         let out="";
 
         let found_full=0;
-        for (let i=historydata.length;i>=0;i--) {
+        for (let i=historydata.length-1;i>=0;i--) {
             if (historydata[i]['BatteryVoltage']==historydata[i]['BatteryBoostChargeVoltage']) {
-                out+="Last boost state: "+helper.fdate(historydata[i]['timestamp'])+"\n";
+                console.log("BATTERYMODEL Last boost state: "+helper.fdate(historydata[i]['timestamp']));
                 found_full=i;
+                break;
             }
         }
 
@@ -28,8 +30,8 @@ class battery {
                 discharge=historydata[j]['BatteryDischargeOnTheDay'];
                 init_time=historydata[j]['timestamp'];
 
-                out+="Init time: "+helper.fdate(init_time)+"\n";
-                out+="Values at full: charge: "+charge+" discharge:"+discharge+"\n";
+                console.log("BATTERYMODEL Init time: "+helper.fdate(init_time));
+                console.log("BATTERYMODEL Values at full: charge: "+charge+" discharge:"+discharge);
 
             }else{
                 
@@ -37,34 +39,42 @@ class battery {
                 if (historydata[j-1]['BatteryChargeOnTheDay']>=historydata[j]['BatteryChargeOnTheDay'] &&
                     historydata[j-1]['BatteryDischargeOnTheDay']>historydata[j]['BatteryDischargeOnTheDay']
                 ){
-                    out+="Found counter reset at: "+helper.fdate(historydata[i]['timestamp'])+"\n";
-                    out+="Counter values before reset: charge:"+historydata[j-1]['BatteryChargeOnTheDay']+
-                          " discharge:"+historydata[j]['BatteryDischargeOnTheDay']+"\n";
+                    console.log("BATTERYMODEL Found counter reset after: "+helper.fdate(historydata[j-1]['timestamp']));
+                    console.log("BATTERYMODEL Counter values before reset: charge:"+historydata[j-1]['BatteryChargeOnTheDay']+
+                          " discharge:"+historydata[j-1]['BatteryDischargeOnTheDay']);
                     
+                          //calcah=-111  init_charge: 122  -> 122-111=111
                     charge=(historydata[j-1]['BatteryChargeOnTheDay']-charge); // 5 -> 15 15-5 -> 10
                     discharge=(historydata[j-1]['BatteryDischargeOnTheDay']-discharge);
+
                 }
 
                 calcah=(historydata[j]['BatteryChargeOnTheDay']-charge)-
                        (historydata[j]['BatteryDischargeOnTheDay']-discharge);
 
-                out+="Calculated ah: "+helper.fdate(historydata[i]['timestamp'])+" -> "+calcah;
+                console.log("BATTERYMODEL "+helper.fdate(historydata[j]['timestamp'])+
+                    " Ah: -> "+calcah+" ch:"+historydata[j]['BatteryChargeOnTheDay']+
+                    " dis:"+historydata[j]['BatteryDischargeOnTheDay']+
+                    " ch:"+charge+" dis:"+discharge);
 
             }
 
         }
 
-        out+="Calculated final ah: "+calcah;
+        console.log("BATTERYMODEL Calculated final ah: "+calcah);
 
         //out+="Calculated final ah with self consuption: "+calcah;
 
         //helper.unixTimestamp();
         //added_consuption_w
 
-        soc=(calcah/capacity_ah)*100;
-        out+="Calculated soc: "+soc;
-        
-        return {"rv": found_full ,"soc":soc,"log":out};
+        let soc=Math.round((calcah/capacity_ah)*100);
+        console.log("BATTERYMODEL Calculated soc: "+soc);
+
+        console.log(out);
+        let rv=(found_full?1:0);
+
+        return {"rv": rv ,"soc":soc};
 
     }
 

@@ -19,7 +19,7 @@ process.on('uncaughtException', function(err) {
         console.log("Process Exception: ",err);
 });
 
-let real_time_monitor_interval=8000;
+let real_time_monitor_interval=10000;
 let low_freq_monitor_at_nth_interval=4;
 let full_param_query_at_nth_interval=20;
 
@@ -201,7 +201,7 @@ if (process.argv.length<3){
     
     monitor_lock=0;
         
-    setInterval(function(){ wd.run(configobj,store.get()); },30000);
+    setInterval(function(){ wd.run(configobj,store.get(),store.gethistory()); },30000);
 
     // 0 -> full query   1 -> only important
     function monitor(prio=0) {

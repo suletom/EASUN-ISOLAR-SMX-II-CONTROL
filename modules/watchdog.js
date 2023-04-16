@@ -1,11 +1,13 @@
 const helper = require("./helper.js");
 const notifier = require("./notifier.js");
+const battery = require("./battery.js");
 
 class watchdog { 
 
     constructor() {
         this.errors=[];
         this.param_missing=[];
+        this.history=[];
     }
 
     get_current(){
@@ -93,9 +95,10 @@ class watchdog {
 
     }
 
-    run(configobj,currentdata){
+    run(configobj,currentdata,history){
 
         this.param_missing=[];
+        this.history=history;
 
         let thisobj=this;
 
@@ -147,7 +150,11 @@ class watchdog {
             let senderrors=[];
             for(let j=0;j<this.errors.length;j++){
                 if (this.errors[j]["goal"] == "notify" && typeof this.errors[j]["notified"] == "undefined"){
-                    senderrors.push(this.errors[j]);
+                    senderrors.push({
+                        "Error":this.errors[j]["error"],
+                        "Date":helper.fdate(this.errors[j]["date"]),
+                        "Info":this.errors[j]["info"]
+                    });
                     this.errors[j]["notified"]=helper.unixTimestamp();
                 }
             }
@@ -241,6 +248,31 @@ class watchdog {
                 this._pushok(ind,"Param "+add.param+" value not in range",goal);
             }
         }
+
+    }
+
+    check_battery_ui(){
+        return {"capacity_ah": {"type": "number", "title": "Battery capacity ah"},
+                "added_consuption_w": { "type": "number", "title": "Added Consuption w" }
+            };
+    }
+
+    check_battery(ind,data,goal,add=null){
+
+        /*if (this.param_ok(add.param,data)) {
+            
+            if (data[add.param]<add.min || data[add.param]>add.max) {
+                this._pusherror(ind,"Param "+add.param+" value not in range",goal,data[add.param]+" not between "+add.min+" - "+add.max );
+            }else{
+                this._pushok(ind,"Param "+add.param+" value not in range",goal);
+            }
+        }
+        */
+
+        let added_consuption_w=0;
+
+        let batinf=battery.calcsoc(add.capacity_ah,added_consuption_w,this.history);
+        this._pusherror(ind,"Battery info",goal,JSON.stringify(batinf));
 
     }
 
