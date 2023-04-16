@@ -4,7 +4,6 @@ class battery {
     
     static calcsoc(capacity_ah,added_consuption_w,historydata){
         
-
         let out="";
 
         let found_full=0;
@@ -21,6 +20,7 @@ class battery {
         let init_time=0;
 
         let calcah=0;
+        let calcah_reset=0;
        
         for (let j=found_full;j<historydata.length;j++) {
 
@@ -42,33 +42,38 @@ class battery {
                     console.log("BATTERYMODEL Found counter reset after: "+helper.fdate(historydata[j-1]['timestamp']));
                     console.log("BATTERYMODEL Counter values before reset: charge:"+historydata[j-1]['BatteryChargeOnTheDay']+
                           " discharge:"+historydata[j-1]['BatteryDischargeOnTheDay']);
-                    
-                          //calcah=-111  init_charge: 122  -> 122-111=111
-                    charge=(historydata[j-1]['BatteryChargeOnTheDay']-charge); // 5 -> 15 15-5 -> 10
-                    discharge=(historydata[j-1]['BatteryDischargeOnTheDay']-discharge);
+
+                    //charge=(historydata[j-1]['BatteryChargeOnTheDay']-charge);
+                    //discharge=(historydata[j-1]['BatteryDischargeOnTheDay']-discharge);
+
+                    calcah_reset=(historydata[j-1]['BatteryChargeOnTheDay']-charge)-
+                           (historydata[j-1]['BatteryDischargeOnTheDay']-discharge);
+
+                    console.log("BATTERYMODEL Added ah after reset:"+ calcah_reset);
+
+                    charge=0;    
+                    discharge=0;
 
                 }
 
-                calcah=(historydata[j]['BatteryChargeOnTheDay']-charge)-
+                calcah=calcah_reset+
+                       (historydata[j]['BatteryChargeOnTheDay']-charge)-
                        (historydata[j]['BatteryDischargeOnTheDay']-discharge);
 
                 console.log("BATTERYMODEL "+helper.fdate(historydata[j]['timestamp'])+
                     " Ah: -> "+calcah+" ch:"+historydata[j]['BatteryChargeOnTheDay']+
-                    " dis:"+historydata[j]['BatteryDischargeOnTheDay']+
-                    " ch:"+charge+" dis:"+discharge);
+                    " dis:"+historydata[j]['BatteryDischargeOnTheDay']);
 
             }
 
         }
 
-        console.log("BATTERYMODEL Calculated final ah: "+calcah);
+        let finalah=capacity_ah-calcah;
 
-        //out+="Calculated final ah with self consuption: "+calcah;
+        console.log("BATTERYMODEL Calculated final ah: "+finalah);
+        
 
-        //helper.unixTimestamp();
-        //added_consuption_w
-
-        let soc=Math.round((calcah/capacity_ah)*100);
+        let soc=Math.round((finalah/capacity_ah)*100);
         console.log("BATTERYMODEL Calculated soc: "+soc);
 
         console.log(out);
