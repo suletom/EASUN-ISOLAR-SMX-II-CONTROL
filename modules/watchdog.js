@@ -273,6 +273,7 @@ class watchdog {
 
         let batinf=battery.calcsoc(add.capacity_ah,added_consuption_w,this.history);
         this._pusherror(ind,"Battery info",goal,JSON.stringify(batinf));
+        this._pushok(ind,"Battery info",goal,JSON.stringify(batinf));
 
     }
 
