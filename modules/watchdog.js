@@ -307,6 +307,11 @@ class watchdog {
                     this.errors[i]["ok"]+=1;
                 }
                 this.errors[i]["lastok"]=helper.unixTimestamp();
+
+                if (info!==null){
+                    this.errors[i]["info"]=info;
+                }
+
             }
         }
         
