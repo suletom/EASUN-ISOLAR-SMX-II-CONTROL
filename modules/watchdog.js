@@ -160,7 +160,7 @@ class watchdog {
             }
 
             if (senderrors.length>0){
-                let started=notifier.notifier(configobj,"SOLAR ALERT "+configobj.ipaddress,JSON.stringify(this.errors));
+                let started=notifier.notifier(configobj,"SMX ALERT "+configobj.ipaddress,JSON.stringify(senderrors));
                 console.log("Sending errors:",senderrors);
             }
             
