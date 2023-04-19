@@ -21,6 +21,10 @@ class battery {
 
         let calcah=0;
         let calcah_reset=0;
+
+        let chinit=0;
+        let dischinit=0;
+        let dischargetime=0;
        
         for (let j=found_full;j<historydata.length;j++) {
 
@@ -29,7 +33,8 @@ class battery {
                 charge=historydata[j]['BatteryChargeOnTheDay'];
                 discharge=historydata[j]['BatteryDischargeOnTheDay'];
                 init_time=historydata[j]['timestamp'];
-
+                dischinit=init_time;
+                
                 console.log("BATTERYMODEL Init time: "+helper.fdate(init_time));
                 console.log("BATTERYMODEL Values at full: charge: "+charge+" discharge:"+discharge);
 
@@ -56,9 +61,36 @@ class battery {
 
                 }
 
+                let lastcalcah=calcah;
+                
                 calcah=calcah_reset+
                        (historydata[j]['BatteryChargeOnTheDay']-charge)-
                        (historydata[j]['BatteryDischargeOnTheDay']-discharge);
+
+                if (chinit!=0){ //charingeing
+
+                    if (lastcalcah<=calcah){ //charging
+                        //not adding time here
+
+                    }else{
+                        //set to discharge
+                        dischinit=historydata[j]['timestamp'];
+                        chinit=0;
+                    }
+
+                }else{
+
+                    if (lastcalcah>=calcah){
+                        //discharging
+                        dischargetime=historydata[j]['timestamp']-dischinit;
+                        
+                    }else{
+                        //charging
+                        if (chinit==0) { //if now started chargeing
+                            chinit=historydata[j]['timestamp'];
+                        }
+                    }
+                }    
 
                 console.log("BATTERYMODEL "+helper.fdate(historydata[j]['timestamp'])+
                     " Ah: -> "+calcah+" ch:"+historydata[j]['BatteryChargeOnTheDay']+

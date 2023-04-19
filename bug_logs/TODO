@@ -15,4 +15,5 @@ Priority list:
 8. software battery soc calculation:...
 9. graphs
 
-FIX: TCP address in use by other process! +
+FIX: 
+TCP address in use by other process! +
