@@ -253,13 +253,13 @@ class watchdog {
 
     check_battery_ui(){
         return {"capacity_ah": {"type": "number", "title": "Battery capacity ah"},
-                "added_consuption_a": { "type": "number", "title": "Added Consuption (A)" }
+                "added_consumption_a": { "type": "number", "title": "Added Consuption (A)" }
             };
     }
 
     check_battery(ind,data,goal,add=null){
 
-        let batinf=battery.calcsoc(add.capacity_ah,add.added_consuption_a,this.history);
+        let batinf=battery.calcsoc(add.capacity_ah,add.added_consumption_a,this.history);
         this._pusherror(ind,"Battery info",goal,JSON.stringify(batinf));
         this._pushok(ind,"Battery info",goal,JSON.stringify(batinf));
 
