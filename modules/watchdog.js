@@ -292,7 +292,7 @@ class watchdog {
             this.errors[seen]["lastpresent"]=helper.unixTimestamp();
             
         }else{
-            this.errors.push({"error":ind+". "+err,"date":helper.unixTimestamp(),"goal": goal,"info": info,"present": 1,"lastpresent": helper.unixTimestamp(),"ok":0 });
+            this.errors.push({"error":ind+". "+err,"date":helper.unixTimestamp(),"goal": goal,"info": (info===null?'':info),"present": 1,"lastpresent": helper.unixTimestamp(),"ok":0 });
         }    
         
     }
@@ -310,6 +310,8 @@ class watchdog {
 
                 if (info!==null){
                     this.errors[i]["info"]=info;
+                }else{
+                    this.errors[i]["info"]='';
                 }
 
             }

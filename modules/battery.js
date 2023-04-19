@@ -82,17 +82,13 @@ class battery {
 
                     if (lastcalcah>=calcah){
                         //discharging
-
                         dischargetime=historydata[j]['timestamp']-dischinit;
                         
                     }else{
                         //charging
-
-
                         if (chinit==0) { //if now started chargeing
                             chinit=historydata[j]['timestamp'];
-                        }    
-
+                        }
                     }
                 }    
 

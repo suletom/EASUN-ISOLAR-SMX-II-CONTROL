@@ -668,7 +668,7 @@ function processpacket(data,def,offset=0,stateobject){
 
         let hcrc=chcrc.substring(2)+chcrc.substring(0,2);
         
-        _log(stateobject.logcallback,"(Response info len: "+lenval+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rec_crc+")\n");
+        _log(stateobject.logcallback,"(Response info len: "+lenval+" calc len: "+(data.length-2-11)+" Data type: "+def.type+" "+"CRC check: "+hcrc+" "+rec_crc+")\n");
 
         //test for modbus exception
         if (rescode>128){
@@ -687,8 +687,14 @@ function processpacket(data,def,offset=0,stateobject){
         }
 
         
+        let perr=false;
+        if (lenval!=data.length-2-11) {
+            _log(stateobject.logcallback,"Packet length error!\n");
+            perr=true;
+        }
+        
 
-        if (hcrc!=rec_crc || modbusexception){
+        if (hcrc!=rec_crc || modbusexception || perr){
     
             _log(stateobject.logcallback,outt+"1");
 
