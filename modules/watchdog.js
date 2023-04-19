@@ -253,25 +253,13 @@ class watchdog {
 
     check_battery_ui(){
         return {"capacity_ah": {"type": "number", "title": "Battery capacity ah"},
-                "added_consuption_w": { "type": "number", "title": "Added Consuption w" }
+                "added_consuption_a": { "type": "number", "title": "Added Consuption (A)" }
             };
     }
 
     check_battery(ind,data,goal,add=null){
 
-        /*if (this.param_ok(add.param,data)) {
-            
-            if (data[add.param]<add.min || data[add.param]>add.max) {
-                this._pusherror(ind,"Param "+add.param+" value not in range",goal,data[add.param]+" not between "+add.min+" - "+add.max );
-            }else{
-                this._pushok(ind,"Param "+add.param+" value not in range",goal);
-            }
-        }
-        */
-
-        let added_consuption_w=0;
-
-        let batinf=battery.calcsoc(add.capacity_ah,added_consuption_w,this.history);
+        let batinf=battery.calcsoc(add.capacity_ah,add.added_consuption_a,this.history);
         this._pusherror(ind,"Battery info",goal,JSON.stringify(batinf));
         this._pushok(ind,"Battery info",goal,JSON.stringify(batinf));
 

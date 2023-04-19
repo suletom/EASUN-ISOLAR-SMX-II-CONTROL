@@ -2,7 +2,7 @@ const helper = require("./helper.js");
 
 class battery { 
     
-    static calcsoc(capacity_ah,added_consuption_w,historydata){
+    static calcsoc(capacity_ah,added_consuption_a,historydata){
         
         let out="";
 
@@ -105,7 +105,12 @@ class battery {
         let finalah=capacity_ah+calcah;
 
         console.log("BATTERYMODEL Calculated final ah: "+finalah);
+        console.log("BATTERYMODEL Calculated discharge time sec: "+dischargetime);
         
+        finalah=finalah-((dischargetime/3600)*added_consuption_a);
+
+        console.log("BATTERYMODEL Calculated final ah with added discharge: "+finalah);
+
         let soc=Math.round((finalah/capacity_ah)*100);
         console.log("BATTERYMODEL Calculated soc: "+soc);
 
