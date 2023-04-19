@@ -696,7 +696,7 @@ function processpacket(data,def,offset=0,stateobject){
 
         if (hcrc!=rec_crc || modbusexception || perr){
     
-            _log(stateobject.logcallback,outt+"1");
+            _log(stateobject.logcallback,outt);
 
             outobj[def.name]="N/A";
             outsum+=outt+"\n";
