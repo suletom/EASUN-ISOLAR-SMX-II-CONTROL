@@ -72,7 +72,6 @@ class battery {
 
         console.log("BATTERYMODEL Calculated final ah: "+finalah);
         
-
         let soc=Math.round((finalah/capacity_ah)*100);
         console.log("BATTERYMODEL Calculated soc: "+soc);
 
