@@ -2,18 +2,46 @@ const helper = require("./helper.js");
 
 class battery { 
     
+
+    static function checkp(p){
+        if (p!==undefined && p!==null && p!=="N/A"){
+            if (Number(p) === p){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     static calcsoc(capacity_ah,added_consuption_a,historydata){
         
         let out="";
-
+        //fatal errors
+        let errorinfo=[];
+        let data_problem_counter=0;
         let found_full=0;
         for (let i=historydata.length-1;i>=0;i--) {
+
+            if (!checkp(historydata[i]['BatteryVoltage'])){
+                errorinfo.push("No BatteryVoltage info in history");
+            }
+            if (!checkp(historydata[i]['BatteryBoostChargeVoltage'])){
+                errorinfo.push("No BatteryBoostChargeVoltage info in history");
+            }
+
             if (historydata[i]['BatteryVoltage']==historydata[i]['BatteryBoostChargeVoltage']) {
                 console.log("BATTERYMODEL Last boost state: "+helper.fdate(historydata[i]['timestamp']));
                 found_full=i;
                 break;
             }
         }
+
+        if (found_full==0){
+            errorinfo.push("Last full state couldn't be determined");
+        }
+
+        //if (historydata[found_full]['timestamp']<24*3600*7){
+        //    errorinfo.push("Last full state couldn't be determined last full state too old");
+        //}
 
         let charge=-1;
         let discharge=-1;
@@ -31,6 +59,13 @@ class battery {
 
             if (charge==-1 && discharge==-1){
 
+                if (!checkp(historydata[j]['BatteryChargeOnTheDay'])){
+                    errorinfo.push("No BatteryChargeOnTheDay info in history at full state");
+                }
+                if (!checkp(historydata[j]['BatteryDischargeOnTheDay'])){
+                    errorinfo.push("No BatteryDischargeOnTheDay info in history at full state");
+                }
+    
                 charge=historydata[j]['BatteryChargeOnTheDay'];
                 discharge=historydata[j]['BatteryDischargeOnTheDay'];
                 init_time=historydata[j]['timestamp'];
@@ -40,7 +75,12 @@ class battery {
                 console.log("BATTERYMODEL Values at full: charge: "+charge+" discharge:"+discharge);
 
             }else{
-                
+
+                if (!checkp(historydata[j]['BatteryChargeOnTheDay']) || !checkp(historydata[j]['BatteryDischargeOnTheDay'])){
+                    data_problem_counter++;
+                    continue;
+                }
+                                
                 //find counter resets at midnight
                 if (historydata[j-1]['BatteryChargeOnTheDay']>=historydata[j]['BatteryChargeOnTheDay'] &&
                     historydata[j-1]['BatteryDischargeOnTheDay']>historydata[j]['BatteryDischargeOnTheDay']
@@ -100,6 +140,10 @@ class battery {
 
             }
 
+        }
+
+        if (data_problem_counter>10){
+            errorinfo.push("Missing data in history exceeds allowed value!");
         }
 
         let finalah=capacity_ah+calcah;
