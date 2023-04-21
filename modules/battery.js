@@ -164,9 +164,9 @@ class battery {
             errorinfo.push("!!Calculation inaccurate: "+(diff)+"% diff.");
         }
 
-        let state="discharging";
-        if (historydata[historydata.length-1]["BatteryCurrent"] <= -0.1){
-            state="charging";
+        let state="charging";
+        if (historydata[historydata.length-1]["BatteryCurrent"] >= 0){
+            state="discharging";
         }
 
         return {"rv": rv ,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo,"state":state};
