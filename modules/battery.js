@@ -164,12 +164,19 @@ class battery {
             errorinfo.push("!!Calculation inaccurate: "+(diff)+"% diff.");
         }
 
+        let remain=0;
         let state="charging";
         if (historydata[historydata.length-1]["BatteryCurrent"] >= 0){
             state="discharging";
+            let current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
+            remain=((capacity_ah-finalah)/current_consuption);
+
+        }else{
+
         }
 
-        return {"rv": rv ,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo,"state":state};
+
+        return {"rv": rv, "remaining": remain,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo,"state":state};
 
     };
 
