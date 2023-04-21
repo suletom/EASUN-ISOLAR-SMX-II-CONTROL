@@ -260,8 +260,16 @@ class watchdog {
     check_battery(ind,data,goal,add=null){
 
         let batinf=battery.calcsoc(add.capacity_ah,add.added_consumption_a,this.history);
-        this._pusherror(ind,"Battery info",goal,JSON.stringify(batinf));
-        this._pushok(ind,"Battery info",goal,JSON.stringify(batinf));
+
+        let info="";
+        if (batinf.rv==1){
+            info+=batinf.soc+"%";
+        }else{
+            info+=batinf.errors.join("; ");
+        }
+
+        this._pusherror(ind,"Battery info",goal,info);
+        this._pushok(ind,"Battery info",goal,info);
 
     }
 

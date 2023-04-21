@@ -1,9 +1,8 @@
 const helper = require("./helper.js");
 
-class battery { 
-    
+class battery {
 
-    static function checkp(p){
+    static checkp(p){
         if (p!==undefined && p!==null && p!=="N/A"){
             if (Number(p) === p){
                 return true;
@@ -14,7 +13,6 @@ class battery {
     
     static calcsoc(capacity_ah,added_consuption_a,historydata){
         
-        let out="";
         //fatal errors
         let errorinfo=[];
         let data_problem_counter=0;
@@ -158,10 +156,10 @@ class battery {
         let soc=Math.round((finalah/capacity_ah)*100);
         console.log("BATTERYMODEL Calculated soc: "+soc);
 
-        console.log(out);
-        let rv=(found_full?1:0);
+        
+        let rv=(errorinfo.length>0?0:1);
 
-        return {"rv": rv ,"soc":soc,"dischargetime":dischargetime};
+        return {"rv": rv ,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo};
 
     }
 
