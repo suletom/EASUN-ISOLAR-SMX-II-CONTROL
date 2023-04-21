@@ -263,7 +263,7 @@ class watchdog {
 
         let info="";
         if (batinf.rv==1){
-            info+=batinf.soc+"% "+batinf.state+((batinf.remaining!=0)?(" Remaining hours: "+batinf.remaining):"");
+            info+=batinf.soc+"% "+batinf.state+((batinf.remaining!=0)?(" Remaining hours: "+batinf.remaining):"")+" "+(batinf.ah_left+" Ah left");
         }else{
             info+=batinf.errors.join("; ");
         }
