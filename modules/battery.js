@@ -165,7 +165,7 @@ class battery {
         }
 
         let state="discharging";
-        if (chinit!=0){
+        if (historydata[historydata.length-1]["BatteryCurrent"] <= -0.1){
             state="charging";
         }
 
