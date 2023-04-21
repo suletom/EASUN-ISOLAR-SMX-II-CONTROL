@@ -169,7 +169,7 @@ class battery {
         if (historydata[historydata.length-1]["BatteryCurrent"] >= 0){
             state="discharging";
             let current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
-            remain=((capacity_ah-finalah)/current_consuption);
+            remain=((capacity_ah-finalah)/current_consuption).toFixed(2);
 
         }else{
 
