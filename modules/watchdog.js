@@ -263,7 +263,7 @@ class watchdog {
 
         let info="";
         if (batinf.rv==1){
-            info+=batinf.soc+"%";
+            info+=batinf.soc+"% "+batinf.state;
         }else{
             info+=batinf.errors.join("; ");
         }

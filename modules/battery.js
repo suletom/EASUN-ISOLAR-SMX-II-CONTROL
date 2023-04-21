@@ -155,11 +155,21 @@ class battery {
 
         let soc=Math.round((finalah/capacity_ah)*100);
         console.log("BATTERYMODEL Calculated soc: "+soc);
-
         
         let rv=(errorinfo.length>0?0:1);
 
-        return {"rv": rv ,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo};
+        let diff=0;
+        if (soc>101){
+            diff=soc-100;
+            errorinfo.push("!!Calculation inaccurate: "+(diff)+"% diff.");
+        }
+
+        let state="discharging";
+        if (chinit!=0){
+            state="charging";
+        }
+
+        return {"rv": rv ,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo,"state":state};
 
     };
 
