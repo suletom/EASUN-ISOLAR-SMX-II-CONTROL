@@ -2,16 +2,16 @@ const helper = require("./helper.js");
 
 class battery {
 
-    static checkp(p){
+    static checkp=function(p){
         if (p!==undefined && p!==null && p!=="N/A"){
             if (Number(p) === p){
                 return true;
             }
         }
         return false;
-    }
+    };
     
-    static calcsoc(capacity_ah,added_consuption_a,historydata){
+    static calcsoc=function(capacity_ah,added_consuption_a,historydata){
         
         //fatal errors
         let errorinfo=[];
@@ -19,10 +19,10 @@ class battery {
         let found_full=0;
         for (let i=historydata.length-1;i>=0;i--) {
 
-            if (!checkp(historydata[i]['BatteryVoltage'])){
+            if (!this.checkp(historydata[i]['BatteryVoltage'])){
                 errorinfo.push("No BatteryVoltage info in history");
             }
-            if (!checkp(historydata[i]['BatteryBoostChargeVoltage'])){
+            if (!this.checkp(historydata[i]['BatteryBoostChargeVoltage'])){
                 errorinfo.push("No BatteryBoostChargeVoltage info in history");
             }
 
@@ -57,10 +57,10 @@ class battery {
 
             if (charge==-1 && discharge==-1){
 
-                if (!checkp(historydata[j]['BatteryChargeOnTheDay'])){
+                if (!this.checkp(historydata[j]['BatteryChargeOnTheDay'])){
                     errorinfo.push("No BatteryChargeOnTheDay info in history at full state");
                 }
-                if (!checkp(historydata[j]['BatteryDischargeOnTheDay'])){
+                if (!this.checkp(historydata[j]['BatteryDischargeOnTheDay'])){
                     errorinfo.push("No BatteryDischargeOnTheDay info in history at full state");
                 }
     
@@ -74,7 +74,7 @@ class battery {
 
             }else{
 
-                if (!checkp(historydata[j]['BatteryChargeOnTheDay']) || !checkp(historydata[j]['BatteryDischargeOnTheDay'])){
+                if (!this.checkp(historydata[j]['BatteryChargeOnTheDay']) || !this.checkp(historydata[j]['BatteryDischargeOnTheDay'])){
                     data_problem_counter++;
                     continue;
                 }
@@ -161,7 +161,7 @@ class battery {
 
         return {"rv": rv ,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo};
 
-    }
+    };
 
 }
 
