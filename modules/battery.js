@@ -175,8 +175,18 @@ class battery {
 
         }
 
+       
 
-        return {"rv": rv,"ah_left": (finalah.toFixed(1)), "remaining": remain,"soc":soc,"dischargetime":dischargetime,"errors":errorinfo,"state":state};
+
+        return {
+        "rv": rv,
+        "ah_left": (finalah.toFixed(1)), 
+        "remaining": remain,
+        "soc":soc,
+        "dischargetime":dischargetime,
+        "errors":errorinfo,
+        "state":state
+        };
 
     };
 
