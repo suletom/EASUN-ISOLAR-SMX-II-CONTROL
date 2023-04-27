@@ -254,7 +254,8 @@ class watchdog {
 
     check_battery_ui(){
         return {"capacity_ah": {"type": "number", "title": "Battery capacity ah"},
-                "added_consumption_a": { "type": "number", "title": "Added Consuption (A)" }
+                "added_consumption_a": { "type": "number", "title": "Added Consuption (A)" },
+                "forecast_url": { "type": "string", "title": "forecast.solar API link to estimate ()" },
             };
     }
 

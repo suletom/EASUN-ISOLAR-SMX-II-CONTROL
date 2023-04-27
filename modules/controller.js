@@ -676,7 +676,7 @@ function processpacket(data,def,offset=0,stateobject){
         }
         
         //check if response length corresponds to requested length
-        let reqlen=stateobject.lastrequest.readUInt16BE(stateobject.lastrequest.length-4);
+        let reqlen=(stateobject.lastrequest.readUInt16BE(stateobject.lastrequest.length-4))*2;
         
         let perr=false;
         if (reqlen!=data.length-2-11) {

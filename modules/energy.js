@@ -1,5 +1,6 @@
 const helper = require("./helper.js");
 let fs = require('fs');
+const fetch = require('cross-fetch');
 
 class energy {
 
@@ -34,7 +35,7 @@ curl -X 'GET' \
         */
    
     
-    static getforecast(url,update_period=3600) {
+    static getforecast(url,update_period=10000) {
 
       let forecastfile="forecast.json";
 
@@ -44,7 +45,7 @@ curl -X 'GET' \
             file=fs.readFileSync(forecastfile,{encoding:'utf8', flag:'r'});
         }
       } catch (err) {
-        console.error("ENERGY:",err);
+        console.log("ENERGY:",err);
       }
 
       let dataobj={};
@@ -58,39 +59,51 @@ curl -X 'GET' \
       }
 
       console.log("ENERGY: cached data:",dataobj);
-      console.log("ENERGY: cached data:",dataobj);
-
-      let filedate=dataobj["message"]["info"]["time"];
-
-      let fetch=0;
-      if (file==="" || filedate===undefined ){
-        fetch=1;        
+      
+      let needfetch=0;
+      if (file==="" ){
+        needfetch=1;        
       }
 
-      if (filedate!==undefined){
-         let d=new Date(filedate);
-         let nd=new Date();
-         let diff=(nd.getTime()-d.getTime())/1000;
-         if (diff>update_period){
-            fetch=1;
-         }
-      }
+      if (dataobj["message"]===undefined || dataobj["message"]["info"]===undefined || dataobj["message"]["info"]["time"]===undefined){
+        needfetch=1;
+      }else{
+        let filedate=dataobj["message"]["info"]["time"];
+        if (filedate!==undefined){
+          let d=new Date(filedate);
+          let nd=new Date();
+          let diff=(nd.getTime()-d.getTime())/1000;
+          if (diff>update_period){
+            needfetch=1;
+          }
+        }
+      }  
 
-      if (fetch){
+      if (needfetch){
 
         console.log("ENERGY:","fetching...", url);
-        fetch(url)
-          .then(res => res.text())
+
+        fetch(url,
+          {
+          method: "GET",
+            headers: {
+              "accept": "application/json"
+            }
+          })
+          .then(function(res) {  console.log("ENERGY: fetched!"); return res.text() } )
           .then(text => JSON.parse(text))
           .then(function(json) {
+            console.log("ENERGY: json:",json);
             if (json["message"] != undefined && json.message.code===0 && json.message.status==="success" &&  json.message.info.time != undefined ){
               try {
-
                 fs.writeFileSync(forecastfile,JSON.stringify(json));
+                console.log("ENERGY: writing prediction to file: ",json);
               } catch (err) {
-                console.error("ENERGY:",err);
+                console.log("ENERGY:",err);
               }
             }
+          }).catch(err => {
+            console.log("ENERGY:",err);
           });
 
         }
