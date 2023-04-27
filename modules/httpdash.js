@@ -90,6 +90,7 @@ const httpdash = function(req,configobj,ui_schema){
                 editor = new JSONEditor(document.getElementById('editorholder'),{
                     theme: 'bootstrap5',
                     no_additional_properties: true,
+                    required_by_default: true,
                     schema: {
                         type: "object",
                         title: "CONFIGURATION",

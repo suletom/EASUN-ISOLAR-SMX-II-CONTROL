@@ -1,6 +1,7 @@
 const helper = require("./helper.js");
 const notifier = require("./notifier.js");
 const battery = require("./battery.js");
+const energy = require("./energy.js");
 
 class watchdog { 
 
@@ -267,6 +268,8 @@ class watchdog {
         }else{
             info+=batinf.errors.join("; ");
         }
+
+        info+="<br />"+energy.run();
 
         this._pusherror(ind,"Battery info",goal,info);
         this._pushok(ind,"Battery info",goal,info);

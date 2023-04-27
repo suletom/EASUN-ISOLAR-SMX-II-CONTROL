@@ -274,9 +274,6 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
         let ip=addresses[0];
 
-        /*try{
-
-            localIpV4Address().then(function(ip){*/
             
                 if (customip!=""){
                     ip=customip;
@@ -315,15 +312,7 @@ const controller = function(args,timeoutsec=30,priority=0,actioncallback=functio
 
                 client.send(command,0, command.length, port, devip);
 
-            //});
-
-        /*    
-        }catch(e){
-            _log(stateobject.logcallback,"UDP Error: ",e);
-            stateobject.endcallback(-1);
-        }
-        */
-        
+              
     }
 
     
@@ -685,14 +674,20 @@ function processpacket(data,def,offset=0,stateobject){
         if (hcrc!=rec_crc){
             _log(stateobject.logcallback,"Modbus CRC error!\n");
         }
-
+        
+        //check if response length corresponds to requested length
+        let reqlen=stateobject.lastrequest.readUInt16BE(stateobject.lastrequest.length-4);
         
         let perr=false;
+        if (reqlen!=data.length-2-11) {
+            _log(stateobject.logcallback,"Packet length error (!=requested)!\n");
+            perr=true;
+        }
+
         if (lenval!=data.length-2-11) {
             _log(stateobject.logcallback,"Packet length error!\n");
             perr=true;
         }
-        
 
         if (hcrc!=rec_crc || modbusexception || perr){
     
