@@ -35,7 +35,7 @@ curl -X 'GET' \
         */
    
     
-    static getforecast(url,update_period=10000) {
+    static getforecast(url,update_period=1800) {
 
       let forecastfile="forecast.json";
 
@@ -62,10 +62,12 @@ curl -X 'GET' \
       
       let needfetch=0;
       if (file==="" ){
+        console.log("ENERGY:","need to fetch predicted data: no file cached");    
         needfetch=1;        
       }
 
       if (dataobj["message"]===undefined || dataobj["message"]["info"]===undefined || dataobj["message"]["info"]["time"]===undefined){
+        console.log("ENERGY:","need to fetch predicted data: no valid data in cached file");    
         needfetch=1;
       }else{
         let filedate=dataobj["message"]["info"]["time"];
@@ -74,6 +76,7 @@ curl -X 'GET' \
           let nd=new Date();
           let diff=(nd.getTime()-d.getTime())/1000;
           if (diff>update_period){
+            console.log("ENERGY:","need to fetch predicted data: file too old", url);    
             needfetch=1;
           }
         }
@@ -82,7 +85,7 @@ curl -X 'GET' \
       if (needfetch){
 
         console.log("ENERGY:","fetching...", url);
-
+        
         fetch(url,
           {
           method: "GET",
@@ -93,25 +96,39 @@ curl -X 'GET' \
           .then(function(res) {  console.log("ENERGY: fetched!"); return res.text() } )
           .then(text => JSON.parse(text))
           .then(function(json) {
+            /*
             console.log("ENERGY: json:",json);
-            if (json["message"] != undefined && json.message.code===0 && json.message.status==="success" &&  json.message.info.time != undefined ){
+
+            console.log("ENERGY: json1:",json["message"] != undefined);
+            console.log("ENERGY: json2:",json.message.code===0);
+            console.log("ENERGY: json3:",json.message.type==="success");
+            console.log("ENERGY: json4:",json.message.info.time != undefined);
+            */
+            if (json["message"] != undefined && json.message.code===0 && json.message.type==="success" &&  json.message.info.time != undefined ){
               try {
                 fs.writeFileSync(forecastfile,JSON.stringify(json));
                 console.log("ENERGY: writing prediction to file: ",json);
               } catch (err) {
                 console.log("ENERGY:",err);
               }
+            }else{
+              console.log("ENERGY: json content not valid!");
             }
           }).catch(err => {
             console.log("ENERGY:",err);
           });
 
+           
         }
+       
     }
 
 
-    static run(){
-      energy.getforecast("https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4");
+    static run(url,preserve_ah){
+      //https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4
+      energy.getforecast(url);
+
+      return ".";
     }
 
     //determine if we need to buy from grid (based on the production) to preserve x% until the next sunny period

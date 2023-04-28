@@ -55,13 +55,20 @@ class battery {
        
         for (let j=found_full;j<historydata.length;j++) {
 
+            if (historydata[j-1]['timestamp']+300<historydata[j]['timestamp']){
+                errorinfo.push("Missing history data, calculation impossible.");
+                break;
+            }
+
             if (charge==-1 && discharge==-1){
 
                 if (!this.checkp(historydata[j]['BatteryChargeOnTheDay'])){
                     errorinfo.push("No BatteryChargeOnTheDay info in history at full state");
+                    break;
                 }
                 if (!this.checkp(historydata[j]['BatteryDischargeOnTheDay'])){
                     errorinfo.push("No BatteryDischargeOnTheDay info in history at full state");
+                    break;
                 }
     
                 charge=historydata[j]['BatteryChargeOnTheDay'];
