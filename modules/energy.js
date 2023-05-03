@@ -96,16 +96,10 @@ curl -X 'GET' \
           .then(function(res) {  console.log("ENERGY: fetched!"); return res.text() } )
           .then(text => JSON.parse(text))
           .then(function(json) {
-            /*
-            console.log("ENERGY: json:",json);
-
-            console.log("ENERGY: json1:",json["message"] != undefined);
-            console.log("ENERGY: json2:",json.message.code===0);
-            console.log("ENERGY: json3:",json.message.type==="success");
-            console.log("ENERGY: json4:",json.message.info.time != undefined);
-            */
+          
             if (json["message"] != undefined && json.message.code===0 && json.message.type==="success" &&  json.message.info.time != undefined ){
               try {
+                dataobj=json;
                 fs.writeFileSync(forecastfile,JSON.stringify(json));
                 console.log("ENERGY: writing prediction to file: ",json);
               } catch (err) {
@@ -117,18 +111,25 @@ curl -X 'GET' \
           }).catch(err => {
             console.log("ENERGY:",err);
           });
-
-           
+          
         }
-       
+        return dataobj;
+        
     }
 
 
     static run(url,preserve_ah){
       //https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4
-      energy.getforecast(url);
+      let prediction=energy.getforecast(url);
 
-      return ".";
+      let out="";
+      if (prediction.result!=undefined && prediction.result.watts!=undefined){
+        for(let key in prediction.result.watts){
+          out+=`<div class="small">${key} : ${prediction.result.watts[key]}</div>`;
+        }
+      }
+
+      return out;
     }
 
     //determine if we need to buy from grid (based on the production) to preserve x% until the next sunny period
