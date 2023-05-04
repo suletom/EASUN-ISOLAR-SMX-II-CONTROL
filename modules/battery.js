@@ -56,8 +56,7 @@ class battery {
         if (found_full>0){
             for (let j=found_full;j<historydata.length;j++) {
 
-
-                if (historydata[j-1]['timestamp']+300<historydata[j]['timestamp']){
+                if (historydata[j-1]['timestamp']+3600<historydata[j]['timestamp']){
                     errorinfo.push("Missing history data, calculation impossible.");
                     break;
                 }
