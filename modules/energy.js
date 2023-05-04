@@ -176,7 +176,8 @@ curl -X 'GET' \
             if (remain_time_h>0){
               let availtime=helper.unixTimestamp()+(remain_time_h/3600);
               let avob=helper.fdateobj(availtime);
-
+              
+              addtext+=" Time: "+helper.fdate(availtime);
 
               if (prediction.result.watts[key]<batinf.current_consumption_a){
 
