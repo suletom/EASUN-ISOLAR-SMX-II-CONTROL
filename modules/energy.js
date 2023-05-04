@@ -123,9 +123,13 @@ curl -X 'GET' \
       let prediction=energy.getforecast(url);
 
       let out="";
+      let dob=helper.fdateobj();
+      let datestr=dob.year+"-"+dob.mon+"-"+dob.day+" "+dob.hour+":00:00";
       if (prediction.result!=undefined && prediction.result.watts!=undefined){
         for(let key in prediction.result.watts){
-          out+=`<div class="small">${key} : ${prediction.result.watts[key]}</div>`;
+          if (key>=datestr){
+            out+=`<div class="small">${key} : ${prediction.result.watts[key]}</div>`;
+          }  
         }
       }
 

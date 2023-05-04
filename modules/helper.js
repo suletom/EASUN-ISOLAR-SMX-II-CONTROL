@@ -29,7 +29,10 @@ class etc{
 
     };
 
-    static fdateobj = function(ts){
+    static fdateobj = function(ts=null){
+        if (ts===null){
+            ts=etc.unixTimestamp();
+        }
         var date0 = new Date(ts * 1000);
         let year=date0.getFullYear();
         let mon=date0.getMonth()+1;
