@@ -271,7 +271,7 @@ class watchdog {
             info+=batinf.errors.join("; ");
         }
 
-        info+="<br />"+energy.run(add.forecast_url,add.preserve_ah);
+        info+="<br />"+energy.run(data,batinf,add.forecast_url,add.preserve_ah);
 
         this._pusherror(ind,"Battery info",goal,info);
         this._pushok(ind,"Battery info",goal,info);

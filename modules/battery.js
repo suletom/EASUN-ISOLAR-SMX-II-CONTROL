@@ -165,7 +165,11 @@ class battery {
 
         let soc=Math.round((finalah/capacity_ah)*100);
         console.log("BATTERYMODEL Calculated soc: "+soc);
-        
+
+        if (!this.checkp(historydata[historydata.length-1]["BatteryCurrent"])){
+            errorinfo.push("BatteryCurrent value missing!");
+        }
+
         let rv=(errorinfo.length>0?0:1);
 
         let diff=0;
@@ -176,17 +180,15 @@ class battery {
 
         let remain=0;
         let state="charging";
+        let current_consuption=0;
         if (historydata[historydata.length-1]["BatteryCurrent"] >= 0){
             state="discharging";
-            let current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
+            current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
             remain=((finalah)/current_consuption).toFixed(2);
 
         }else{
 
         }
-
-       
-
 
         return {
         "rv": rv,
@@ -194,6 +196,7 @@ class battery {
         "remaining": remain,
         "soc":soc,
         "dischargetime":dischargetime,
+        "current_consumption_a": current_consuption,
         "errors":errorinfo,
         "state":state
         };

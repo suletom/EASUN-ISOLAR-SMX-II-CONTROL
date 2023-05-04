@@ -86,6 +86,7 @@ const httpdash = function(req,configobj,ui_schema){
 
             var editor=null;
 
+            //
             window.onload = function() {
                 editor = new JSONEditor(document.getElementById('editorholder'),{
                     theme: 'bootstrap5',

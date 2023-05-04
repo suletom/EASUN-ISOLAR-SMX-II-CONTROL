@@ -118,17 +118,75 @@ curl -X 'GET' \
     }
 
 
-    static run(url,preserve_ah){
+    static run(currentdata,batinf,url,preserve_ah){
       //https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4
       let prediction=energy.getforecast(url);
 
       let out="";
-      let dob=helper.fdateobj();
+      let dob=helper.fdateobj(helper.unixTimestamp-3600);
       let datestr=dob.year+"-"+dob.mon+"-"+dob.day+" "+dob.hour+":00:00";
+
+      let nh=helper.fdateobj(helper.unixTimestamp+3600);
+      let nexthourstr=nh.year+"-"+nh.mon+"-"+nh.day+" "+nh.hour+":00:00";
+  
+      let remain_time_h=0;
+
       if (prediction.result!=undefined && prediction.result.watts!=undefined){
         for(let key in prediction.result.watts){
+
+          let addtext="";
+
           if (key>=datestr){
-            out+=`<div class="small">${key} : ${prediction.result.watts[key]}</div>`;
+
+            //check at current hour
+            if (key<nexthourstr){
+              addtext=" *check time!";
+              if (currentdata['OutputPriority_text']==="SBU"){
+                addtext+=" @SBU";
+                if (prediction.result.watts[key]==0){
+                  addtext+=" Sunset!?";
+
+                  if (batinf.rv==1){
+                    addtext+=" Battery:OK!";
+
+                    let usable_ah=(batinf.final_ah-preserve_ah);
+                    addtext+=" USABLE AH: "+usable_ah.toFixed(1);
+                    
+                    remain_time_h=usable_ah/batinf.current_consumption_a;
+                    addtext+=" Time: "+remain_time_h.toFixed(2)+" h";
+
+                  }
+                }
+              }else{
+
+                if(currentdata['OutputPriority_text']==="UTI"){
+                  addtext+=" @UTI";
+                }else{
+                  addtext+=" @"+currentdata['OutputPriority_text']+" -> NO ACTION!";
+                }
+              }
+
+            }
+
+            if (remain_time_h>0){
+              let availtime=helper.unixTimestamp()+(remain_time_h/3600);
+              let avob=helper.fdateobj(availtime);
+
+
+              if (prediction.result.watts[key]<batinf.current_consumption_a){
+
+                addtext+=" *PV power not enough!";
+                
+              }
+
+              if (key<avob.year+"-"+avob.mon+"-"+avob.day+" "+avob.hour+":"+avob.min+":"+avob.sec){
+                addtext+=" *Capacity enough!";
+              }
+              
+            }  
+            
+
+            out+=`<div class="small">${key} : ${prediction.result.watts[key]} ${addtext}</div>`;
           }  
         }
       }
