@@ -121,19 +121,21 @@ curl -X 'GET' \
     static run(currentdata,batinf,url,preserve_ah){
       //https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4
       let prediction=energy.getforecast(url);
+      console.log("ENERGY: run!");
 
       let out="";
-      let dob=helper.fdateobj(helper.unixTimestamp-3600);
+      let dob=helper.fdateobj(helper.unixTimestamp()-7200);
       let datestr=dob.year+"-"+dob.mon+"-"+dob.day+" "+dob.hour+":00:00";
 
-      let nh=helper.fdateobj(helper.unixTimestamp+3600);
+      let nh=helper.fdateobj(helper.unixTimestamp()+3600);
       let nexthourstr=nh.year+"-"+nh.mon+"-"+nh.day+" "+nh.hour+":00:00";
   
       let remain_time_h=0;
 
       if (prediction.result!=undefined && prediction.result.watts!=undefined){
+        console.log("ENERGY: prediction.result ok!");
         for(let key in prediction.result.watts){
-
+          console.log("ENERGY: checking: ",key," ",prediction.result.watts[key]);
           let addtext="";
 
           if (key>=datestr){
@@ -176,7 +178,7 @@ curl -X 'GET' \
               if (prediction.result.watts[key]<batinf.current_consumption_a){
 
                 addtext+=" *PV power not enough!";
-                
+
               }
 
               if (key<avob.year+"-"+avob.mon+"-"+avob.day+" "+avob.hour+":"+avob.min+":"+avob.sec){
