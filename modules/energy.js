@@ -156,6 +156,7 @@ curl -X 'GET' \
                     let usable_ah=(batinf.ah_left-preserve_ah);
                     addtext+=" USABLE AH: "+usable_ah.toFixed(1);
                     
+                    console.log(batinf);
                     remain_time_h=usable_ah/batinf.current_consumption_a;
                     addtext+=" Time: "+remain_time_h.toFixed(2)+" h";
 
