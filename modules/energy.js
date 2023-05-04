@@ -151,6 +151,8 @@ curl -X 'GET' \
                   if (batinf.rv==1){
                     addtext+=" Battery:OK!";
 
+                    console.log("ENERGY: battery_ah: ",batinf.final_ah," preserve: ",preserve_ah);
+                    
                     let usable_ah=(batinf.final_ah-preserve_ah);
                     addtext+=" USABLE AH: "+usable_ah.toFixed(1);
                     
