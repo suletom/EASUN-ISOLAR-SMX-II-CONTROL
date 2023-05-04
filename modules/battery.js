@@ -180,7 +180,7 @@ class battery {
         let remain=0;
         let state="charging";
         let current_consuption=0;
-        if (historydata[historydata.length-1]["BatteryCurrent"] >= 0){
+        if (historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a >= 0){
             state="discharging";
             current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
             remain=((finalah)/current_consuption).toFixed(2);
