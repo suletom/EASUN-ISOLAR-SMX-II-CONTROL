@@ -8,7 +8,7 @@ class energy {
         //inputs, to calculate SBU to UTI switch:
         // calculated remain time
         // current/predicted consuption
-        // % capacity to preserve
+        // ah capacity to preserve
         // estimated start of sufficient sunlight: 
         // 1. solar api
         // 2. calculated start of production
