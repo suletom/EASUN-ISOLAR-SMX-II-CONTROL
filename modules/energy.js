@@ -143,7 +143,7 @@ curl -X 'GET' \
             //check at current hour
             if (key<nexthourstr){
               addtext=" *check time!";
-              if (currentdata['OutputPriority_text']==="SBU"){
+              if (currentdata['OutputPriority_text']==="SBU" || 1){
                 addtext+=" @SBU";
                 if (prediction.result.watts[key]==0){
                   addtext+=" Sunset!?";
