@@ -182,10 +182,14 @@ curl -X 'GET' \
 
                 addtext+=" *PV power not enough!";
 
+              }else{
+                addtext+=" *PV power enough!";
               }
 
               if (key<avob.year+"-"+avob.mon+"-"+avob.day+" "+avob.hour+":"+avob.min+":"+avob.sec){
                 addtext+=" *Capacity enough!";
+              }else{
+                addtext+=" *Capacity not enough!";
               }
               
             }  
