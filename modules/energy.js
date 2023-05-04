@@ -143,7 +143,7 @@ curl -X 'GET' \
             //check at current hour
             if (key<nexthourstr){
               addtext=" *check time!";
-              if (currentdata['OutputPriority_text']==="SBU" || 1){
+              if (currentdata['OutputPriority_text']==="SBU"){
                 addtext+=" @SBU";
                 if (prediction.result.watts[key]==0){
                   addtext+=" Sunset!?";
@@ -177,8 +177,8 @@ curl -X 'GET' \
               let availtime=helper.unixTimestamp()+(remain_time_h*3600);
               let avob=helper.fdateobj(availtime);
 
-              addtext+=" ENDTime: "+helper.fdate(availtime);
-
+              //addtext+=" ENDTime: "+helper.fdate(availtime);
+              
               if (prediction.result.watts[key]<batinf.current_consumption_a){
 
                 addtext+=" *PV power not enough!";
@@ -193,9 +193,8 @@ curl -X 'GET' \
                 addtext+=" *Capacity not enough!";
               }
               
-            }  
+            }
             
-
             out+=`<div class="small">${key} : ${prediction.result.watts[key]} ${addtext}</div>`;
           }  
         }
