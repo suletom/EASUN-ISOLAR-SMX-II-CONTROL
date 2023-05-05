@@ -56,8 +56,7 @@ class battery {
         if (found_full>0){
             for (let j=found_full;j<historydata.length;j++) {
 
-
-                if (historydata[j-1]['timestamp']+300<historydata[j]['timestamp']){
+                if (historydata[j-1]['timestamp']+3600<historydata[j]['timestamp']){
                     errorinfo.push("Missing history data, calculation impossible.");
                     break;
                 }
@@ -165,7 +164,11 @@ class battery {
 
         let soc=Math.round((finalah/capacity_ah)*100);
         console.log("BATTERYMODEL Calculated soc: "+soc);
-        
+
+        if (!this.checkp(historydata[historydata.length-1]["BatteryCurrent"])){
+            errorinfo.push("BatteryCurrent value missing!");
+        }
+
         let rv=(errorinfo.length>0?0:1);
 
         let diff=0;
@@ -176,17 +179,15 @@ class battery {
 
         let remain=0;
         let state="charging";
-        if (historydata[historydata.length-1]["BatteryCurrent"] >= 0){
+        let current_consuption=0;
+        if (historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a >= 0){
             state="discharging";
-            let current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
+            current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
             remain=((finalah)/current_consuption).toFixed(2);
 
         }else{
 
         }
-
-       
-
 
         return {
         "rv": rv,
@@ -194,6 +195,7 @@ class battery {
         "remaining": remain,
         "soc":soc,
         "dischargetime":dischargetime,
+        "current_consumption_a": current_consuption,
         "errors":errorinfo,
         "state":state
         };
