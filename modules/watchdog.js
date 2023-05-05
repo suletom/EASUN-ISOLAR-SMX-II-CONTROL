@@ -1,6 +1,7 @@
 const helper = require("./helper.js");
 const notifier = require("./notifier.js");
 const battery = require("./battery.js");
+const jbdbattery = require("./jbdbattery.js");
 const energy = require("./energy.js");
 
 class watchdog { 
@@ -273,6 +274,22 @@ class watchdog {
 
         info+="<br />"+energy.run(add.forecast_url,add.preserve_ah);
 
+        this._pusherror(ind,"Battery info",goal,info);
+        this._pushok(ind,"Battery info",goal,info);
+
+    }
+
+    check_battery_external(ind,data,goal,add=null){
+
+        let batinf=jbdbattery.calcsoc();
+
+        let info="";
+        if (batinf.rv==1){
+            info+="BMS info: "+batinf.soc+"% "+batinf.state+((batinf.remaining!=0)?(" Remaining hours: "+batinf.remaining):"")+" "+(batinf.ah_left+" Ah left");
+        }else{
+            info+=batinf.errors.join("; ");
+        }
+       
         this._pusherror(ind,"Battery info",goal,info);
         this._pushok(ind,"Battery info",goal,info);
 
