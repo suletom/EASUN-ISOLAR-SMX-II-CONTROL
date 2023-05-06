@@ -4,11 +4,10 @@ const fs = require('fs');
 
 class jbdbattery {
   
-    static calcsoc=function(filename){
+    static calcsoc=function(filename="jbdinfo"){
         
         let errorinfo=[];
         let finalah=0;
-        let capacity_ah=0;
 
         let statsobj={};
         let fdata="";
@@ -16,39 +15,61 @@ class jbdbattery {
             statsobj = fs.statSync(filename);
         }catch(error){
             console.log("JBDBATTERY:",error);
+            errorinfo.push("File stat failed: "+filename);
         }
 
         try{
             fdata = fs.readFileSync(filename,{ encoding: 'utf8', flag: 'r' });
         }catch(error){
             console.log("JBDBATTERY:",error);
+            errorinfo.push("File read failed: "+filename);
         }
 
-        if (statsobj.mtime!==undefined){
-            let mtime=helper.unixTimestamp(new Date(statsobj.mtime));
-
-        }else{
-            
+        let mtime=helper.unixTimestamp(new Date(statsobj.mtime));
+        if (mtime<helper.unixTimestamp()-300){
+            console.log("JBDBATTERY:",error);
+            errorinfo.push("Batteryinfo file too old: "+filename);
         }
+        //          meter, volts,amps,watts,remain,capacity,cycles
+        //maininfo: jbdbms,26.61,0.00,0.00, 200,   220,     129
+        let arr=fdata.split(",");
+
+        if (arr.length!=7){
+            errorinfo.push("Batteryinfo wrong data!");
+        }
+
+
+        let batteryvoltage=arr[1];
+        finalah=arr[4];
+        let capacity=arr[5];
+        let cycles=arr[6];
      
-        let soc=Math.round((finalah/capacity_ah)*100);
+        let soc=Math.round((finalah/capacity)*100);
         
         let rv=(errorinfo.length>0?0:1);
 
         let state="charging";
+        if (arr[2]<0){
+            state="discharging";
+            let current_consuption=Math.abs(arr[2]);
+            remain=((finalah)/Math.abs(current_consuption)).toFixed(2);
+        }
 
         return {
         "rv": rv,
         "ah_left": (finalah.toFixed(1)), 
         "remaining": remain,
         "soc":soc,
-        "dischargetime":dischargetime,
+        
         "errors":errorinfo,
-        "state":state
+        "state":state,
+        "capacity": capacity,
+        "batteryvoltage": batteryvoltage,
+        "cycles": cycles
         };
 
     };
 
 }
 
-module.exports=battery;
+module.exports=jbdbattery;
