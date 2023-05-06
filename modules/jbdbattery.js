@@ -40,9 +40,9 @@ class jbdbattery {
 
 
         let batteryvoltage=arr[1];
-        finalah=arr[4];
-        let capacity=arr[5];
-        let cycles=arr[6];
+        finalah=parseInt(arr[4]);
+        let capacity=parseInt(arr[5]);
+        let cycles=parseInt(arr[6]);
      
         let soc=Math.round((finalah/capacity)*100);
         
@@ -52,7 +52,7 @@ class jbdbattery {
         let state="charging";
         if (arr[2]<0){
             state="discharging";
-            let current_consuption=Math.abs(arr[2]);
+            let current_consuption=Math.abs(parseFloat(arr[2]));
             remain=((finalah)/Math.abs(current_consuption)).toFixed(2);
         }
 
