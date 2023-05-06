@@ -48,6 +48,7 @@ class jbdbattery {
         
         let rv=(errorinfo.length>0?0:1);
 
+        let remain=0;
         let state="charging";
         if (arr[2]<0){
             state="discharging";
