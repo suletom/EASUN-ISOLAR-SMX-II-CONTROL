@@ -286,6 +286,7 @@ class watchdog {
         let info="";
         if (batinf.rv==1){
             info+="BMS info: "+batinf.soc+"% "+batinf.state+((batinf.remaining!=0)?(" Remaining hours: "+batinf.remaining):"")+" "+(batinf.ah_left+" Ah left");
+            info+=" Current:"+batinf.amps;
         }else{
             info+=batinf.errors.join("; ");
         }

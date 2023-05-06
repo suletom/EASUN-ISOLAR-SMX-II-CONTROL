@@ -43,7 +43,7 @@ class jbdbattery {
         finalah=parseInt(arr[4]);
         let capacity=parseInt(arr[5]);
         let cycles=parseInt(arr[6]);
-     
+        let amps=parseFloat(arr[2]);
         let soc=Math.round((finalah/capacity)*100);
         
         let rv=(errorinfo.length>0?0:1);
@@ -52,7 +52,7 @@ class jbdbattery {
         let state="charging";
         if (arr[2]<0){
             state="discharging";
-            let current_consuption=Math.abs(parseFloat(arr[2]));
+            let current_consuption=Math.abs(amps);
             remain=((finalah)/Math.abs(current_consuption)).toFixed(2);
         }
 
@@ -66,7 +66,8 @@ class jbdbattery {
         "state":state,
         "capacity": capacity,
         "batteryvoltage": batteryvoltage,
-        "cycles": cycles
+        "cycles": cycles,
+        "amps": amps
         };
 
     };
