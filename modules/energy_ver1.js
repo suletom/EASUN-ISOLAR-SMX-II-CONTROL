@@ -3,34 +3,70 @@ const helper = require("./helper.js");
 //this class is only responsible for managing the energy model (with stored states)
 class energyver1 {
 
-    constructor(ah_min,ah_switch,ah_charge){
-      this.ah_min=ah_min;
-      this.ah_switch=ah_switch;
-      this.ah_charge=ah_charge;
-    }
-
-
-    run(current_ah,current_mode,current_charge,ah_left,consumption_a){
+    constructor(){
       
     }
 
-    //check whether switching can be avoided?
-    prediction_ok(){
+    run(prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,current_charge,consumption_a,voltage){
+      
+      this.prediction=prediction;
+      
+      this.ah_min_point=ah_min_point;
+      this.ah_switch_point=ah_switch_point;
+      this.ah_charge_point=ah_charge_point;
+
+      this.current_ah=current_ah;
+      this.current_mode=current_mode;
+      this.current_charge=current_charge;
+      this.consumption_a=consumption_a;
+
+      this.voltage=voltage;
+
+      //calculate remaining time with current load
+      this.time_to_min_s=((current_ah-ah_min_point)/(consumption_a))*3600;
+      this.time_to_switch_s=((current_ah-ah_switch_point)/(consumption_a))*3600;
 
     }
 
-    get_suggested_mode(current_ah,current_mode,current_charge){
+    //check whether switching can be avoided before switch point
+    prediction_ok() {
+      
+      //let dob=helper.fdateobj(helper.unixTimestamp()+this.time_to_switch_s);
+      //let switch_date_str=dob.year+"-"+dob.mon+"-"+dob.day+" "+dob.hour+":"+dob.min+":"+dob.sec;
+
+      let cob=helper.fdateobj(helper.unixTimestamp());
+      let current_date_str=cob.year+"-"+cob.mon+"-"+cob.day+" "+cob.hour+":"+cob.min+":"+cob.sec;
+
+      let prevdatekey="";
+      for(let datekey in this.prediction.result.watts){
+
+        //search for current hour prediction
+        if (current_date_str<datekey && current_date_str>prevdatekey){
+           if (this.prediction.result.watts[datekey]>(this.consumption_a*this.voltage)){
+              return true;
+           }
+        }
+
+        prevdatekey=datekey;
+      }
+
+      return false;
+
+    }
+
+    get_suggested_mode(){
       
       let suggested_mode="";
+      let suggested_charge="OSO";
 
-      if (current_ah>this.ah_min){
+      if (this.current_ah>this.ah_min_point){
 
          console.log("ENERGYv1: AH > AH_MIN");
          suggested_mode="SBU";
 
       }else{
 
-         if(current_ah>this.ah_switch){
+         if(this.current_ah>this.ah_switch_point){
 
            console.log("ENERGYv1: AH_SWITCH < AH < AH_MIN");
 
@@ -42,7 +78,7 @@ class energyver1 {
 
          }else{
 
-            if (current_ah>this.ah_charge){
+            if (this.current_ah>this.ah_charge_point){
 
               console.log("ENERGYv1: AH_CHARGE < AH < AH_SWITCH");
               suggested_mode="UTI";
@@ -51,13 +87,15 @@ class energyver1 {
 
               console.log("ENERGYv1: AH < AH_CHARGE");
               suggested_mode="UTI";
+              suggested_charge="SNU";
 
             }
              
          }
+
       }
 
-      return suggested_mode;
+      return {"suggested_mode":suggested_mode,"suggested_charge":suggested_charge};
     }
     
 }
