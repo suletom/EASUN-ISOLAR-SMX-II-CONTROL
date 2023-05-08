@@ -1,0 +1,23 @@
+Apr 19 07:22:50 fs node[4062873]: Request:
+Apr 19 07:22:50 fs node[4062873]: 00 01 00 01 00 0a ff 04   ff 03 01 00 00 0c 51 ed
+Apr 19 07:22:50 fs node[4062873]: Write to tcp:
+Apr 19 07:22:50 fs node[4062873]: <Buffer 00 01 00 01 00 0a ff 04 ff 03 01 00 00 0c 51 ed>
+Apr 19 07:22:51 fs node[4062873]: (Response info len: 1 Data type: UInt16BE CRC check: 0000 0000)
+Apr 19 07:22:51 fs node[4062873]: Getting from buffer:
+Apr 19 07:22:51 fs node[4062873]: UInt16BE
+Apr 19 07:22:51 fs node[4062873]: 11
+Apr 19 07:22:51 fs node[4062873]: 114 BattreySoc:#011 #011 0 %
+Apr 19 07:22:51 fs node[4062873]: Response:
+Apr 19 07:22:51 fs node[4062873]: 00 01 00 01 00 1f ff 04   ff 03 01 00 00 0c 51 ed
+Apr 19 07:22:51 fs node[4062873]: 00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00
+Apr 19 07:22:51 fs node[4062873]: 00 00 00 00 00
+Apr 19 07:22:51 fs node[4062873]: -----------------
+Apr 19 07:22:51 fs node[4062873]: (Response info len: 1 Data type: UInt16BE CRC check: 0000 0000)
+Apr 19 07:22:51 fs node[4062873]: Getting from buffer:
+Apr 19 07:22:51 fs node[4062873]: UInt16BE
+Apr 19 07:22:51 fs node[4062873]: 13
+Apr 19 07:22:51 fs node[4062873]: 112 BatteryVoltage:#011 #011 315.3 V
+Apr 19 07:22:51 fs node[4062873]: Response:
+Apr 19 07:22:51 fs node[4062873]: 00 01 00 01 00 1f ff 04   ff 03 01 00 00 0c 51 ed
+Apr 19 07:22:51 fs node[4062873]: 00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00
+Apr 19 07:22:51 fs node[4062873]: 00 00 00 00 00

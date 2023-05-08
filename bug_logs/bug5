@@ -1,0 +1,19 @@
+Packet length and crc ok, but packet is bigger than expected:
+
+Apr 27 00:56:01 fs node[3308976]: New group request:
+Apr 27 00:56:01 fs node[3308976]: 4
+Apr 27 00:56:01 fs node[3308976]: Command: get_smx_param
+Apr 27 00:56:01 fs node[3308976]: Querying param from: 137 => BatteryChargeOnTheDay
+Apr 27 00:56:01 fs node[3308976]: Request:
+Apr 27 00:56:01 fs node[3308976]: 00 05 00 01 00 0a ff 04   ff 03 f0 2d 00 11 33 11
+Apr 27 00:56:02 fs node[3308976]: (Response info len: 40 calc len: 40 Data type: UInt16BE CRC check: 2562 2562)
+Apr 27 00:56:02 fs node[3308976]: Getting from buffer:
+Apr 27 00:56:02 fs node[3308976]: UInt16BE
+Apr 27 00:56:02 fs node[3308976]: 11
+Apr 27 00:56:02 fs node[3308976]: 137 BatteryChargeOnTheDay:#011 #011 3744 AH
+Apr 27 00:56:02 fs node[3308976]: Response:
+Apr 27 00:56:02 fs node[3308976]: 00 05 00 01 00 2f ff 04   01 03 28 0e a0 09 0e 00
+Apr 27 00:56:02 fs node[3308976]: 00 13 86 08 fb 00 1f 13   86 00 1a 00 00 01 bb 02
+Apr 27 00:56:02 fs node[3308976]: 6c 00 00 00 00 00 11 00   ae 00 f2 01 46 01 29 00
+Apr 27 00:56:02 fs node[3308976]: 00 00 0e 25 62
+Apr 27 00:56:02 fs node[3308976]: -----------------
