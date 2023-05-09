@@ -1,15 +1,16 @@
 const helper = require("./helper.js");
 
-//this class is only responsible for managing the energy model (with stored states)
+//this class is only responsible for returning suggested OUT/Charge mode
 class energyver1 {
 
     constructor(){
       
     }
 
-    run(prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,current_charge,consumption_a,voltage){
+    run(unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,current_charge,consumption_a,voltage){
       
       this.prediction=prediction;
+      this.unixtime=unixtime;
       
       this.ah_min_point=ah_min_point;
       this.ah_switch_point=ah_switch_point;
@@ -26,15 +27,14 @@ class energyver1 {
       this.time_to_min_s=((current_ah-ah_min_point)/(consumption_a))*3600;
       this.time_to_switch_s=((current_ah-ah_switch_point)/(consumption_a))*3600;
 
+      return this.get_suggested_mode();
+
     }
 
     //check whether switching can be avoided before switch point
     prediction_ok() {
       
-      //let dob=helper.fdateobj(helper.unixTimestamp()+this.time_to_switch_s);
-      //let switch_date_str=dob.year+"-"+dob.mon+"-"+dob.day+" "+dob.hour+":"+dob.min+":"+dob.sec;
-
-      let cob=helper.fdateobj(helper.unixTimestamp());
+      let cob=helper.fdateobj(this.unixtime);
       let current_date_str=cob.year+"-"+cob.mon+"-"+cob.day+" "+cob.hour+":"+cob.min+":"+cob.sec;
 
       let prevdatekey="";

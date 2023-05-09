@@ -81,6 +81,7 @@ const httpdash = function(req,configobj,ui_schema){
             <title>EASUN ISOLAR SMX II Control</title>
             <script language="javascript" src="/static/js/bootstrap.min.js"></script>
             <script language="javascript" src="/statice/jsoneditor.js"></script>
+            <script language="javascript" src="/statica/apexcharts.min.js"></script>
             <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
             <script>
 
@@ -221,6 +222,40 @@ const httpdash = function(req,configobj,ui_schema){
 
             }
 
+            function _setInnerHTML(elm, html) {
+                elm.innerHTML = html;
+                
+                Array.from(elm.querySelectorAll("script"))
+                  .forEach( oldScriptEl => {
+                    const newScriptEl = document.createElement("script");
+                    
+                    Array.from(oldScriptEl.attributes).forEach( attr => {
+                      newScriptEl.setAttribute(attr.name, attr.value) 
+                    });
+                    
+                    const scriptText = document.createTextNode(oldScriptEl.innerHTML);
+                    newScriptEl.appendChild(scriptText);
+                    
+                    oldScriptEl.parentNode.replaceChild(newScriptEl, oldScriptEl);
+                });
+              }
+
+            function getchart(id){
+
+                let value=document.querySelector('#'+id+' textarea').value;
+                
+                fetch('/getchart',{ body: value, method: 'POST',headers: {'Content-Type': 'application/json'}}).then(function(response) {
+                    return response.json()
+                }).then(function(responsejson) {
+                    let ch=document.querySelector('#chart');
+                    _setInnerHTML(ch,responsejson.html);
+                    
+                }).catch(error => {
+                    console.log(error);
+                });
+               
+            }
+
             function setparam(param,value,obj){
 
                 if (confirm("Sure?? ("+param+" -> "+value+")")) {
@@ -286,6 +321,42 @@ const httpdash = function(req,configobj,ui_schema){
                                 });
                                 let n=document.querySelector('#notifs');
                                 n.innerHTML=nots;
+                            }
+
+                            if (key=='chart'){
+                                
+                                let exsistg=[];
+                                
+                                let ck=document.querySelector('#chartcontrol');
+                                jvalue.forEach(function(el){
+
+                                    exsistg.push(el.id);
+
+                                    let n=document.querySelectorAll('#chartcontrol  #'+el.id);
+                                    if (n.length>0){
+
+                                    }else{
+
+                                        let chdiv=document.createElement("div");
+                                        
+                                        chdiv.setAttribute("id",el.id);
+                                        chdiv.innerHTML=el.html;
+                                        ck.appendChild(chdiv);
+                                    }
+                                });
+
+                                let allckd=document.querySelectorAll('#chartcontrol > div');
+                                if (allckd.length>0) {
+                                    allckd.forEach(function(el){
+                                        if (exsistg.includes(el.id)){
+                                            
+                                        }else{
+                                            
+                                            el.remove();
+                                        }
+                                    });
+                                }    
+
                             }
                             
                             let elem=document.querySelector('#param'+key);
@@ -515,6 +586,14 @@ const httpdash = function(req,configobj,ui_schema){
                 </div>  
                 <div class="d-flex justify-content-center">
                     <div class="card-body"><label>API url:</label><div id="apiurl"><a target="_blank" href="/query"><script>document.write(window.location.href+"query");</script></a></div></div>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <div id="chartcontrol">
+
+                    </div>
+                    <div id="chart">
+
+                    </div>
                 </div>
                 <button class="btn" onclick="document.querySelector('#allparams').classList.contains('hide')?document.querySelector('#allparams').classList.remove('hide'):document.querySelector('#allparams').classList.add('hide')">
                 Show/Hide all params         

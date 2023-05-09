@@ -10,6 +10,7 @@ const watchdog = require("./modules/watchdog.js");
 const paramstore = require("./modules/storage.js");
 let store = new paramstore();
 const helper = require("./modules/helper.js");
+const charts = require("./modules/charts.js");
 
 
 process.on('uncaughtException', function(err) {
@@ -80,6 +81,7 @@ if (process.argv.length<3){
     
     app.use('/static', express.static(__dirname+"/node_modules/bootstrap/dist/"));
     app.use('/statice', express.static(__dirname+"/node_modules/@json-editor/json-editor/dist/"));
+    app.use('/statica', express.static(__dirname+"/node_modules/apexcharts/dist/"));
     
     app.post('/saveconfig',function (req, res) {
 
@@ -122,6 +124,17 @@ if (process.argv.length<3){
         });
         
     });
+
+    app.post('/getchart',function (req, res) {
+
+        console.log("getchart:",req.body);
+        
+        let html=charts.getchart(req.body);
+
+        res.json({"rv": 1,"html": html});
+
+    });
+
 
     app.post('/set', function (req, res) {
 
@@ -185,6 +198,10 @@ if (process.argv.length<3){
             }
             let wg={'notif':wd.get_current()};
             dov={...dov,...wg};
+
+            //console.log(charts);
+            let wg2={'chart':charts.getchartinfo()};
+            dov={...dov,...wg2};
         }
               
         res.json(dov);

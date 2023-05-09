@@ -10,6 +10,7 @@ class watchdog {
         this.errors=[];
         this.param_missing=[];
         this.history=[];
+        this.enabledwatches=[];
     }
 
     get_current(){
@@ -120,6 +121,8 @@ class watchdog {
            
             return -1;
         });
+
+        this.enabledwatches=watch;
 
         for(let i=0;i<watch.length;i++){
             let w=watch[i];
@@ -254,11 +257,12 @@ class watchdog {
     }
 
     check_battery_ui(){
+
         return {"capacity_ah": {"type": "number", "title": "Battery capacity ah"},
                 "added_consumption_a": { "type": "number", "title": "Added Consuption (A)" },
                 "forecast_url": { "type": "string", "title": "forecast.solar API link to estimate (https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4)" },
                 "preserve_ah": { "type": "number", "title": "Preserve x AH in battery" }
-            };
+        };
     }
 
     check_battery(ind,data,goal,add=null){
