@@ -9,6 +9,12 @@ class etc{
         return Math.floor(bd / 1000);
     };
 
+    static timestamptodate = function (unixTimestamp) {  
+        return new Date(
+          unixTimestamp * 1000
+        )
+    };
+
     static fdate = function(ts){
 
         var date0 = new Date(ts * 1000);

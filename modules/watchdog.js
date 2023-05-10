@@ -2,7 +2,7 @@ const helper = require("./helper.js");
 const notifier = require("./notifier.js");
 const battery = require("./battery.js");
 const jbdbattery = require("./jbdbattery.js");
-const energy = require("./energy.js");
+const energy = require("./forecast.js");
 
 class watchdog { 
 

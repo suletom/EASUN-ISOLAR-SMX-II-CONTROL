@@ -491,6 +491,7 @@ const httpdash = function(req,configobj,ui_schema){
 
             </script>
             <style>
+            
             #display{
                 display: inline-block;
                 text-align:center;
@@ -540,6 +541,7 @@ const httpdash = function(req,configobj,ui_schema){
                 fill: rgba(255,255,255,1) !important;
             }
             
+            
             .loading,.loading:focus {
                 background-color: orange;
             }
@@ -562,6 +564,11 @@ const httpdash = function(req,configobj,ui_schema){
                 background-color: red;
                 color: white;
             }
+
+            #chart{
+                background-color: white;
+            }
+            
 
             </style>
         </head>
@@ -587,11 +594,11 @@ const httpdash = function(req,configobj,ui_schema){
                 <div class="d-flex justify-content-center">
                     <div class="card-body"><label>API url:</label><div id="apiurl"><a target="_blank" href="/query"><script>document.write(window.location.href+"query");</script></a></div></div>
                 </div>
-                <div class="d-flex justify-content-center">
-                    <div id="chartcontrol">
+                <div class="justify-content-center">
+                    <div id="chartcontrol" class="card-body">
 
                     </div>
-                    <div id="chart">
+                    <div id="chart" class="card-body">
 
                     </div>
                 </div>

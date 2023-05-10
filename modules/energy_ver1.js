@@ -21,6 +21,9 @@ class energyver1 {
       this.current_charge=current_charge;
       this.consumption_a=consumption_a;
 
+      //store current date prediction to return
+      this.predicted_data="";
+
       this.voltage=voltage;
 
       //calculate remaining time with current load
@@ -42,7 +45,11 @@ class energyver1 {
 
         //search for current hour prediction
         if (current_date_str<datekey && current_date_str>prevdatekey){
+
+           this.predicted_data=this.prediction.result.watts[datekey];
+           
            if (this.prediction.result.watts[datekey]>(this.consumption_a*this.voltage)){
+              
               return true;
            }
         }
@@ -59,6 +66,9 @@ class energyver1 {
       let suggested_mode="";
       let suggested_charge="OSO";
 
+      //search current date and check whether watts will be enough
+      let pred_ok=this.prediction_ok();
+
       if (this.current_ah>this.ah_min_point){
 
          console.log("ENERGYv1: AH > AH_MIN");
@@ -70,7 +80,7 @@ class energyver1 {
 
            console.log("ENERGYv1: AH_SWITCH < AH < AH_MIN");
 
-           if (this.prediction_ok()){
+           if (pred_ok){
               suggested_mode="SBU";
            }else{
               suggested_mode="UTI";
@@ -95,7 +105,7 @@ class energyver1 {
 
       }
 
-      return {"suggested_mode":suggested_mode,"suggested_charge":suggested_charge};
+      return {"suggested_mode":suggested_mode,"suggested_charge":suggested_charge,"predicted_data":this.predicted_data};
     }
     
 }
