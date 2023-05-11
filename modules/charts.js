@@ -12,7 +12,7 @@ class charts{
         let html=`<div>
                     <label>Energy model v1 test</label>
                     <textarea>
-                    {"unixtime_now": "",\n"ah_min_point": 44,\n"ah_switch_point": 22,\n"ah_charge_point": 10,\n"current_ah": 100,\n"current_mode":"SBU",\n"current_charge":"OSO",\n"consumption_a":19,\n"voltage": 26}
+                    {"unixtime_now": "",\n"ah_min_point": 44,\n"ah_switch_point": 22,\n"ah_charge_point": 10,\n"current_ah": 100,\n"current_mode":"SBU",\n"current_charge":"OSO",\n"consumption_a":19,\n"voltage": 26,\n"ah_capacity":220}
                     </textarea>
                     <button class="btn btn-primary" onclick="getchart('energymodeltest1');">Show chart!</button>
                    </div>`;
@@ -40,20 +40,81 @@ class charts{
         let energy=new energy1();
 
         let graphdata=[];
+        let battsoc=[];
+
         //run model from first to last date
         let mode="";
-        for(let t=first_date;t<last_date;t=t+300){
+        let chargemode="";
+        let annot=[];
+        let modcol={"SBU":"#20b024","UTI":"#775DD0","OSO":"#ced10a","SNU":"#e62929"};
+
+        let max_main=0;
+        let min_main=Infinity;
+
+        let stepping=120; //sec
+
+        for(let t=first_date;t<last_date;t=t+stepping){
             let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.current_charge,data.consumption_a,data.voltage);
-            if (mode!=newmode){
-               
+            if (max_main<newmode.predicted_data){
+              max_main=newmode.predicted_data;
             }
+            if (min_main>newmode.predicted_data){
+              min_main=newmode.predicted_data;
+            }
+
+        }
+
+        for(let t=first_date;t<last_date;t=t+stepping){
+            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.current_charge,data.consumption_a,data.voltage);
+            if (mode!=newmode.suggested_mode){
+               let ob={
+                "x": t*1000,
+                "borderColor": modcol[newmode.suggested_mode],
+                "label": {
+                  "borderColor": modcol[newmode.suggested_mode],
+                  "style": {
+                    "color": "#fff",
+                    "background": modcol[newmode.suggested_mode],
+                  },
+                  "text": newmode.suggested_mode
+                }
+              };
+              annot.push(ob);
+            }
+            if (chargemode!=newmode.suggested_charge){
+              let ob1={
+                "x": t*1000,
+                "borderColor": modcol[newmode.suggested_charge],
+                "label": {
+                  "borderColor": modcol[newmode.suggested_charge],
+                  "style": {
+                    "color": "#fff",
+                    "background": modcol[newmode.suggested_charge],
+                  },
+                  "text": newmode.suggested_charge
+                }
+              };
+              annot.push(ob1);
+            }
+            mode=newmode.suggested_mode;
+            chargemode=newmode.suggested_charge
             graphdata.push([t*1000,newmode.predicted_data]);
+
+            battsoc.push([t*1000, (data.current_ah/data.ah_capacity)*100 ]);
+
+            //simulate dischare/charge
+            data.current_ah=(data.current_ah+  ( -(120/3600)*data.consumption_a) + ((120/3600)*( newmode.predicted_data/data.voltage)) );
+
         }  
+
+        
 
              
         let out=`<script>
 
-        let graphdata1=${JSON.stringify(graphdata)};
+
+        var graphdata1=${JSON.stringify(graphdata)};
+        var battsoc1=${JSON.stringify(battsoc)};
 
         var options = {
       chart: {
@@ -63,7 +124,7 @@ class charts{
           enabled: false
         }
       },
-      colors: ['#FFDF00'],
+      colors: ['#fca2cd','#cbced1'],
       stroke: {
         curve: "smooth",
         width: 0,
@@ -75,6 +136,10 @@ class charts{
       series: [{
         name: 'Forecast watts',
         data:  graphdata1
+      },{
+        name: 'Battery SOC',
+        data:  battsoc1,
+        type: 'column'
       }],
       xaxis: {
         type: "datetime",
@@ -96,6 +161,9 @@ class charts{
         tooltip: {
           enabled: false
         }
+      },
+      annotations: {
+        xaxis: ${JSON.stringify(annot)}
       },
       grid: {
         padding: {
