@@ -12,7 +12,18 @@ class charts{
         let html=`<div>
                     <label>Energy model v1 test</label>
                     <textarea>
-                    {"unixtime_now": "",\n"ah_min_point": 44,\n"ah_switch_point": 22,\n"ah_charge_point": 10,\n"current_ah": 100,\n"current_mode":"SBU",\n"current_charge":"OSO",\n"consumption_a":19,\n"voltage": 26,\n"ah_capacity":220}
+                    {"unixtime_now": "",\n
+                    "ah_min_point": 44,\n
+                    "ah_switch_point": 22,\n
+                    "ah_charge_point": 10,\n
+                    "current_ah": 100,\n
+                    "current_mode":"SBU",\n
+                    "current_charge":"OSO",\n
+                    "consumption_a":19,\n
+                    "voltage": 26,\n
+                    "ah_capacity":220,\n
+                    "self_consumption_a":1.1\n
+                    }
                     </textarea>
                     <button class="btn btn-primary" onclick="getchart('energymodeltest1');">Show chart!</button>
                    </div>`;
@@ -80,6 +91,7 @@ class charts{
                 }
               };
               annot.push(ob);
+              
             }
             if (chargemode!=newmode.suggested_charge){
               let ob1={
@@ -96,22 +108,29 @@ class charts{
               };
               annot.push(ob1);
             }
+            
             mode=newmode.suggested_mode;
-            chargemode=newmode.suggested_charge
+            chargemode=newmode.suggested_charge;
             graphdata.push([t*1000,newmode.predicted_data]);
 
-            battsoc.push([t*1000, (data.current_ah/data.ah_capacity)*100 ]);
+            battsoc.push([t*1000, Math.round((data.current_ah/data.ah_capacity)*100) ]);
 
-            //simulate dischare/charge
-            data.current_ah=(data.current_ah+  ( -(120/3600)*data.consumption_a) + ((120/3600)*( newmode.predicted_data/data.voltage)) );
+            //simulate dischare/charge for next cycle..
+            data.current_ah=(
+              data.current_ah+
+              (mode=="SBU"?(-(stepping/3600)*data.consumption_a):(-(stepping/3600)*data.self_consumption_a)) + 
+              ((stepping/3600)*( newmode.predicted_data/data.voltage)) 
+            );
 
-        }  
-
-        
-
+            if (data.current_ah>data.ah_capacity){
+              data.current_ah=data.ah_capacity;
+            }
+            if (data.current_ah<0){
+              data.current_ah=0;
+            }
+        }
              
         let out=`<script>
-
 
         var graphdata1=${JSON.stringify(graphdata)};
         var battsoc1=${JSON.stringify(battsoc)};
@@ -122,24 +141,27 @@ class charts{
         height: 400,
         animations: {
           enabled: false
-        }
+        },
+        stacked: false
       },
-      colors: ['#fca2cd','#cbced1'],
+      colors: ['#fc2c03','#faf2d4'],
       stroke: {
         curve: "smooth",
-        width: 0,
-        show: false
+        width: [2, 2,2 ],
+        colors : ['#ff0000','#117711'],
+        show: true
       },
       dataLabels: {
         enabled: false
       },
       series: [{
         name: 'Forecast watts',
-        data:  graphdata1
+        data:  graphdata1,
+        type: 'area'
       },{
         name: 'Battery SOC',
         data:  battsoc1,
-        type: 'column'
+        type: 'area'
       }],
       xaxis: {
         type: "datetime",
@@ -153,7 +175,7 @@ class charts{
           datetimeUTC: false
         }  
       },
-      yaxis: {
+      yaxis: [{
         labels: {
           offsetX: 14,
           offsetY: -5
@@ -161,7 +183,12 @@ class charts{
         tooltip: {
           enabled: false
         }
-      },
+      },{
+        opposite: true,
+        title: {
+          text: 'Battery %'
+        }
+      }],
       annotations: {
         xaxis: ${JSON.stringify(annot)}
       },
@@ -181,8 +208,8 @@ class charts{
         horizontalAlign: 'left'
       },
       fill: {
-        type: "solid",
-        fillOpacity: 0.5
+        opacity: [0.85, 0.25],
+        type: "solid"
       }
     };
 

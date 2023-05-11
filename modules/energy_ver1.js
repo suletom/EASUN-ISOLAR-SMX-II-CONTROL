@@ -75,7 +75,7 @@ class energyver1 {
          suggested_mode="SBU";
 
       }else{
-
+         //eg. < 20%
          if(this.current_ah>this.ah_switch_point){
 
            console.log("ENERGYv1: AH_SWITCH < AH < AH_MIN");
@@ -106,6 +106,10 @@ class energyver1 {
       }
 
       return {"suggested_mode":suggested_mode,"suggested_charge":suggested_charge,"predicted_data":this.predicted_data};
+    }
+
+    switchcontrol(){
+
     }
     
 }
