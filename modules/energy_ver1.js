@@ -7,7 +7,7 @@ class energyver1 {
       
     }
 
-    run(unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,current_charge,consumption_a,voltage){
+    run(unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,current_charge_mode,consumption_a,voltage,charge_max_a){
       
       this.prediction=prediction;
       this.unixtime=unixtime;
@@ -18,13 +18,14 @@ class energyver1 {
 
       this.current_ah=current_ah;
       this.current_mode=current_mode;
-      this.current_charge=current_charge;
+      this.current_charge_mode=current_charge_mode;
       this.consumption_a=consumption_a;
 
       //store current date prediction to return
       this.predicted_data="";
 
       this.voltage=voltage;
+      this.charge_max_a=charge_max_a;
 
       //calculate remaining time with current load
       this.time_to_min_s=((current_ah-ah_min_point)/(consumption_a))*3600;
@@ -49,7 +50,7 @@ class energyver1 {
            this.predicted_data=this.prediction.result.watts[datekey];
            
            if (this.prediction.result.watts[datekey]>(this.consumption_a*this.voltage)){
-              
+              console.log("ENERGYv1: prediction true: ",current_date_str," ",this.prediction.result.watts[datekey]," ",(this.consumption_a*this.voltage));
               return true;
            }
         }
@@ -57,7 +58,45 @@ class energyver1 {
         prevdatekey=datekey;
       }
 
+      console.log("ENERGYv1: prediction false ");
+
       return false;
+
+    }
+
+
+    charge_enough() {
+
+
+      let cob=helper.fdateobj(this.unixtime);
+      let current_date_str=cob.year+"-"+cob.mon+"-"+cob.day+" "+cob.hour+":"+cob.min+":"+cob.sec;
+
+      let needed_time_to_solar="";
+      for(let datekey in this.prediction.result.watts){
+
+          if (current_date_str<datekey){
+            //search for next enough solar input
+            if (this.prediction.result.watts[datekey]>(this.consumption_a*this.voltage)){
+              needed_time_to_solar=datekey;
+            }
+          }  
+        
+      }
+
+      if (needed_time_to_solar=""){
+          //not found in prediction -> false
+          return false;
+      }else{
+          //found next solar time
+          let time=helper.unixTimestamp(new Date(datekey));
+          let timediff=time-this.unixtime;
+         
+          //calculate consumption for that time
+          let consumption_wh=(timediff/3600)*(this.consumption_a*this.voltage);
+
+          //(this.charge_max_a*this.voltage)
+          
+      }
 
     }
 
@@ -71,8 +110,16 @@ class energyver1 {
 
       if (this.current_ah>this.ah_min_point){
 
-         console.log("ENERGYv1: AH > AH_MIN");
-         suggested_mode="SBU";
+        console.log("ENERGYv1: AH > AH_MIN");
+        if (this.current_mode=="UTI") {
+          if (pred_ok){
+            suggested_mode="SBU";
+          }else{
+            suggested_mode="UTI";  
+          }
+        }else{
+          suggested_mode="SBU";
+        }  
 
       }else{
          //eg. < 20%
