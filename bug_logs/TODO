@@ -12,8 +12,15 @@ Priority list:
 5. portscan/wizard on init: +
 6. store data: +
 7. configurable actions: +
-8. software battery soc calculation:...
-9. graphs
+8. software battery soc calculation:+
+9. read bms data:...
+10. graphs
+-demo model with forecast: +
+-batterydata -> history
+-auto updated graph: (consumption, pv power, battery soc + prediction!?)
+-model fine tuning: search for sunset -> uti
+-model state change control
+-test model with local history
 
 FIX: 
 TCP address in use by other process! +

@@ -63,7 +63,8 @@ class charts{
         let energy=new energy1();
 
         let graphdata=[];
-        let battsoc=[];
+        let graphbattsoc=[];
+        let graphconsumption=[];
 
         //run model from first to last date
         let mode="";
@@ -78,7 +79,7 @@ class charts{
 
         for(let t=first_date;t<last_date;t=t+stepping){
 
-            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
+            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
             if (max_main<newmode.predicted_data){
               max_main=newmode.predicted_data;
             }
@@ -90,7 +91,7 @@ class charts{
 
         for(let t=first_date;t<last_date;t=t+stepping){
             
-            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
+            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
 
             if (helper.unixTimestamp()<t && helper.unixTimestamp()>t-stepping){
               let now={
@@ -147,9 +148,10 @@ class charts{
               chargemode=newmode.suggested_charge;
             }  
 
-              graphdata.push([t*1000,newmode.predicted_data]);
-              battsoc.push([t*1000, Math.round((data.current_ah/data.ah_capacity)*100) ]);
-
+            graphdata.push([t*1000,newmode.predicted_data]);
+            graphbattsoc.push([t*1000, Math.round((data.current_ah/data.ah_capacity)*100) ]);
+            graphconsumption.push([t*1000, 
+              (mode=="SBU"?((data.consumption_a+data.self_consumption_a)*data.voltage):(data.self_consumption_a*data.voltage))]);
 
             if (t>show_time) {
               //simulate dischare/charge for next cycle..
@@ -164,8 +166,7 @@ class charts{
                   new_current_ah+=(-(stepping/3600)*data.self_consumption_a);
                 }
               }
-
-            
+                          
               let charge=0;
 
               if (chargemode=="SNU"){
@@ -201,7 +202,8 @@ class charts{
         let out=`<script>
 
         var graphdata1=${JSON.stringify(graphdata)};
-        var battsoc1=${JSON.stringify(battsoc)};
+        var battsoc1=${JSON.stringify(graphbattsoc)};
+        var consumption1=${JSON.stringify(graphconsumption)};
 
         var options = {
       chart: {
@@ -212,11 +214,11 @@ class charts{
         },
         stacked: false
       },
-      colors: ['#fc2c03','#117711'],
+      colors: ['#fc2c03','#9ef6f7','#117711'],
       stroke: {
         curve: "smooth",
         width: [2, 2, 2],
-        colors : ['#ff0000','#117711'],
+        colors : ['#ff0000','#0000ff','#117711'],
         show: true
       },
       dataLabels: {
@@ -226,6 +228,10 @@ class charts{
         name: 'Forecast watts',
         data:  graphdata1,
         type: 'area'
+      },{
+        name: 'Consumption watts',
+        data:  consumption1,
+        type: 'line'
       },{
         name: 'Battery SOC',
         data:  battsoc1,
@@ -244,6 +250,7 @@ class charts{
         }  
       },
       yaxis: [{
+        seriesName: 'Forecast watts',
         labels: {
           offsetX: 14,
           offsetY: -5
@@ -252,6 +259,13 @@ class charts{
           enabled: false
         }
       },{
+        seriesName: 'Forecast watts',
+        show: false,
+        tooltip: {
+          enabled: false
+        }
+      },{
+        seriesName: 'Battery SOC',
         opposite: true,
         title: {
           text: 'Battery %'
