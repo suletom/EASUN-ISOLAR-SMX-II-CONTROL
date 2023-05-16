@@ -139,6 +139,24 @@ const httpdash = function(req,configobj,ui_schema){
                                 type: "string",
                                 title: "Telegram conversation id"
                             },
+                            battery:{
+                                type: "array",
+                                format: "table",
+                                title: "Battery SOC calculation",
+                                items: {
+                                    title: "Battery SOC",
+                                    oneOf:  ${JSON.stringify(battery_schema)}
+                                }
+                            },
+                            energymgmt: {
+                                type: "array",
+                                format: "table",
+                                title: "Energy Manegement Model",
+                                items: {
+                                    title: "model to use",
+                                    oneOf:  ${JSON.stringify(energy_schema)}
+                                }
+                            },
                             actions: {
                                 type: "array",
                                 format: "table",
