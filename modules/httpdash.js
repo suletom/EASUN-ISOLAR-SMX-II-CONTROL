@@ -1,6 +1,6 @@
 let fs = require('fs');
 
-const httpdash = function(req,configobj,ui_schema){
+const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
 
     let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
     let svg=fs.readFileSync('etc/display.svg',{encoding:'utf8', flag:'r'});
@@ -142,19 +142,21 @@ const httpdash = function(req,configobj,ui_schema){
                             battery:{
                                 type: "array",
                                 format: "table",
+                                "maxItems": 1,
                                 title: "Battery SOC calculation",
                                 items: {
                                     title: "Battery SOC",
-                                    oneOf:  ${JSON.stringify(battery_schema)}
+                                    anyOf:  ${JSON.stringify(battery_schema)}
                                 }
                             },
                             energymgmt: {
                                 type: "array",
                                 format: "table",
+                                "maxItems": 1,
                                 title: "Energy Manegement Model",
                                 items: {
                                     title: "model to use",
-                                    oneOf:  ${JSON.stringify(energy_schema)}
+                                    anyOf:  ${JSON.stringify(energy_schema)}
                                 }
                             },
                             actions: {

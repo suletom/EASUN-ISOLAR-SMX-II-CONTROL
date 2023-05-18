@@ -52,6 +52,8 @@ class battery {
         let dischinit=0;
         let dischargetime=0;
         let dch_reset=0;
+
+        let correction=0;
        
         if (found_full>0){
             for (let j=found_full;j<historydata.length;j++) {
@@ -123,6 +125,7 @@ class battery {
                             //set to discharge
                             dischinit=historydata[j]['timestamp'];
                             chinit=0;
+                            correction++;
                         }
 
                     }else{
@@ -153,12 +156,16 @@ class battery {
             errorinfo.push("Missing data in history exceeds allowed value!");
         }
 
-        let finalah=capacity_ah+calcah;
+        console.log("BATTERYMODEL Discharge round correction ah: "+correction);
+        let finalah=capacity_ah+calcah-(correction);
 
         console.log("BATTERYMODEL Calculated final ah: "+finalah);
-        console.log("BATTERYMODEL Calculated discharge time sec: "+dischargetime);
-        
-        finalah=finalah-((dischargetime/3600)*added_consuption_a);
+        console.log("BATTERYMODEL Calculated discharge time sec (N/U): "+dischargetime);
+
+        let fulldtime=(helper.unixTimestamp()-init_time);
+        console.log("BATTERYMODEL Calculated full discharge time sec: "+fulldtime);
+                
+        finalah=finalah-((fulldtime/3600)*added_consuption_a);
 
         console.log("BATTERYMODEL Calculated final ah with added discharge: "+finalah);
 
