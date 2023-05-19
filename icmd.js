@@ -219,7 +219,13 @@ if (process.argv.length<3){
     
     monitor_lock=0;
         
-    setInterval(function(){ wd.run(configobj,store.get(),store.gethistory()); },30000);
+    setInterval(function() { 
+
+        wd.run(configobj,store.get(),store.gethistory());
+        batterymodel.run(configobj,store.get(),store.gethistory());
+        energymodel.run(configobj,store.get(),store.gethistory());
+        
+    },30000);
 
     // 0 -> full query   1 -> only important
     function monitor(prio=0) {

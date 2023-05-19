@@ -37,10 +37,6 @@ class battery {
             errorinfo.push("Last full state couldn't be determined");
         }
 
-        //if (historydata[found_full]['timestamp']<24*3600*7){
-        //    errorinfo.push("Last full state couldn't be determined last full state too old");
-        //}
-
         let charge=-1;
         let discharge=-1;
         let init_time=0;
@@ -196,15 +192,24 @@ class battery {
 
         }
 
+        let info="";
+        if (rv==1){
+            info+=soc+"% "+state+((remain!=0)?(" Remaining hours: "+remain):"")+" "+(finalah.toFixed(1)+" Ah left");
+        }else{
+            info+=errorinfo.join("; ");
+        }
+
         return {
         "rv": rv,
+        "capacity_ah": capacity_ah,
         "ah_left": (finalah.toFixed(1)), 
         "remaining": remain,
         "soc":soc,
         "dischargetime":dischargetime,
         "current_consumption_a": current_consuption,
         "errors":errorinfo,
-        "state":state
+        "state":state,
+        "info": info
         };
 
     };
