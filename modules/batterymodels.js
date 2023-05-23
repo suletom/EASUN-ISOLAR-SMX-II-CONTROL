@@ -12,7 +12,11 @@ class batterymodels{
         sch.push({
             "title": "INVERTER SOC/data",
             "type": "object",
-            "id": "inverter_battery",            
+            "id": "inverter_battery",
+            "properties": {
+                "capacity_ah": {"type": "number", "title": "Battery capacity (Ah)"},
+                "added_consumption_a": { "type": "number", "title": "Added (self) consuption (A)" }
+            }         
         });
 
         sch.push({

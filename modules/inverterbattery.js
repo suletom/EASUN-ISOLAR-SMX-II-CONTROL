@@ -16,21 +16,7 @@ class battery {
         if (!this.checkp(currentdata['BatterySOC'])){
             errorinfo.push("No BatterySOC info in history");
         }
-
-        //BatteryVoltage
-     
-        let remain=0;
-        let state="charging";
-        let current_consuption=0;
-        if (historydata.length>0 && historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a >= 0){
-            state="discharging";
-            current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
-            remain=((finalah)/current_consuption).toFixed(2);
-
-        }else{
-
-        }
-
+       
         let info="";
         if (rv==1){
             info+=soc+"% "+state+((remain!=0)?(" Remaining hours: "+remain):"")+" "+(finalah.toFixed(1)+" Ah left");
