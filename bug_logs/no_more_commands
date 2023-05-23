@@ -1,0 +1,136 @@
+
+Command: undefined
+Unknown Exception(in getdatacmd): data: 
+undefined
+ commands:
+[ { name: 'get_wifi_device_id',
+    cmd: '{SEQ}0001000aff01160b0a16102d012c' },
+  { name: 'set_wifi_ssid', cmd: '{SEQ}0001{LEN}ff0329{ARG2}' },
+  { name: 'set_wifi_pw', cmd: '{SEQ}0001{LEN}ff032b{ARG3}' },
+  { name: 'restart_wifi', cmd: '{SEQ}00010004ff031d31' },
+  { name: 'factory_reset_wifi', cmd: '{SEQ}00010004ff031d32' },
+  { name: 'get_wifi_device_info', cmd: '{SEQ}00010003ff0205' },
+  { name: 'get_wifi_device_id',
+    cmd: '{SEQ}0001000aff01160b0a16102d012c' },
+  { name: 'query_modbus', cmd: '{ARG2}', raw: true },
+  { name: 'query_modbus_crc',
+    cmd: '{SEQ}0001{LEN}ff04ff03{ARG2}{CRC}',
+    raw: true },
+  { name: 'get-smx-out-prio',
+    cmd: '{SEQ}0001000aff04ff03e2040001e66d',
+    '/*!example form param get/set: whole modbus rtu packet in modbus tcp*/': '' },
+  { name: 'set_smx_param',
+    cmd: '{SEQ}0001{LEN}ff04ff10{ARGP2}{ARGV3}{CRC}',
+    definition: 'get_smx_param' },
+  { name: 'get_smx_param',
+    cmd: '{SEQ}0001{LEN}ff04ff03{PARAM}{CRC}',
+    definition:
+     [ [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object],
+       [Object] ] } ]
+/home/suletom/Letöltések/EASUN-ISOLAR-SMX-II-CONTROL/modules/controller.js:861
+    if (obj.definition === 'string'){
+            ^
+
+TypeError: Cannot read property 'definition' of undefined
+    at getdatacmd (/home/suletom/Letöltések/EASUN-ISOLAR-SMX-II-CONTROL/modules/controller.js:861:13)
+    at receivedata (/home/suletom/Letöltések/EASUN-ISOLAR-SMX-II-CONTROL/modules/controller.js:842:14)
+    at Socket.<anonymous> (/home/suletom/Letöltések/EASUN-ISOLAR-SMX-II-CONTROL/modules/controller.js:300:32)
+    at Socket.emit (events.js:198:13)
+    at addChunk (_stream_readable.js:288:12)
+    at readableAddChunk (_stream_readable.js:269:11)
+    at Socket.Readable.push (_stream_readable.js:224:10)
+    at TCP.onStreamRead [as onread] (internal/stream_base_commons.js:94:17)
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! easun-isolar-smx-ii-control@1.0.0 start: `node icmd.js`
+npm ERR! Exit status 1
+npm ERR! 
+npm ERR! Failed at the easun-isolar-smx-ii-control@1.0.0 start script.
+npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
