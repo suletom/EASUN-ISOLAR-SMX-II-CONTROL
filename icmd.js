@@ -11,8 +11,9 @@ const paramstore = require("./modules/storage.js");
 let store = new paramstore();
 const helper = require("./modules/helper.js");
 const charts = require("./modules/charts.js");
-const batterymodel = require("./modules/batterymodels.js");
-const energymodel = require("./modules/energymodels.js");
+const batterymodels = require("./modules/batterymodels.js");
+const energymodels = require("./modules/energymodels.js");
+
 
 
 process.on('uncaughtException', function(err) {
@@ -66,6 +67,8 @@ if (process.argv.length<3){
     
     //start our watchdog
     let wd = new watchdog();
+    let batterymodel = new batterymodels();
+    let energymodel = new energymodels();
 
     var app = express();
 
@@ -115,7 +118,7 @@ if (process.argv.length<3){
 
     app.get('/', function (req, res) {
 
-        res.send(httpdash.httpdash(req,configobj,wd.get_ui_schema(),batterymodel.get_ui_schema(),energymodel.get_ui_schema()));
+        res.send(httpdash.httpdash(req,configobj,wd.get_ui_schema(),batterymodels.get_ui_schema(),energymodels.get_ui_schema()));
 
     });
 

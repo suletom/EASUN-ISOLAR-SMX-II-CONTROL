@@ -1,5 +1,6 @@
 const battery = require("./battery.js");
 const jbdbattery = require("./jbdbattery.js");
+const inverterbattery = require("./inverterbattery.js");
 
 
 class batterymodels{
@@ -63,16 +64,21 @@ class batterymodels{
 
     }
 
-    software_battery(add=null){
+    software_battery(){
 
         let batinf=battery.calcsoc(add.capacity_ah,add.added_consumption_a,this.history);
         return batinf;
 
     }
 
-    external_battery(add=null){
+    external_battery(){
 
         let batinf=jbdbattery.calcsoc();
+        return batinf;
+    }
+
+    inverter_battery(){
+        let batinf=inverterbattery.calcsoc(this.currentdata);
         return batinf;
     }
 
