@@ -14,8 +14,8 @@ class batterymodels{
             "type": "object",
             "id": "inverter_battery",
             "properties": {
-                "capacity_ah": {"type": "number", "title": "Battery capacity (Ah)"},
-                "added_consumption_a": { "type": "number", "title": "Added (self) consuption (A)" }
+                "capacity_ah": {"type": "number", "title": "Battery capacity (Ah)"}
+                
             }         
         });
 
@@ -24,8 +24,7 @@ class batterymodels{
             "type": "object",
             "id": "sotware_battery",
             "properties": {
-                "capacity_ah": {"type": "number", "title": "Battery capacity (Ah)"},
-                "added_consumption_a": { "type": "number", "title": "Added (self) consuption (A)" }
+                "capacity_ah": {"type": "number", "title": "Battery capacity (Ah)"}
             }
         });
 
@@ -64,24 +63,24 @@ class batterymodels{
             }
         }
 
-        return this[battype]();
+        return this[battype](configobj);
 
     }
 
-    software_battery(){
+    software_battery(config){
 
         let batinf=battery.calcsoc(add.capacity_ah,add.added_consumption_a,this.history);
         return batinf;
 
     }
 
-    external_battery(){
+    external_battery(config){
 
         let batinf=jbdbattery.calcsoc();
         return batinf;
     }
 
-    inverter_battery(){
+    inverter_battery(config){
         let batinf=inverterbattery.calcsoc(this.currentdata);
         return batinf;
     }

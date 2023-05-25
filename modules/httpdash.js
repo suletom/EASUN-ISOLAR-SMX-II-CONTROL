@@ -149,6 +149,11 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                                     anyOf:  ${JSON.stringify(battery_schema)}
                                 }
                             },
+                            inverter_self_consumption:{
+                                type: "number",
+                                title: "Inverter self consumption (A)",
+                                default: 0
+                            },
                             energymgmt: {
                                 type: "array",
                                 format: "table",
