@@ -255,7 +255,7 @@ class watchdog {
         }
 
     }
-
+/*
     check_battery_ui(){
 
         return {"capacity_ah": {"type": "number", "title": "Battery capacity ah"},
@@ -264,7 +264,8 @@ class watchdog {
                 "preserve_ah": { "type": "number", "title": "Preserve x AH in battery" }
         };
     }
-
+*/
+/*
     check_battery(ind,data,goal,add=null){
 
         let batinf=battery.calcsoc(add.capacity_ah,add.added_consumption_a,this.history);
@@ -282,7 +283,8 @@ class watchdog {
         this._pushok(ind,"Battery info",goal,info);
 
     }
-
+*/
+    /*
     check_battery_external(ind,data,goal,add=null){
 
         let batinf=jbdbattery.calcsoc();
@@ -299,6 +301,7 @@ class watchdog {
         this._pushok(ind,"Battery info",goal,info);
 
     }
+    */
 
     _pusherror(ind,err,goal,info=null){
         

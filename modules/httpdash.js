@@ -154,6 +154,11 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                                 title: "Inverter self consumption (A)",
                                 default: 0
                             },
+                            battery_capacity:{
+                                type: "number",
+                                title: "Used by battery models (Ah)",
+                                default: 0
+                            },
                             energymgmt: {
                                 type: "array",
                                 format: "table",
@@ -383,6 +388,11 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                                 }    
 
                             }
+
+                            if (key=="batteryinfo") {
+                                let bi=document.querySelector('#batteryinfo');
+                                bi.innerHTML=jvalue;
+                            }
                             
                             let elem=document.querySelector('#param'+key);
                             if (elem !== null && elem !== undefined){
@@ -594,6 +604,9 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                 background-color: white;
             }
             
+            .notifb{
+                background-color: white;
+            }
 
             </style>
         </head>
@@ -612,8 +625,11 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                 </div>
                 <div id="faults" class="d-flex justify-content-center">
                     <div class="card-body"><label>CurrentFault</label><div id="delemCurrentFault"></div></div>
+                </div> 
+                <div id="notif-batt" class="d-flex justify-content-center notifb">
+                    <div class="card-body"><label>BATTERYINFO</label><div id="batteryinfo" class="contener"></div></div>
                 </div>  
-                <div id="notif-cont" class="d-flex justify-content-center">
+                <div id="notif-cont" class="d-flex justify-content-center notifb">
                     <div class="card-body"><label>Notifications</label><table id="notifs" class="table"></table></div>
                 </div>  
                 <div class="d-flex justify-content-center">

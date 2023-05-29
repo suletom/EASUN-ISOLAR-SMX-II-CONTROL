@@ -67,7 +67,7 @@ const notifier = function(configobj,subject,msg,callback=null){
             let api=`https://api.telegram.org/bot${encodeURIComponent(configobj.telegrambt)}/sendMessage?chat_id=${encodeURIComponent(configobj.telegramcid)}&text=${encodeURIComponent(tm)}`;
             fetch(api)
             .then(response => {
-               console.log("Telegram response:",response);
+               //console.log("Telegram response:",response);
             });
 
     }

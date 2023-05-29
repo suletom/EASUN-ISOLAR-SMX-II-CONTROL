@@ -11,29 +11,37 @@ class battery {
         return false;
     };
     
-    static calcsoc=function(currentdata){
+    static calcsoc=function(capacity_ah,added_consuption_a,currentdata){
         
-        if (!this.checkp(currentdata['BatterySOC'])){
-            errorinfo.push("No BatterySOC info in history");
+        let errorinfo=[];
+ 
+        if (!this.checkp(currentdata['BatteryCurrent'])){
+            errorinfo.push("No BatteryCurrent info in current data!");
         }
-       
-        let info="";
-        if (rv==1){
-            info+=soc+"% "+state+((remain!=0)?(" Remaining hours: "+remain):"")+" "+(finalah.toFixed(1)+" Ah left");
+
+        let soc=0;
+
+        if (!this.checkp(currentdata['BatterySoc'])){
+            errorinfo.push("No BatterySoc info in current data!");
         }else{
-            info+=errorinfo.join("; ");
+            soc=currentdata['BatterySoc'];
         }
+
+
+        let rv=1;
+        let info="";
+        if (errorinfo.length>0){
+            rv=0;
+            info=errorinfo.join("; ");
+        }
+
+        let current_consumption=(currentdata['BatteryCurrent']+added_consuption_a);
 
         return {
         "rv": rv,
-        "capacity_ah": capacity_ah,
-        "ah_left": (finalah.toFixed(1)), 
-        "remaining": remain,
         "soc":soc,
-        "dischargetime":dischargetime,
-        "current_consumption_a": current_consuption,
-        "errors":errorinfo,
-        "state":state,
+        "current_consumption_a": current_consumption,
+        "capacity_ah": capacity_ah,
         "info": info
         };
 

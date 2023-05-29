@@ -171,44 +171,33 @@ class battery {
         if (historydata.length>0 && !this.checkp(historydata[historydata.length-1]["BatteryCurrent"])){
             errorinfo.push("BatteryCurrent value missing!");
         }
-
-        let rv=(errorinfo.length>0?0:1);
-
+        
         let diff=0;
-        if (soc>101){
+        if (soc>110){
             diff=soc-100;
             errorinfo.push("!!Calculation inaccurate: "+(diff)+"% diff.");
         }
 
-        let remain=0;
-        let state="charging";
         let current_consuption=0;
-        if (historydata.length>0 && historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a >= 0){
-            state="discharging";
-            current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
-            remain=((finalah)/current_consuption).toFixed(2);
 
+        if (historydata.length==0){
+            errorinfo.push("History data missing!");
         }else{
-
+            current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
         }
 
+        let rv=1;
         let info="";
-        if (rv==1){
-            info+=soc+"% "+state+((remain!=0)?(" Remaining hours: "+remain):"")+" "+(finalah.toFixed(1)+" Ah left");
-        }else{
-            info+=errorinfo.join("; ");
+        if (errorinfo.length>0){
+            rv=0;
+            info=errorinfo.join("; ");
         }
 
         return {
         "rv": rv,
-        "capacity_ah": capacity_ah,
-        "ah_left": (finalah.toFixed(1)), 
-        "remaining": remain,
         "soc":soc,
-        "dischargetime":dischargetime,
+        "capacity_ah": capacity_ah,
         "current_consumption_a": current_consuption,
-        "errors":errorinfo,
-        "state":state,
         "info": info
         };
 

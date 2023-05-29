@@ -203,10 +203,13 @@ if (process.argv.length<3){
             }
             let wg={'notif':wd.get_current()};
             dov={...dov,...wg};
-
+            
             //console.log(charts);
             let wg2={'chart':charts.getchartinfo()};
             dov={...dov,...wg2};
+
+            let wg3={'batteryinfo':batterymodel.get_current()};
+            dov={...dov,...wg3};
         }
               
         res.json(dov);
@@ -224,6 +227,7 @@ if (process.argv.length<3){
         
     setInterval(function() { 
 
+        console.log("Running internal tasks! #############################################################################################");
         wd.run(configobj,store.get(),store.gethistory());
         batterymodel.run(configobj,store.get(),store.gethistory());
         energymodel.run(configobj,store.get(),store.gethistory());

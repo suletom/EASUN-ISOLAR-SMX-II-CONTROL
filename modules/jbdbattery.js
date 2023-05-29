@@ -48,15 +48,8 @@ class jbdbattery {
         
         let rv=(errorinfo.length>0?0:1);
 
-        let remain=0;
-        let state="charging";
-        if (arr[2]<0){
-            state="discharging";
-            let current_consuption=Math.abs(amps);
-            remain=((finalah)/Math.abs(current_consuption)).toFixed(2);
-        }
 
-
+        /*
         let info="";
         if (rv==1){
             info+=soc+"% "+state+((remain!=0)?(" Remaining hours: "+remain):"")+" "+(finalah.toFixed(1)+"/"+capacity+" Ah left");
@@ -64,18 +57,18 @@ class jbdbattery {
         }else{
             info+=errorinfo.join("; ");
         }
+        */
+        let info="";
+        if (errorinfo.length>0){
+            rv=0;
+            info=errorinfo.join("; ");
+        }
 
         return {
         "rv": rv,
-        "ah_left": (finalah.toFixed(1)), 
-        "remaining": remain,
         "soc":soc,
-        "errors":errorinfo,
-        "state":state,
         "capacity_ah": capacity,
-        "batteryvoltage": batteryvoltage,
-        "cycles": cycles,
-        "amps": amps,
+        "current_consumption_a": amps,
         "info": info
         };
 
