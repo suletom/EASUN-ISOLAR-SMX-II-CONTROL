@@ -1,7 +1,7 @@
 const battery = require("./battery.js");
 const jbdbattery = require("./jbdbattery.js");
 const inverterbattery = require("./inverterbattery.js");
-
+const helper = require("./helper.js");
 
 class batterymodels{
 
@@ -100,11 +100,13 @@ class batterymodels{
         if (this.batterydata[this.batterychosen] != undefined){
             let cdata=this.batterydata[this.batterychosen];
             r["battey_rv"]=cdata.rv;
-            if (cdata.rv==1){
+            if (cdata.rv==1) {
+
                 r["battey_soc"]=cdata.soc;
                 r["battery_ah_left"]=cdata.ah_left;
                 r["battery_capacity_ah"]=cdata.capacity_ah;
-                r["battery_capacity_ah"]=cdata.capacity_ah;
+                r["battery_seen"]=helper.unixTimestamp();
+                
             }
         }
         

@@ -11,7 +11,7 @@ class paramstorage {
         this.history_store="history";
         this.lastwrite=null;
         this.history_days=8;
-
+        
         console.log("Loading recent history from files...");
         this.loadhistory();
   
@@ -96,8 +96,12 @@ class paramstorage {
         return this.history;
     }
 
-    store(jsobject,completedata=0){
+    store(jsobject,completedata=0,append=null){
         
+        if (append!=null) {
+            jsobject={...jsobject,...append};
+        }
+
         jsobject["timestamp"]=helper.unixTimestamp();
         jsobject["state"]="connected";
         jsobject["lastseen"]=jsobject["timestamp"];

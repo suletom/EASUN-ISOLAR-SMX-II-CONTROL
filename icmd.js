@@ -258,7 +258,7 @@ if (process.argv.length<3){
                 if (result==0){
                     
                     if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
-                       store.store(stateobject.outobj,prio);
+                       store.store(stateobject.outobj,prio,batterymodel.get_chosen());
                     }    
 
                     monitor_lock=0;
