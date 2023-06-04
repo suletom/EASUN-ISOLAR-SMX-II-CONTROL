@@ -169,6 +169,10 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                                     anyOf:  ${JSON.stringify(energy_schema)}
                                 }
                             },
+                            "forecast_url": {
+                                "type": "string",
+                                "title": "forecast.solar API link for models (https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4)" 
+                            },
                             actions: {
                                 type: "array",
                                 format: "table",

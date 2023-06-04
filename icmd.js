@@ -134,7 +134,7 @@ if (process.argv.length<3){
 
         console.log("getchart:",req.body);
         
-        let html=charts.getchart(req.body);
+        let html=charts.getchart(req.body,configobj,store.gethistory());
 
         res.json({"rv": 1,"html": html});
 

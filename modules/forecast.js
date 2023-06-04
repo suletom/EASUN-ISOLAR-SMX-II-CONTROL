@@ -4,7 +4,7 @@ const fetch = require('cross-fetch');
 
 class energy {
 
-    static getforecast(url,update_period=1800) {
+    static getforecast(url="",update_period=1800) {
 
       let forecastfile="forecast.json";
 
@@ -52,6 +52,11 @@ class energy {
       }  
 
       if (needfetch){
+
+        if (url===""){
+          console.log("ENERGY:","not fetching forecast data, model not enabled ??!!!!!!!");
+          return dataobj;
+        }
 
         console.log("ENERGY:","fetching...", url);
         

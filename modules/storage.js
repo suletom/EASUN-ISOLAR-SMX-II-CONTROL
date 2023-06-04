@@ -121,7 +121,7 @@ class paramstorage {
             }
             
         }
-                
+       
         this.history.push(this.currentdata);
         
         if (this.lastwrite==null || completedata==0){

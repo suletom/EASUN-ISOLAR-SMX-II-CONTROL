@@ -10,31 +10,71 @@ class charts{
         //{"unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,current_charge,consumption_a,voltage"}
 
         let html=`<div>
-                    <label>Energy model v1 test</label>
+                    <label>Energy model v1 test simulation</label>
                     <textarea>
-                    {"start_time": "now",\n
-                    "ah_min_point": 44,\n
-                    "ah_switch_point": 22,\n
-                    "ah_charge_point": 10,\n
-                    "current_ah": 100,\n
-                    "current_mode":"SBU",\n
-                    "current_charge":"OSO",\n
-                    "consumption_a":19,\n
-                    "voltage": 26,\n
-                    "ah_capacity":220,\n
-                    "self_consumption_a":1.1,\n
+                    {
+                    "type":"energymodeltest1"
+                    "start_time": "now",
+                    "ah_min_point": 44,
+                    "ah_switch_point": 22,
+                    "ah_charge_point": 10,
+                    "current_ah": 100,
+                    "current_mode":"SBU",
+                    "current_charge":"OSO",
+                    "consumption_a":19,
+                    "voltage": 26,
+                    "ah_capacity":220,
+                    "self_consumption_a":1.1,
                     "charge_max_a":65
                     }
                     </textarea>
-                    <button class="btn btn-primary" onclick="getchart('energymodeltest1');">Show chart!</button>
+                    <button class="btn btn-primary" onclick="getchart('energymodeltest1');">Run simulation!</button>
                    </div>`;
 
+        let html2=`<div>
+                   <label>MAIN CHART</label>
+                   <textarea>
+                    {"type": "maingraph"}
+                    </textarea>
+                   <button class="btn btn-primary" onclick="getchart('maingraph');">Show chart!</button>
+                  </div>`;           
+
         return [
+            {'id':'maingraph','html':html2},
             {'id':'energymodeltest1','html':html}
         ];
     }
     
-    static getchart=function(data){
+    static getchart=function(data,config,history) {
+
+        if (typeof data["type"] !== undefined && data["type"]==="energymodeltest1"){
+          return _getdemochart(data);
+        }
+        if (typeof data["type"] !== undefined && data["type"]==="maingraph"){
+
+          if (history.length>0){
+
+            return _getchart(
+            {
+            "start_time": history[0]["timestamp"],
+            "ah_min_point": 44,
+            "ah_switch_point": 22,
+            "ah_charge_point": 10,
+            "current_ah": history[history.length-1]["battery_capacity_ah"],
+            "current_mode": history[history.length-1]["OutputPriority_text"],
+            "current_charge": history[history.length-1]["ChargerSourcePriority_text"],
+            "consumption_a": 19,
+            "voltage": 26,
+            "ah_capacity": history[history.length-1]["battery_capacity_ah"],
+            "self_consumption_a": 1.1,
+            "charge_max_a": history[history.length-1]["MaxChargerCurrent"] 
+            }
+            );
+          }
+        }
+    }
+    
+    static _getdemochart=function(data){
 
         let start_time="";
         if (data.start_time=="now"){
@@ -43,7 +83,7 @@ class charts{
            start_time=data.start_time;
         }
         
-        let prediction=forecast.getforecast("https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4");
+        let prediction=forecast.getforecast();
 
 
         let first_date="";
@@ -199,113 +239,119 @@ class charts{
             }  
         }
              
-        let out=`<script>
-
-        var graphdata1=${JSON.stringify(graphdata)};
-        var battsoc1=${JSON.stringify(graphbattsoc)};
-        var consumption1=${JSON.stringify(graphconsumption)};
-
-        var options = {
-      chart: {
-        type: "area",
-        height: 400,
-        animations: {
-          enabled: false
-        },
-        stacked: false
-      },
-      colors: ['#fc2c03','#9ef6f7','#117711'],
-      stroke: {
-        curve: "smooth",
-        width: [2, 2, 2],
-        colors : ['#ff0000','#0000ff','#117711'],
-        show: true
-      },
-      dataLabels: {
-        enabled: false
-      },
-      series: [{
-        name: 'Forecast watts',
-        data:  graphdata1,
-        type: 'area'
-      },{
-        name: 'Consumption watts',
-        data:  consumption1,
-        type: 'line'
-      },{
-        name: 'Battery SOC',
-        data:  battsoc1,
-        type: 'line'
-      }],
-      xaxis: {
-        type: "datetime",
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
-        labels: {
-          datetimeUTC: false
-        }  
-      },
-      yaxis: [{
-        seriesName: 'Forecast watts',
-        labels: {
-          offsetX: 14,
-          offsetY: -5
-        },
-        tooltip: {
-          enabled: false
-        }
-      },{
-        seriesName: 'Forecast watts',
-        show: false,
-        tooltip: {
-          enabled: false
-        }
-      },{
-        seriesName: 'Battery SOC',
-        opposite: true,
-        title: {
-          text: 'Battery %'
-        }
-      }],
-      annotations: {
-        xaxis: ${JSON.stringify(annot)}
-      },
-      grid: {
-        padding: {
-          left: -5,
-          right: 5
-        }
-      },
-      tooltip: {
-        x: {
-          format: "yyyy-MM-dd HH:mm:ss"
-        },
-      },
-      legend: {
-        position: 'top',
-        horizontalAlign: 'left'
-      },
-      fill: {
-        opacity: [0.85, 0.25],
-        type: "solid"
-      }
-    };
-
-    var chart = new ApexCharts(document.querySelector("#charttest1"), options);
-
-    chart.render();
-
-        </script>
-        <div id="charttest1"></div>
-        `
-
-        return out;
+        return _graph(graphdata,graphbattsoc,graphconsumption,annot);
     }
 
+    static _graph=function(graphdata,graphbattsoc,graphconsumption,annot){
+
+          let out=`<script>
+
+          function graph(){
+
+            let graphdata1=${JSON.stringify(graphdata)};
+            let battsoc1=${JSON.stringify(graphbattsoc)};
+            let consumption1=${JSON.stringify(graphconsumption)};
+
+            let options = {
+          chart: {
+            type: "area",
+            height: 400,
+            animations: {
+              enabled: false
+            },
+            stacked: false
+          },
+          colors: ['#fc2c03','#9ef6f7','#117711'],
+          stroke: {
+            curve: "smooth",
+            width: [2, 2, 2],
+            colors : ['#ff0000','#0000ff','#117711'],
+            show: true
+          },
+          dataLabels: {
+            enabled: false
+          },
+          series: [{
+            name: 'Forecast watts',
+            data:  graphdata1,
+            type: 'area'
+          },{
+            name: 'Consumption watts',
+            data:  consumption1,
+            type: 'line'
+          },{
+            name: 'Battery SOC',
+            data:  battsoc1,
+            type: 'line'
+          }],
+          xaxis: {
+            type: "datetime",
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            },
+            labels: {
+              datetimeUTC: false
+            }  
+          },
+          yaxis: [{
+            seriesName: 'Forecast watts',
+            labels: {
+              offsetX: 14,
+              offsetY: -5
+            },
+            tooltip: {
+              enabled: false
+            }
+          },{
+            seriesName: 'Forecast watts',
+            show: false,
+            tooltip: {
+              enabled: false
+            }
+          },{
+            seriesName: 'Battery SOC',
+            opposite: true,
+            title: {
+              text: 'Battery %'
+            }
+          }],
+          annotations: {
+            xaxis: ${JSON.stringify(annot)}
+          },
+          grid: {
+            padding: {
+              left: -5,
+              right: 5
+            }
+          },
+          tooltip: {
+            x: {
+              format: "yyyy-MM-dd HH:mm:ss"
+            },
+          },
+          legend: {
+            position: 'top',
+            horizontalAlign: 'left'
+          },
+          fill: {
+            opacity: [0.85, 0.25],
+            type: "solid"
+          }
+        };
+
+        let chart = new ApexCharts(document.querySelector("#charttest1"), options);
+        chart.render();
+
+      }();
+      </script>
+
+      <div id="charttest1"></div>`;
+
+      return out;
+    }
 }
 
 module.exports=charts;

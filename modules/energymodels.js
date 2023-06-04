@@ -1,4 +1,5 @@
 const energy_ver1 = require("./energy_ver1.js");
+const forecast = require("./forecast.js");
 
 class energymodels{
 
@@ -11,18 +12,22 @@ class energymodels{
             "type": "object",
             "id": "energymodel1",
             "properties": {
-                "forecast_url": { "type": "string", "title": "forecast.solar API link to estimate (https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4)" },
-                "preserve_ah": { "type": "number", "title": "Preserve x AH in battery" }
+                "preserve_ah": { "type": "number", "title": "Preserve x AH in battery for grid outages" }
             }
         });
 
         return sch;
     }
 
-    run(configobj,currentdata,history){
+    run(configobj,currentdata,history) {
+
+        if (typeof configobj["forecast_url"] != undefined) {
+            forecast.getforecast(configobj["forecast_url"]);
+        }    
+
         if (typeof configobj["energymgmt"] != undefined) {
-            if (configobj["energymgmt"]=="energymodel1"){
-                //energy_ver1.run
+            if (configobj["energymgmt"]=="energymodel1") {
+                //here begins the magic
             }
         }
     }
