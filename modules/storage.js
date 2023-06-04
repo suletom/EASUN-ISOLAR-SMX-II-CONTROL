@@ -113,6 +113,7 @@ class paramstorage {
             this.currentdata={...this.currentdata,...jsobject};
         }
 
+        /*
         if (this.history.length>0){
             //hold past 8 days in memory
             let da=helper.unixTimestamp() - (24 * 3600 * this.history_days);
@@ -121,6 +122,7 @@ class paramstorage {
             }
             
         }
+        */
         
         this.history.push(this.currentdata);
         
