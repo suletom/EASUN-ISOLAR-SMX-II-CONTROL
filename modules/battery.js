@@ -180,17 +180,19 @@ class battery {
 
         let current_consuption=0;
 
+        /*
         if (!this.checkp(historydata[historydata.length-1]["PVPower"])){
             errorinfo.push("PVPower data missing!");
         }
+        */
 
         if (historydata.length==0){
             errorinfo.push("History data missing!");
         }else{
 
-            if (historydata[historydata.length-1]['PVPower']>0) {
+            if (soc>=100) {
                 current_consuption=(-1*historydata[historydata.length-1]["BatteryCurrent"]);
-            }else{    
+            }else{
                 current_consuption=((-1*historydata[historydata.length-1]["BatteryCurrent"])-added_consuption_a);
             }
 
@@ -203,6 +205,8 @@ class battery {
             let tmperr=Array.from(new Set(errorinfo));
             info=tmperr.join("; ");
         }
+
+        if (soc>100) soc=100;
 
         return {
         "rv": rv,
