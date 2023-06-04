@@ -180,17 +180,28 @@ class battery {
 
         let current_consuption=0;
 
+        if (!this.checkp(historydata[historydata.length-1]["PVPower"])){
+            errorinfo.push("PVPower data missing!");
+        }
+
         if (historydata.length==0){
             errorinfo.push("History data missing!");
         }else{
-            current_consuption=(historydata[historydata.length-1]["BatteryCurrent"]+added_consuption_a);
+
+            if (historydata[historydata.length-1]['PVPower']>0) {
+                current_consuption=(-1*historydata[historydata.length-1]["BatteryCurrent"]);
+            }else{    
+                current_consuption=((-1*historydata[historydata.length-1]["BatteryCurrent"])-added_consuption_a);
+            }
+
         }
 
         let rv=1;
         let info="";
         if (errorinfo.length>0){
             rv=0;
-            info=errorinfo.join("; ");
+            let tmperr=Array.from(new Set(errorinfo));
+            info=tmperr.join("; ");
         }
 
         return {

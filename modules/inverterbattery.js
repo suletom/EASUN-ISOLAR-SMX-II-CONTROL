@@ -28,6 +28,13 @@ class battery {
         }
 
 
+        if (!this.checkp(currentdata['PVPower'])){
+            errorinfo.push("No PVPower info in current data!");
+        }
+
+        
+
+
         let rv=1;
         let info="";
         if (errorinfo.length>0){
@@ -35,7 +42,11 @@ class battery {
             info=errorinfo.join("; ");
         }
 
-        let current_consumption=(currentdata['BatteryCurrent']+added_consuption_a);
+
+        let current_consumption=((-1*currentdata['BatteryCurrent'])-added_consuption_a);
+        if (currentdata['PVPower']>0) {
+            current_consumption=-1*(currentdata['BatteryCurrent']);
+        }
 
         return {
         "rv": rv,

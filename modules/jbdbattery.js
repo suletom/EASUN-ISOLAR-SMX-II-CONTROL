@@ -32,6 +32,7 @@ class jbdbattery {
         }
         //          meter, volts,amps,watts,remain,capacity,cycles
         //maininfo: jbdbms,26.61,0.00,0.00, 200,   220,     129
+        //charge -> positive amps
         let arr=fdata.split(",");
 
         if (arr.length!=7){

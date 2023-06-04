@@ -51,7 +51,7 @@ class batterymodels{
             let remain=0;
 
 
-            //if positive -> charging
+            //if positive -> charging !!!!
             if (batinf.current_consumption_a>0){
                 remain=(batinf.capacity_ah-ah_left)/Math.abs(batinf.current_consumption_a);
             }else{
@@ -99,10 +99,10 @@ class batterymodels{
 
         if (this.batterydata[this.batterychosen] != undefined){
             let cdata=this.batterydata[this.batterychosen];
-            r["battey_rv"]=cdata.rv;
+            r["battery_rv"]=cdata.rv;
             if (cdata.rv==1) {
 
-                r["battey_soc"]=cdata.soc;
+                r["battery_soc"]=cdata.soc;
                 r["battery_ah_left"]=cdata.ah_left;
                 r["battery_capacity_ah"]=cdata.capacity_ah;
                 r["battery_seen"]=helper.unixTimestamp();
