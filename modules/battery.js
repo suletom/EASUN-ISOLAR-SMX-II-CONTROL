@@ -17,20 +17,25 @@ class battery {
         let errorinfo=[];
         let data_problem_counter=0;
         let found_full=0;
-        for (let i=historydata.length-1;i>=0;i--) {
 
-            if (!this.checkp(historydata[i]['BatteryVoltage'])){
-                errorinfo.push("No BatteryVoltage info in history");
-            }
-            if (!this.checkp(historydata[i]['BatteryBoostChargeVoltage'])){
-                errorinfo.push("No BatteryBoostChargeVoltage info in history");
+        if (historydata.length>0){
+
+            for (let i=historydata.length-1;i>=0;i--) {
+
+                if (!this.checkp(historydata[i]['BatteryVoltage'])){
+                    errorinfo.push("No BatteryVoltage info in history");
+                }
+                if (!this.checkp(historydata[i]['BatteryBoostChargeVoltage'])){
+                    errorinfo.push("No BatteryBoostChargeVoltage info in history");
+                }
+
+                if (historydata[i]['BatteryVoltage']==historydata[i]['BatteryBoostChargeVoltage']) {
+                    console.log("BATTERYMODEL Last boost state: "+helper.fdate(historydata[i]['timestamp']));
+                    found_full=i;
+                    break;
+                }
             }
 
-            if (historydata[i]['BatteryVoltage']==historydata[i]['BatteryBoostChargeVoltage']) {
-                console.log("BATTERYMODEL Last boost state: "+helper.fdate(historydata[i]['timestamp']));
-                found_full=i;
-                break;
-            }
         }
 
         if (found_full==0){
