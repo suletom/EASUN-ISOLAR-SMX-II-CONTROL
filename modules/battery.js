@@ -23,10 +23,13 @@ class battery {
             for (let i=historydata.length-1;i>=0;i--) {
 
                 if (!this.checkp(historydata[i]['BatteryVoltage'])){
-                    errorinfo.push("No BatteryVoltage info in history");
+                    console.log("No BatteryVoltage info in history at ",i);
+                    continue;
                 }
+
                 if (!this.checkp(historydata[i]['BatteryBoostChargeVoltage'])){
-                    errorinfo.push("No BatteryBoostChargeVoltage info in history");
+                    console.log("No BatteryBoostChargeVoltage info in history at ",i);
+                    continue;
                 }
 
                 if (historydata[i]['BatteryVoltage']==historydata[i]['BatteryBoostChargeVoltage']) {
