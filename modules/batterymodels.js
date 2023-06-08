@@ -16,21 +16,40 @@ class batterymodels{
             "type": "object",
             "id": "inverter_battery",
             "properties": {
-                                
-            }         
+                "battery_chosen": {
+                    "type": "string",
+                    "title": "Type",
+                    "enum": ["inverter_battery"]
+                }    
+            }
         });
+
 
         sch.push({
             "title": "Software calculaton based on charger registers",
             "type": "object",
             "id": "sotware_battery",
+            "properties": {
+                "battery_chosen": {
+                    "type": "string",
+                    "title": "Type",
+                    "enum": ["software_battery"]
+                }
+            }
             
         });
 
         sch.push({
             "title": "Read from file",
             "type": "object",
-            "id": "external_battery"
+            "id": "external_battery",
+            "properties": {
+                "battery_chosen": {
+                    "type": "string",
+                    "title": "Type",
+                    "enum": ["external_battery"]
+                }    
+            }
         });
 
         return sch;
@@ -138,10 +157,11 @@ class batterymodels{
 
         let battype="inverter_battery";
 
-        if (typeof configobj["battery"] != undefined) {
+        if (typeof configobj["battery"] != undefined && typeof configobj["battery"][0] != undefined && typeof configobj["battery"][0]["battery_chosen"] != undefined ) {
 
-            switch (configobj["battery"]){
-                case 'sotware_battery': 
+
+            switch (configobj["battery"][0]["battery_chosen"]) {
+                case 'software_battery': 
                     battype='sotware_battery';
                 break;
                 case 'external_battery': 

@@ -12,7 +12,27 @@ class energymodels{
             "type": "object",
             "id": "energymodel1",
             "properties": {
-                "preserve_ah": { "type": "number", "title": "Preserve x AH in battery for grid outages" }
+                "model_chosen": {
+                    "type": "string",
+                    "title": "Type",
+                    "enum": ["energymodel1"]
+                },
+                "min_point": {
+                    "type": "number",
+                    "title": "Battery minimum SOC for calculations",
+                    
+                },
+                "switch_point": {
+                    "type": "number",
+                    "title": "Battery absolute minimum SOC (where we switch to UTI)",
+                    
+                },
+                "charge_point": {
+                    "type": "number",
+                    "title": "Battery absolute minimum SOC (where battery charge is turned on)",
+                    
+                }
+                
             }
         });
 
@@ -25,10 +45,12 @@ class energymodels{
             forecast.getforecast(configobj["forecast_url"]);
         }    
 
-        if (typeof configobj["energymgmt"] != undefined) {
-            if (configobj["energymgmt"]=="energymodel1") {
+        if (typeof configobj["energymgmt"] != undefined && typeof configobj["energymgmt"][0] != undefined && typeof configobj["energymgmt"][0]["model_chosen"] != undefined ) {
+
+            if (configobj["energymgmt"][0]["model_chosen"]=="energymodel1") {
                 //here begins the magic
             }
+
         }
     }
 
