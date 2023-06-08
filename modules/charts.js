@@ -314,7 +314,7 @@ class charts{
               findnow=1;
               
               let now={
-                "x": t*1000,
+                "x": predtime*1000,
                 "borderColor": "#000",
                 "label": {
                   "borderColor": "#000",
