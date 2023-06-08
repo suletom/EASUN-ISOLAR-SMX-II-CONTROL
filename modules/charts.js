@@ -38,10 +38,11 @@ class charts{
                    <label>MAIN CHART</label>
                    <button class="btn btn-secondary" onclick="this.nextElementSibling.classList.toggle('hide');">Toggle chartparams!</button>
                    <textarea class="hide">
-                    {"type": "maingraph"}
+                    {"type": "maingraph", "interval":"days"}
                     </textarea>
                    
-                   <button class="btn btn-primary" onclick="getchart('maingraph');">Show chart!</button>
+                   <button class="btn btn-primary" onclick="getchart('maingraph');">Show days!</button>
+                   
                   </div>`;           
 
         return [
@@ -220,7 +221,7 @@ class charts{
         return charts._graph("demo",graphdata,graphbattsoc,graphconsumption,annot);
     }
 
-    static _getchart=function(history){
+    static _getchart=function(inpdata,history){
 
       let start_time="";
       for(let cv=0;cv<history.length;cv++){
@@ -228,6 +229,18 @@ class charts{
           start_time=history[cv]["timestamp"];
         }
       }
+
+      let sampletime=600;
+
+      if (typeof inpdata["interval"] != undefined && inpdata["interval"]=="days"){
+         start_time=helper.unixTimestamp()-24*3600*3;
+         sampletime=300;
+      }
+
+      if (typeof inpdata["interval"] != undefined && inpdata["interval"]=="day"){
+        start_time=helper.unixTimestamp()-24*3600*1;
+        sampletime=60;
+     }
 
       let prediction=forecast.getforecast();
 
@@ -240,6 +253,8 @@ class charts{
 
       let lastts=0;
       for(let cv=0;cv<history.length;cv++){
+
+        if (history[cv]["timestamp"] < start_time) continue;
 
         if (history[cv]['OutputPriority_text']!=lo){
 
@@ -279,13 +294,44 @@ class charts{
         chargemode=history[cv]['ChargerSourcePriority_text'];
         lo=history[cv]['OutputPriority_text'];
 
-        if (lastts+300<history[cv]["timestamp"]) {
+        if (lastts+sampletime<history[cv]["timestamp"]) {
           graphdata.push([history[cv]["timestamp"]*1000,history[cv]["PVPower"]]);
           graphbattsoc.push([history[cv]["timestamp"]*1000,history[cv]["battery_soc"]]);
           graphconsumption.push([history[cv]["timestamp"]*1000,history[cv]["LoadActivePower"]]);
           lastts=history[cv]["timestamp"];
         }
+
         
+        
+      }
+
+      let findnow=0;
+      for(let key in prediction.result.watts) {
+          let predtime=helper.unixTimestamp(new Date(key));
+          if (predtime > lastts) {
+
+            if (findnow==0){
+              findnow=1;
+              
+              let now={
+                "x": t*1000,
+                "borderColor": "#000",
+                "label": {
+                  "borderColor": "#000",
+                  "style": {
+                    "color": "#fff",
+                    "background": "#222",
+                  },
+                  "text": "NOW"
+                }
+              };
+              annot.push(now);
+
+            }
+
+            graphdata.push([predtime*1000,prediction.result.watts[key]]);
+            lastts=lastts+300;
+          }
       }
        
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
@@ -414,7 +460,7 @@ class charts{
 
         if (history.length>0){
 
-          return charts._getchart(history);
+          return charts._getchart(data,history);
           /*{
           "start_time": history[0]["timestamp"],
           "ah_min_point": 44,
