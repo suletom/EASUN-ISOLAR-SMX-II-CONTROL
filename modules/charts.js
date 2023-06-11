@@ -245,6 +245,7 @@ class charts{
           "text": text
         },...obj}
       };
+      return ob;
     }
 
     static _getchart=function(inpdata,config,currentdata,history){
