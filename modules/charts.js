@@ -353,14 +353,14 @@ class charts{
 
         let sunsettmp={
           "x": el*1000,
-          "borderColor": "#fac657",
+          "borderColor": "#000",
           "label": {
             "borderColor": "#fac657",
             "style": {
               "color": "#fff",
               "background": "#fac657",
             },
-            "text": "SunSet",
+            "text": "S",
             "position": 'bottom',
             "offsetY": 15,
             "style": {
