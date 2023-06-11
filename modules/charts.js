@@ -357,12 +357,12 @@ class charts{
           "label": {
             "borderColor": "#000",
             "style": {
-              "color": "#b07c0c",
+              "color": "#fac657",
               "background": "#000",
             },
             "text": "0",
             "position": 'bottom',
-            "offsetY": -15
+            "offsetY": 15
           }
         };
         annot.push(sunset);
