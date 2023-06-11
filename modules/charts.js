@@ -351,7 +351,7 @@ class charts{
 
       sunsets.forEach(function(el){
 
-        let sunset={
+        let sunsettmp={
           "x": el*1000,
           "borderColor": "#fac657",
           "label": {
@@ -360,12 +360,15 @@ class charts{
               "color": "#fff",
               "background": "#fac657",
             },
-            "text": " ",
+            "text": "SunSet",
             "position": 'bottom',
-            "offsetY": 15
+            "offsetY": 15,
+            "style": {
+              "fontSize": '8px';
+            }
           }
         };
-        annot.push(sunset);
+        annot.push(sunsettmp);
 
       });
        
