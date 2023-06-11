@@ -363,6 +363,7 @@ class charts{
             "text": "S",
             "position": 'bottom',
             "offsetY": 15,
+            "offsetX": 10,
             "style": {
               "fontSize": '8px'
             }
