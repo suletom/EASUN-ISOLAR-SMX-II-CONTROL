@@ -364,7 +364,7 @@ class charts{
             "position": 'bottom',
             "offsetY": 15,
             "style": {
-              "fontSize": '8px';
+              "fontSize": '8px'
             }
           }
         };
