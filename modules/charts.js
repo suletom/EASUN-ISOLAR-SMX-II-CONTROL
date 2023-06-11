@@ -353,14 +353,14 @@ class charts{
 
         let sunset={
           "x": el*1000,
-          "borderColor": "#000",
+          "borderColor": "#fac657",
           "label": {
-            "borderColor": "#000",
+            "borderColor": "#fac657",
             "style": {
-              "color": "#fac657",
-              "background": "#000",
+              "color": "#fff",
+              "background": "#fac657",
             },
-            "text": "0",
+            "text": " ",
             "position": 'bottom',
             "offsetY": 15
           }
