@@ -300,39 +300,74 @@ class charts{
           graphconsumption.push([history[cv]["timestamp"]*1000,history[cv]["LoadActivePower"]]);
           lastts=history[cv]["timestamp"];
         }
-
-        
         
       }
 
-      let findnow=0;
+      let now={
+        "x": helper.unixTimestamp()*1000,
+        "borderColor": "#000",
+        "label": {
+          "borderColor": "#000",
+          "style": {
+            "color": "#fff",
+            "background": "#222",
+          },
+          "text": "NOW"
+        }
+      };
+      annot.push(now);
+      
+      let sunsets=[];
+      //search for sunset
+      let sunset=0;
+      let sunset_date=null;
       for(let key in prediction.result.watts) {
           let predtime=helper.unixTimestamp(new Date(key));
-          if (predtime > lastts) {
 
-            if (findnow==0){
-              findnow=1;
-              
-              let now={
-                "x": predtime*1000,
-                "borderColor": "#000",
-                "label": {
-                  "borderColor": "#000",
-                  "style": {
-                    "color": "#fff",
-                    "background": "#222",
-                  },
-                  "text": "NOW"
-                }
-              };
-              annot.push(now);
+          if (prediction.result.watts[key]==0){
 
+            let dob=helper.fdateobj(predtime);
+
+            if (sunset!=0 && sunset_date.day!=dob.day){
+              sunsets.push(sunset);
+              sunset=0;
+              sunset_date=null;
             }
+
+            sunset=predtime;
+            sunset_date=dob;
+          }
+      }
+      
+      for(let key in prediction.result.watts) {
+          let predtime=helper.unixTimestamp(new Date(key));
+
+          if (predtime > lastts) {
 
             graphdata.push([predtime*1000,prediction.result.watts[key]]);
             lastts=lastts+300;
           }
       }
+
+      sunsets.forEach(function(el){
+
+        let sunset={
+          "x": el*1000,
+          "borderColor": "#000",
+          "label": {
+            "borderColor": "#000",
+            "style": {
+              "color": "#b07c0c",
+              "background": "#000",
+            },
+            "text": "0",
+            "position": 'bottom',
+            "offsetY": -15
+          }
+        };
+        annot.push(sunset);
+
+      });
        
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
     };
