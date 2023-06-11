@@ -1,5 +1,6 @@
 const energy_ver1 = require("./energy_ver1.js");
 const forecast = require("./forecast.js");
+const helper = require("./helper.js");
 
 class energymodels{
 
@@ -39,16 +40,78 @@ class energymodels{
         return sch;
     }
 
-    run(configobj,currentdata,history) {
+    run(configobj,currentdata,history,nowtime="") {
 
+        if (nowtime==""){
+            nowtime=helper.unixTimestamp();
+        }
+
+        let prediction=null;
         if (typeof configobj["forecast_url"] != undefined) {
-            forecast.getforecast(configobj["forecast_url"]);
-        }    
+            prediction=forecast.getforecast(configobj["forecast_url"]);
+        }
 
-        if (typeof configobj["energymgmt"] != undefined && typeof configobj["energymgmt"][0] != undefined && typeof configobj["energymgmt"][0]["model_chosen"] != undefined ) {
+        if (prediction==null){
+            console.log("ENERGY_ERROR:","Prediction empty!");
+            return false;
+        }else{
 
-            if (configobj["energymgmt"][0]["model_chosen"]=="energymodel1") {
-                //here begins the magic
+
+            if (typeof configobj["energymgmt"] != undefined && typeof configobj["energymgmt"][0] != undefined && typeof configobj["energymgmt"][0]["model_chosen"] != undefined ) {
+
+                if (configobj["energymgmt"][0]["model_chosen"]=="energymodel1") {
+
+                    if (
+                        configobj["energymgmt"][0]["min_point"] != undefined &&
+                        configobj["energymgmt"][0]["switch_point"] != undefined &&
+                        configobj["energymgmt"][0]["charge_point"] != undefined ){
+                            if ( configobj["energymgmt"][0]["min_point"]<100 && configobj["energymgmt"][0]["min_point"]>0 &&
+                                configobj["energymgmt"][0]["switch_point"]<100 && configobj["energymgmt"][0]["switch_point"]>0 &&
+                                configobj["energymgmt"][0]["charge_point"]<100 && configobj["energymgmt"][0]["charge_point"]>0 &&
+                                configobj["energymgmt"][0]["min_point"] > configobj["energymgmt"][0]["switch_point"] &&
+                                configobj["energymgmt"][0]["switch_point"] > configobj["energymgmt"][0]["charge_point"]
+                            ){
+
+                                let ah_min_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["min_point"])/100);
+                                let ah_switch_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["switch_point"])/100);
+                                let ah_charge_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["charge_point"])/100);
+
+                                //here begins the magic
+                                let energy=new energy_ver1();
+                                
+                                return energy.run(nowtime,prediction,
+                                    ah_min_point,
+                                    ah_switch_point,  
+                                    ah_charge_point,
+                                    currentdata["battery_ah_left"],
+                                    currentdata["OutputPriority_text"],
+                                    currentdata["battery_capacity_ah"],
+                                    currentdata["ChargerSourcePriority_text"],
+                                    currentdata["BatteryCurrent"],
+                                    currentdata["BatteryVoltage"],
+                                    currentdata["MaxChargerCurrent"]
+                                );
+
+                            }
+                            else{
+                                console.log("ENERGY_ERROR:","Missing min/switch/charge percents data values are bad!");
+                                return false;
+                            }
+
+                    }else{
+                        console.log("ENERGY_ERROR:","Missing min/switch/charge percents!");
+                        return false;
+                    }
+                    
+                }
+                else{
+                    console.log("ENERGY_ERROR:","Model not selected!");
+                    return false;
+                }
+
+            }else{
+                console.log("ENERGY_INFO:","No model chosen!");
+                return false;
             }
 
         }

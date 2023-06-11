@@ -1,4 +1,4 @@
-const energy1 = require("./energy_ver1.js");
+const energymodels = require("./energymodels.js");
 const forecast = require("./forecast.js");
 const helper = require("./helper.js");
 
@@ -221,7 +221,33 @@ class charts{
         return charts._graph("demo",graphdata,graphbattsoc,graphconsumption,annot);
     }
 
-    static _getchart=function(inpdata,history){
+
+    //history[cv]["timestamp"]
+    static annot=function(timestamp,color,text,textcolor="",obj=null){
+
+      if (obj==null){
+        obj={};
+      }
+
+      if (textcolor==""){
+        textcolor="#fff";
+      }
+
+      let ob={
+        "x": timestamp*1000,
+        "borderColor": color,
+        "label": {...{
+          "borderColor": color,
+          "style": {
+            "color": "#fff",
+            "background": color,
+          },
+          "text": text
+        },...obj}
+      };
+    }
+
+    static _getchart=function(inpdata,config,currentdata,history){
 
       let start_time="";
       for(let cv=0;cv<history.length;cv++){
@@ -245,7 +271,7 @@ class charts{
       let prediction=forecast.getforecast();
 
       let annot=[];
-      let lo="";
+      let outputmode="";
       let chargemode="";
       let graphdata=[];
       let graphbattsoc=[];
@@ -256,43 +282,25 @@ class charts{
 
         if (history[cv]["timestamp"] < start_time) continue;
 
-        if (history[cv]['OutputPriority_text']!=lo){
+        if (history[cv]['OutputPriority_text']!=outputmode) {
 
-          let ob={
-            "x": history[cv]["timestamp"]*1000,
-            "borderColor": charts.modcols[history[cv]['OutputPriority_text']],
-            "label": {
-              "borderColor": charts.modcols[history[cv]['OutputPriority_text']],
-              "style": {
-                "color": "#fff",
-                "background": charts.modcols[history[cv]['OutputPriority_text']],
-              },
-              "text": history[cv]['OutputPriority_text']
-            }
-          };
-
-          annot.push(ob);
+          annot.push(
+            charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['OutputPriority_text']],history[cv]['OutputPriority_text'])
+          );
         }  
 
         if (chargemode!=history[cv]['ChargerSourcePriority_text']){
-          let ob1={
-            "x": history[cv]["timestamp"]*1000,
-            "borderColor": charts.modcols[history[cv]['ChargerSourcePriority_text']],
-            "label": {
-              "borderColor": charts.modcols[history[cv]['ChargerSourcePriority_text']],
-              "style": {
-                "color": "#fff",
-                "background": charts.modcols[history[cv]['ChargerSourcePriority_text']],
-              },
-              "text": history[cv]['ChargerSourcePriority_text'],
-              "offsetY": -38
-            }
-          };
-          annot.push(ob1);
+
+          annot.push(
+            charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['ChargerSourcePriority_text']],history[cv]['ChargerSourcePriority_text'],
+              '',{"offsetY": -38}
+            )
+          );
+          
         }
 
         chargemode=history[cv]['ChargerSourcePriority_text'];
-        lo=history[cv]['OutputPriority_text'];
+        outputmode=history[cv]['OutputPriority_text'];
 
         if (lastts+sampletime<history[cv]["timestamp"]) {
           graphdata.push([history[cv]["timestamp"]*1000,history[cv]["PVPower"]]);
@@ -303,19 +311,9 @@ class charts{
         
       }
 
-      let now={
-        "x": helper.unixTimestamp()*1000,
-        "borderColor": "#000",
-        "label": {
-          "borderColor": "#000",
-          "style": {
-            "color": "#fff",
-            "background": "#222",
-          },
-          "text": "NOW"
-        }
-      };
-      annot.push(now);
+      annot.push(
+        charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff')
+      );
       
       let sunsets=[];
       //search for sunset
@@ -336,16 +334,6 @@ class charts{
 
             sunset=predtime;
             sunset_date=dob;
-          }
-      }
-      
-      for(let key in prediction.result.watts) {
-          let predtime=helper.unixTimestamp(new Date(key));
-
-          if (predtime > lastts) {
-
-            graphdata.push([predtime*1000,prediction.result.watts[key]]);
-            lastts=lastts+300;
           }
       }
 
@@ -371,8 +359,39 @@ class charts{
         };
         annot.push(sunsettmp);
 
+
       });
-       
+
+     
+      //mode=newmode.suggested_mode;
+      //chargemode=newmode.suggested_charge;
+
+      let energymodel = new energymodels();
+
+      for(let key in prediction.result.watts) {
+          let predtime=helper.unixTimestamp(new Date(key));
+
+          if (predtime > lastts) {
+
+            let newmode=energymodel.run(config,currentdata,history);
+            console.log(newmode);
+
+            if (chargemode!=newmode.suggested_charge){
+              annot.push(
+                charts.annot(helper.unixTimestamp(),'#ff00ff',newmode.suggested_charge,'#000')
+              );
+            }
+            if (outputmode!=newmode.suggested_mode){
+              annot.push(
+                charts.annot(helper.unixTimestamp(),'#ff0000',newmode.suggested_charge,'#000')
+              );
+            }
+
+            graphdata.push([predtime*1000,prediction.result.watts[key]]);
+            lastts=lastts+300;
+          }
+      }
+    
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
     };
 
@@ -490,7 +509,7 @@ class charts{
       return out;
     }
 
-    static getchart=function(data,config,history) {
+    static getchart=function(data,config,currentdata,history) {
 
       if (typeof data["type"] !== undefined && data["type"]==="energymodeltest1"){
         return charts._getdemochart(data);
@@ -499,7 +518,7 @@ class charts{
 
         if (history.length>0){
 
-          return charts._getchart(data,history);
+          return charts._getchart(data,config,currentdata,history);
           /*{
           "start_time": history[0]["timestamp"],
           "ah_min_point": 44,
