@@ -32,6 +32,11 @@ class energymodels{
                     "type": "number",
                     "title": "Battery absolute minimum SOC (where battery charge is turned on)",
                     
+                },
+                "preserve_point": {
+                    "type": "number",
+                    "title": "Minimum SOC to swith to UTI when prediction won't be enougn",
+                    
                 }
                 
             }
@@ -64,17 +69,21 @@ class energymodels{
                     if (
                         configobj["energymgmt"][0]["min_point"] != undefined &&
                         configobj["energymgmt"][0]["switch_point"] != undefined &&
-                        configobj["energymgmt"][0]["charge_point"] != undefined ){
+                        configobj["energymgmt"][0]["charge_point"] != undefined && 
+                        configobj["energymgmt"][0]["preserve_point"] != undefined ){
                             if ( configobj["energymgmt"][0]["min_point"]<100 && configobj["energymgmt"][0]["min_point"]>0 &&
                                 configobj["energymgmt"][0]["switch_point"]<100 && configobj["energymgmt"][0]["switch_point"]>0 &&
                                 configobj["energymgmt"][0]["charge_point"]<100 && configobj["energymgmt"][0]["charge_point"]>0 &&
                                 configobj["energymgmt"][0]["min_point"] > configobj["energymgmt"][0]["switch_point"] &&
-                                configobj["energymgmt"][0]["switch_point"] > configobj["energymgmt"][0]["charge_point"]
+                                configobj["energymgmt"][0]["switch_point"] > configobj["energymgmt"][0]["charge_point"] &&
+                                configobj["energymgmt"][0]["preserve_point"]>0 && 
+                                configobj["energymgmt"][0]["preserve_point"]<100
                             ){
 
                                 let ah_min_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["min_point"])/100);
                                 let ah_switch_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["switch_point"])/100);
                                 let ah_charge_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["charge_point"])/100);
+                                let ah_preserve_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["preserve_point"])/100);
 
                                 //here begins the magic
                                 let energy=new energy_ver1();
@@ -83,6 +92,7 @@ class energymodels{
                                     ah_min_point,
                                     ah_switch_point,  
                                     ah_charge_point,
+                                    ah_preserve_point,
                                     currentdata["battery_ah_left"],
                                     currentdata["OutputPriority_text"],
                                     currentdata["battery_capacity_ah"],
@@ -90,6 +100,7 @@ class energymodels{
                                     currentdata["BatteryCurrent"],
                                     currentdata["BatteryVoltage"],
                                     currentdata["MaxChargerCurrent"]
+                                    
                                 );
 
                             }

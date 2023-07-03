@@ -315,7 +315,8 @@ class charts{
       annot.push(
         charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff')
       );
-      
+     
+      /*
       let sunsets=[];
       //search for sunset
       let sunset=0;
@@ -337,8 +338,10 @@ class charts{
             sunset_date=dob;
           }
       }
+      */
+      let tss=forecast.search_sunsets();
 
-      sunsets.forEach(function(el){
+      tss.sunsets.forEach(function(el){
 
         let sunsettmp={
           "x": el*1000,

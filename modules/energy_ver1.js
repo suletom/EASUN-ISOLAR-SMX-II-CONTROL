@@ -1,4 +1,5 @@
 const helper = require("./helper.js");
+const forecast = require("./forecast.js");
 
 //this class is only responsible for returning suggested OUT/Charge mode
 class energyver1 {
@@ -7,7 +8,7 @@ class energyver1 {
       
     }
 
-    run(unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a){
+    run(unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a){
       console.log("ENERGYv1: ",helper.fdate(unixtime));
 
       this.prediction=prediction;
@@ -22,6 +23,7 @@ class energyver1 {
       this.current_charge_mode=current_charge_mode;
       this.consumption_a=consumption_a;
       this.ah_capacity=ah_capacity;
+      this.preserve_ah=preserve_ah;
 
       //store current date prediction to return
       this.predicted_data="";
@@ -202,6 +204,31 @@ class energyver1 {
 
       return "OSO";
 
+    }
+    
+    //switch to uti before sunset at given percent
+    //1. when to switch or check (time): around sunset!? (check at a given time window)
+    //2. condition to switch: given soc percent but do not switch if energy will be enough!
+    sunset_preseve_switch() {
+      
+      //search for today sunset
+      let sd=forecast.search_sunsets(this.prediction.result.watts);
+      if (sd.next_sunset!=0){
+        //found sunset
+
+        //check if in SBU
+        if (this.current_mode=="SBU") {
+          //check if battery below setpoint
+          if (this.current_ah<this.preserve_ah) {
+            if (!this.charge_enough()) {
+              //suggest switch
+              return true;
+            }
+          }
+        }
+      }
+
+      return false;
     }
     
 }

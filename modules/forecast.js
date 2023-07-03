@@ -91,6 +91,43 @@ class energy {
         
     }
 
+    static search_sunsets(data){
+      let sunsets=[];
+      //search for sunset
+      let sunset=0;
+      let sunset_date=null;
+      for(let key in prediction.result.watts) {
+          let predtime=helper.unixTimestamp(new Date(key));
+
+          if (prediction.result.watts[key]==0){
+
+            let dob=helper.fdateobj(predtime);
+
+            if (sunset!=0 && sunset_date.day!=dob.day){
+              sunsets.push(sunset);
+              sunset=0;
+              sunset_date=null;
+            }
+
+            sunset=predtime;
+            sunset_date=dob;
+          }
+      }
+
+      let next_sunset=0;
+      for(let i=0;i<sunsets.length;i++) {
+        let dob=helper.fdateobj(sunsets[i])
+        let nob=helper.fdateobj()
+        if (dob.day==nob.day){
+          if (helper.unixTimestamp()<sunsets[i]){
+            next_sunset=sunsets[i];
+          }
+        }
+      }
+
+      return {"sunsets":sunsets,"next_sunset":next_sunset};
+    }
+
     
     static run(currentdata,batinf,url,preserve_ah){
       //https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4
