@@ -1,4 +1,5 @@
 const energymodels = require("./energymodels.js");
+const energyv1 = require("./energy_ver1.js"); 
 const forecast = require("./forecast.js");
 const helper = require("./helper.js");
 
@@ -21,6 +22,7 @@ class charts{
                     "ah_min_point": 44,
                     "ah_switch_point": 22,
                     "ah_charge_point": 10,
+                    "preserve_ah": 95,
                     "current_ah": 100,
                     "current_mode":"SBU",
                     "current_charge":"OSO",
@@ -79,7 +81,7 @@ class charts{
            show_time=parseInt(start_time);
         }
 
-        let energy=new energy1();
+        let energy=new energyv1();
 
         let graphdata=[];
         let graphbattsoc=[];
@@ -98,7 +100,7 @@ class charts{
 
         for(let t=first_date;t<last_date;t=t+stepping){
 
-            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
+            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.preserve_ah,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
             if (max_main<newmode.predicted_data){
               max_main=newmode.predicted_data;
             }
@@ -110,7 +112,7 @@ class charts{
 
         for(let t=first_date;t<last_date;t=t+stepping){
             
-            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
+            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.preserve_ah,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
 
             if (helper.unixTimestamp()<t && helper.unixTimestamp()>t-stepping){
               let now={

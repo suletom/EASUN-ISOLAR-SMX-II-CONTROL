@@ -96,10 +96,10 @@ class energy {
       //search for sunset
       let sunset=0;
       let sunset_date=null;
-      for(let key in prediction.result.watts) {
+      for(let key in data) {
           let predtime=helper.unixTimestamp(new Date(key));
 
-          if (prediction.result.watts[key]==0){
+          if (data[key]==0){
 
             let dob=helper.fdateobj(predtime);
 
