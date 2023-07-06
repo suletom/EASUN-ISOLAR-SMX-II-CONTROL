@@ -142,7 +142,8 @@ class energyver1 {
       let suggested_charge="";
 
       //search current date and check whether solar watts will be enough for the current cunsumption
-      let pred_ok=this.prediction_ok();
+      //let pred_ok=this.prediction_ok();
+      let pred_ok=this.charge_enough()
 
       suggested_charge=this.charge_switch_control();
 
@@ -160,8 +161,6 @@ class energyver1 {
         }  
 
         //if charged: switch before sunset if power won't be enough
-        
-
         if (this.sunset_preseve_switch()){
           console.log("ENERGYv1: sunset preserve -> swtich to UTI");
           suggested_mode="UTI";
@@ -240,7 +239,7 @@ class energyver1 {
           if (this.current_ah<this.preserve_ah) {
             console.log("cond ok");
             if (!this.charge_enough()) {
-              console.log("pred ch not en");
+              console.log("pred ch not en") ;
               //suggest switch
               return true;
             }
