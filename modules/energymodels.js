@@ -35,7 +35,7 @@ class energymodels{
                 },
                 "preserve_point": {
                     "type": "number",
-                    "title": "Minimum SOC to swith to UTI when prediction won't be enougn",
+                    "title": "Minimum SOC to swith to UTI when prediction won't be enough",
                     
                 }
                 

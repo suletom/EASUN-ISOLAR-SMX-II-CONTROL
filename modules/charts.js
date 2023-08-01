@@ -91,7 +91,7 @@ class charts{
         let mode="";
         let chargemode="";
         let annot=[];
-        let modcol=charts.modcols;
+        
 
         let max_main=0;
         let min_main=Infinity;
@@ -115,53 +115,28 @@ class charts{
             let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.preserve_ah,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
 
             if (helper.unixTimestamp()<t && helper.unixTimestamp()>t-stepping){
-              let now={
-                "x": t*1000,
-                "borderColor": "#000",
-                "label": {
-                  "borderColor": "#000",
-                  "style": {
-                    "color": "#fff",
-                    "background": "#222",
-                  },
-                  "text": "NOW"
-                }
-              };
+
+              let now=charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff',{"offsetY": 80})
+
               annot.push(now);
             }  
             
             if (t>show_time) {
 
-              if (mode!=newmode.suggested_mode){
-                let ob={
-                  "x": t*1000,
-                  "borderColor": modcol[newmode.suggested_mode],
-                  "label": {
-                    "borderColor": modcol[newmode.suggested_mode],
-                    "style": {
-                      "color": "#fff",
-                      "background": modcol[newmode.suggested_mode],
-                    },
-                    "text": newmode.suggested_mode+": "+data.current_ah.toFixed(4)+"-"+(data.consumption_a*data.voltage)
-                  }
-                };
+              if (mode!=newmode.suggested_mode && newmode.suggested_mode!==undefined){
+
+                let ob=charts.annot(t,charts.modcols[newmode.suggested_mode],newmode.suggested_mode,
+                  '#000');
+                
                 annot.push(ob);
                 
               }
-              if (chargemode!=newmode.suggested_charge){
-                let ob1={
-                  "x": t*1000,
-                  "borderColor": modcol[newmode.suggested_charge],
-                  "label": {
-                    "borderColor": modcol[newmode.suggested_charge],
-                    "style": {
-                      "color": "#fff",
-                      "background": modcol[newmode.suggested_charge],
-                    },
-                    "text": newmode.suggested_charge,
-                    "offsetY": -38
-                  }
-                };
+              if (chargemode!=newmode.suggested_charge && newmode.suggested_charge!==undefined){
+
+                let ob1=charts.annot(t,charts.modcols[newmode.suggested_charge],newmode.suggested_charge,
+                  '#000',{"offsetY": -38}
+                  );
+                 
                 annot.push(ob1);
               }
               
@@ -169,6 +144,7 @@ class charts{
               chargemode=newmode.suggested_charge;
             }  
 
+            
             graphdata.push([t*1000,newmode.predicted_data]);
             graphbattsoc.push([t*1000, Math.round((data.current_ah/data.ah_capacity)*100) ]);
             graphconsumption.push([t*1000, 
@@ -219,6 +195,32 @@ class charts{
               data.current_charge=chargemode;
             }  
         }
+
+        let tss=forecast.search_sunsets(prediction.result.watts);
+
+        tss.sunsets.forEach(function(el){
+  
+          let sunsettmp={
+            "x": el*1000,
+            "borderColor": "#000",
+            "label": {
+              "borderColor": "#fac657",
+              "style": {
+                "color": "#fff",
+                "background": "#fac657",
+                "fontSize": "8px"
+              },
+              "text": "S",
+              "position": 'bottom',
+              "offsetY": 15,
+              "offsetX": 10,
+            }
+          };
+  
+          
+          annot.push(sunsettmp);
+        });
+        
              
         return charts._graph("demo",graphdata,graphbattsoc,graphconsumption,annot);
     }
@@ -227,6 +229,7 @@ class charts{
     //history[cv]["timestamp"]
     static annot=function(timestamp,color,text,textcolor="",obj=null){
 
+      
       if (obj==null){
         obj={};
       }
@@ -247,6 +250,7 @@ class charts{
           "text": text
         },...obj}
       };
+
       return ob;
     }
 
@@ -288,16 +292,18 @@ class charts{
         if (history[cv]['OutputPriority_text']!=outputmode) {
 
           annot.push(
-            charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['OutputPriority_text']],history[cv]['OutputPriority_text'])
+            charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['OutputPriority_text']],history[cv]['OutputPriority_text'],'#000')
           );
         }  
 
         if (chargemode!=history[cv]['ChargerSourcePriority_text']){
 
+          let ta=charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['ChargerSourcePriority_text']],history[cv]['ChargerSourcePriority_text'],
+          '#000',{"offsetY": -38}
+          );
+
           annot.push(
-            charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['ChargerSourcePriority_text']],history[cv]['ChargerSourcePriority_text'],
-              '',{"offsetY": -38}
-            )
+            ta  
           );
           
         }
@@ -315,33 +321,10 @@ class charts{
       }
 
       annot.push(
-        charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff')
+        charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff',{"offsetY": 40})
       );
      
-      /*
-      let sunsets=[];
-      //search for sunset
-      let sunset=0;
-      let sunset_date=null;
-      for(let key in prediction.result.watts) {
-          let predtime=helper.unixTimestamp(new Date(key));
-
-          if (prediction.result.watts[key]==0){
-
-            let dob=helper.fdateobj(predtime);
-
-            if (sunset!=0 && sunset_date.day!=dob.day){
-              sunsets.push(sunset);
-              sunset=0;
-              sunset_date=null;
-            }
-
-            sunset=predtime;
-            sunset_date=dob;
-          }
-      }
-      */
-      let tss=forecast.search_sunsets();
+      let tss=forecast.search_sunsets(prediction.result.watts);
 
       tss.sunsets.forEach(function(el){
 
@@ -353,16 +336,16 @@ class charts{
             "style": {
               "color": "#fff",
               "background": "#fac657",
+              "fontSize": "8px"
             },
             "text": "S",
             "position": 'bottom',
             "offsetY": 15,
             "offsetX": 10,
-            "style": {
-              "fontSize": '8px'
-            }
           }
         };
+
+        
         annot.push(sunsettmp);
 
 
@@ -380,16 +363,18 @@ class charts{
           if (predtime > lastts) {
 
             let newmode=energymodel.run(config,currentdata,history);
-            console.log(newmode);
+            
+            
+            if (outputmode!=newmode.suggested_mode){
+              
+              annot.push(
+                charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_mode],newmode.suggested_mode,'#000')
+              );
+            }
 
             if (chargemode!=newmode.suggested_charge){
               annot.push(
-                charts.annot(helper.unixTimestamp(),'#ff00ff',newmode.suggested_charge,'#000')
-              );
-            }
-            if (outputmode!=newmode.suggested_mode){
-              annot.push(
-                charts.annot(helper.unixTimestamp(),'#ff0000',newmode.suggested_charge,'#000')
+                charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_charge],newmode.suggested_charge, '#000',{"offsetY": -38})
               );
             }
 

@@ -27,7 +27,7 @@ class energy {
         }
       }
 
-      console.log("ENERGY: cached data:",dataobj);
+      //console.log("ENERGY: cached data:",dataobj);
       
       let needfetch=0;
       if (file==="" ){
@@ -75,7 +75,7 @@ class energy {
               try {
                 dataobj=json;
                 fs.writeFileSync(forecastfile,JSON.stringify(json));
-                console.log("ENERGY: writing prediction to file: ",json);
+                console.log("ENERGY: writing prediction to file.");
               } catch (err) {
                 console.log("ENERGY:",err);
               }
