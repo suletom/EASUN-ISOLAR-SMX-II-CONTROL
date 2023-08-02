@@ -9,7 +9,7 @@ class energyver1 {
     }
 
     run(unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a){
-      //console.log("ENERGYv1: ",helper.fdate(unixtime));
+      console.log("ENERGYv1: ",helper.fdate(unixtime));
 
       this.prediction=prediction;
       this.unixtime=unixtime;
@@ -89,9 +89,10 @@ class energyver1 {
     */
 
     /**
-     * 
+     * Determines if current_ah is enough for the next "dark" period
+     * @returns boolean
      */
-    charge_enough() {
+    charge_enough(calc_to_sw_point=0) {
       
       //console.log("current cons:",this.consumption_a*this.voltage);
 
@@ -102,20 +103,29 @@ class energyver1 {
       //console.log("ENERGYv1: charge_enough: search prediction for this consumption(w):",this.consumption_a*this.voltage);
 
       let needed_time_to_solar="";
+      let solar_input_wh=0;
+      let lastdk=0;
       for(let datekey in this.prediction.result.watts){
 
-          if (current_date_str<datekey){
-            //search for next enough solar input
+          let kdate=helper.unixTimestamp(new Date(datekey));
 
+          if (current_date_str<datekey){
+
+            solar_input_wh+= (this.prediction.result.watts[datekey]*((kdate-lastdk)/3600))
+
+            //search for next enough solar input
             if (this.prediction.result.watts[datekey]>(this.consumption_a*this.voltage)){
               needed_time_to_solar=datekey;
               break;
             }
           }  
         
+          lastdk=kdate;
       }
 
       console.log("ENERGYv1: charge_enough: next precited time when solar available: ",needed_time_to_solar);
+
+      console.log("ENERGYv1: charge_enough: predited solar input wh: ",solar_input_wh);
 
       if (needed_time_to_solar==""){
           //not found in prediction -> false
@@ -132,23 +142,39 @@ class energyver1 {
 
           console.log("ENERGYv1: charge_enough: consumption_wh: ",consumption_wh);
 
-          let timetocharge=consumption_wh/(this.charge_max_a*this.voltage);
+          consumption_wh-=solar_input_wh;
+          
+          console.log("ENERGYv1: charge_enough: consumption_wh with solar input included: ",consumption_wh);
 
-          console.log("ENERGYv1: charge_enough: timetocharge: ",timetocharge);
+          let min_ah_to_store=((calc_to_sw_point==1)?this.ah_switch_point:this.ah_min_point);
 
-          console.log("ENERGYv1: charge_enough: predicted needed ah:",(this.ah_min_point+(timetocharge*this.charge_max_a)));
+          //200   4200/24 (168) 168+44
+          if (this.current_ah > ((consumption_wh/this.voltage)+min_ah_to_store) ){
+              console.log("ENERGYv1: charge_enough: true (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+")");
+              return true;
+          }else{
+              console.log("ENERGYv1: charge_enough: false (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+")");
+              return false;
+          }
 
-          if (this.ah_min_point+(timetocharge*this.charge_max_a) < this.current_ah ){
+
+          //let timetocharge=consumption_wh/(this.charge_max_a*this.voltage);
+
+          //console.log("ENERGYv1: charge_enough: timetocharge: ",timetocharge);
+
+          //console.log("ENERGYv1: charge_enough: predicted needed ah:",(((calc_to_sw_point==1)?this.ah_switch_point:this.ah_min_point)+(timetocharge*this.charge_max_a)));
+
+          /*
+          if (((calc_to_sw_point==1)?this.ah_switch_point:this.ah_min_point)+(timetocharge*this.charge_max_a) < this.current_ah ){
              console.log("ENERGYv1: charge_enough: ch enough true ");
-
              return true;
           }else{
              console.log("ENERGYv1: charge_enough: ch enough false ");
 
              return false;
           }
+          */
           
-
       }
 
     }
@@ -158,9 +184,9 @@ class energyver1 {
       let suggested_mode="";
       let suggested_charge="";
 
-      //search current date and check whether solar watts will be enough for the current cunsumption
+      //search current date and check whether solar watts will be enough for the current consumption
       //let pred_ok=this.prediction_ok();
-      let pred_ok=this.charge_enough()
+      let pred_ok=this.charge_enough();
 
       suggested_charge=this.charge_switch_control();
 
@@ -169,18 +195,20 @@ class energyver1 {
         //console.log("ENERGYv1: AH > AH_MIN");
         if (this.current_mode=="UTI") {
           if (pred_ok){
-            console.log("ENERGYv1: charge_seems_enough -> swtich to SBU");
+            console.log("ENERGYv1: charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime));
             suggested_mode="SBU";
           }else{
-            suggested_mode="UTI";  
+            //console.log("ENERGYv1: charge_seems_NOT_enough -> swtich to UTI");
+            //suggested_mode="UTI";  
           }
         }else{
+          console.log("ENERGYv1: else current mode: "+this.current_mode+" -> swtich to SBU "+helper.fdate(this.unixtime));
           suggested_mode="SBU";
         }  
 
         //if charged: switch before sunset if power won't be enough
         if (this.sunset_preseve_switch()){
-          console.log("ENERGYv1: sunset preserve -> swtich to UTI");
+          console.log("ENERGYv1: sunset preserve -> swtich to UTI "+helper.fdate(this.unixtime));
           suggested_mode="UTI";
         }
                 
@@ -190,23 +218,27 @@ class energyver1 {
 
            //console.log("ENERGYv1: AH_SWITCH < AH < AH_MIN");
 
-           if (pred_ok){
+           if (this.charge_enough(1)){
               suggested_mode="SBU";
+              console.log("ENERGYv1: min-sw point -> SBU "+helper.fdate(this.unixtime));
            }else{
               suggested_mode="UTI";
+              console.log("ENERGYv1: min-sw point -> UTI "+helper.fdate(this.unixtime));
            }
 
          }else{
 
             if (this.current_ah>this.ah_charge_point){
 
-              //console.log("ENERGYv1: AH_CHARGE < AH < AH_SWITCH");
+              console.log("ENERGYv1: AH_CHARGE < AH < AH_SWITCH -> UTI "+helper.fdate(this.unixtime));
               suggested_mode="UTI";
               
             }else{
 
               //console.log("ENERGYv1: AH < AH_CHARGE");
               suggested_mode="UTI";
+              console.log("ENERGYv1: AH < AH_CHARGE -> UTI "+helper.fdate(this.unixtime));
+
               suggested_charge="SNU";
 
             }
@@ -241,23 +273,23 @@ class energyver1 {
     //2. condition to switch: given soc percent but do not switch if energy will be enough!
     sunset_preseve_switch() {
       
-      console.log("ENERGYv1: sunset preserve check: curr_ah: ",this.current_ah," preserv_ah: ",this.preserve_ah);
+      console.log("ENERGYv1: sunset: preserve check: curr_ah: ",this.current_ah," preserv_ah: ",this.preserve_ah);
       
       //search for today sunset
       let sd=forecast.search_sunsets(this.prediction.result.watts,this.unixtime);
       //console.log("energy after ss:",sd);
       if (sd.next_sunset!=0){
         //found sunset
-        console.log("found sunset");
+        console.log("ENERGYv1: found sunset ");
 
         //check if in SBU
         if (this.current_mode=="SBU") {
           
           //check if battery below setpoint
           if (this.current_ah<this.preserve_ah) {
-            console.log("cond ok");
-            if (!this.charge_enough()) {
-              console.log("pred ch not en") ;
+            console.log("ENERGYv1: sunset: current_ah < preserve_ah");
+            if (!this.charge_enough(1)) {
+              console.log("ENERGYv1: sunset: charge not enough -> suggest switch");
               //suggest switch
               return true;
             }

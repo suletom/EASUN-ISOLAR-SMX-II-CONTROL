@@ -135,7 +135,7 @@ class energy {
       return so;
     }
 
-    
+    /*
     static run(currentdata,batinf,url,preserve_ah){
       //https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4
       let prediction=energy.getforecast(url);
@@ -355,7 +355,7 @@ class energy {
       };
 
     }
-
+    */
 }
 
 module.exports=energy;
