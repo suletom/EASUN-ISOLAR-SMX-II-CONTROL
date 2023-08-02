@@ -91,41 +91,48 @@ class energy {
         
     }
 
-    static search_sunsets(data){
+    static search_sunsets(data,now=null){
+
+      if (now===null) now=helper.unixTimestamp();
+
       let sunsets=[];
       //search for sunset
       let sunset=0;
       let sunset_date=null;
+      let lastel=null;
       for(let key in data) {
           let predtime=helper.unixTimestamp(new Date(key));
 
           if (data[key]==0){
-
+            
             let dob=helper.fdateobj(predtime);
 
             if (sunset!=0 && sunset_date.day!=dob.day){
               sunsets.push(sunset);
-              sunset=0;
               sunset_date=null;
+              sunset=0;
             }
 
             sunset=predtime;
             sunset_date=dob;
           }
+
+          lastel={"predtime":predtime,"val":data[key]};
+      }
+
+      if (lastel!==null && lastel.val==0){
+        sunsets.push(lastel.predtime);
       }
 
       let next_sunset=0;
       for(let i=0;i<sunsets.length;i++) {
-        let dob=helper.fdateobj(sunsets[i])
-        let nob=helper.fdateobj()
-        if (dob.day==nob.day){
-          if (helper.unixTimestamp()<sunsets[i]){
+          if (now<sunsets[i]){
             next_sunset=sunsets[i];
           }
-        }
       }
-
-      return {"sunsets":sunsets,"next_sunset":next_sunset};
+      let so = {"sunsets":sunsets,"next_sunset":next_sunset};
+      
+      return so;
     }
 
     
