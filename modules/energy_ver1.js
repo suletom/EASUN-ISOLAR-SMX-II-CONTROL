@@ -105,6 +105,9 @@ class energyver1 {
       let needed_time_to_solar="";
       let solar_input_wh=0;
       let lastdk=0;
+
+      console.log("ENERGYv1: pred:"+JSON.stringify(this.prediction.result.watts));
+
       for(let datekey in this.prediction.result.watts){
 
           let kdate=helper.unixTimestamp(new Date(datekey));
@@ -123,11 +126,12 @@ class energyver1 {
           lastdk=kdate;
       }
 
-      console.log("ENERGYv1: charge_enough: next precited time when solar available: ",needed_time_to_solar);
+      console.log("ENERGYv1: charge_enough: next predicted time when solar available: "+needed_time_to_solar);
 
-      console.log("ENERGYv1: charge_enough: predited solar input wh: ",solar_input_wh);
+      console.log("ENERGYv1: charge_enough: predicted solar input wh: "+solar_input_wh);
 
       if (needed_time_to_solar==""){
+          console.log("ENERGYv1: charge_enough: predicted solar missing return false");
           //not found in prediction -> false
           return false;
       }else{
