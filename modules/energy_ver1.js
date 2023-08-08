@@ -202,8 +202,8 @@ class energyver1 {
             console.log("ENERGYv1: charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime));
             suggested_mode="SBU";
           }else{
-            //console.log("ENERGYv1: charge_seems_NOT_enough -> swtich to UTI");
-            //suggested_mode="UTI";  
+            console.log("ENERGYv1: charge_seems_NOT_enough -> swtich to UTI");
+            suggested_mode="UTI";  
           }
         }else{
           console.log("ENERGYv1: else current mode: "+this.current_mode+" -> swtich to SBU "+helper.fdate(this.unixtime));

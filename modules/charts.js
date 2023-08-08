@@ -93,26 +93,11 @@ class charts{
         let annot=[];
         
 
-        //let max_main=0;
-        //let min_main=Infinity;
-
         let stepping=120; //sec
-        /*
-        for(let t=first_date;t<last_date;t=t+stepping){
 
-            let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.preserve_ah,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
-            if (max_main<newmode.predicted_data){
-              max_main=newmode.predicted_data;
-            }
-            if (min_main>newmode.predicted_data){
-              min_main=newmode.predicted_data;
-            }
-
-        }
-        */
 
         for(let t=first_date;t<last_date;t=t+stepping){
-            
+            console.log("CM: "+data.current_mode);
             let newmode=energy.run(t,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.preserve_ah,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
 
             if (start_time<t && start_time>t-stepping){
@@ -141,6 +126,7 @@ class charts{
                 annot.push(ob1);
               }
               
+              console.log("CMS2: "+newmode.suggested_mode);
               mode=newmode.suggested_mode;
               chargemode=newmode.suggested_charge;
             }  
@@ -210,6 +196,7 @@ class charts{
                 data.current_ah=0;
               }
 
+              console.log("CMS1: "+mode);
               data.current_mode=mode;
               data.current_charge=chargemode;
             }  
