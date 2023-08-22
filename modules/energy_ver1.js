@@ -202,11 +202,11 @@ class energyver1 {
             console.log("ENERGYv1: charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime));
             suggested_mode="SBU";
           }else{
-            console.log("ENERGYv1: charge_seems_NOT_enough -> swtich to UTI");
+            console.log("ENERGYv1: charge_seems_NOT_enough -> stay in UTI");
             suggested_mode="UTI";  
           }
         }else{
-          console.log("ENERGYv1: else current mode: "+this.current_mode+" -> swtich to SBU "+helper.fdate(this.unixtime));
+          console.log("ENERGYv1: else current mode: "+this.current_mode+" -> switch to SBU "+helper.fdate(this.unixtime));
           suggested_mode="SBU";
         }  
 
@@ -216,30 +216,42 @@ class energyver1 {
           suggested_mode="UTI";
         }
                 
-      }else{
-         //eg. < 20%
-         if(this.current_ah>this.ah_switch_point){
+      }else{ 
 
+         //soc greater than switch point
+         if(this.current_ah>this.ah_switch_point){
            //console.log("ENERGYv1: AH_SWITCH < AH < AH_MIN");
 
-           if (this.charge_enough(1)){
-              suggested_mode="SBU";
-              console.log("ENERGYv1: min-sw point -> SBU "+helper.fdate(this.unixtime));
+           if (this.current_mode=="SBU") {
+
+              if (this.charge_enough(1)){
+                suggested_mode="SBU";
+                console.log("ENERGYv1: (IN SBU) min-sw point -> SBU "+helper.fdate(this.unixtime));
+              }else{
+                suggested_mode="UTI";
+                console.log("ENERGYv1: (IN SBU) min-sw point -> UTI "+helper.fdate(this.unixtime));
+              }
+
            }else{
-              suggested_mode="UTI";
-              console.log("ENERGYv1: min-sw point -> UTI "+helper.fdate(this.unixtime));
-           }
 
-         }else{
+              if (this.charge_enough()){
+                  suggested_mode="SBU";
+                  console.log("ENERGYv1: min-sw point -> SBU "+helper.fdate(this.unixtime));
+              }else{
+                  suggested_mode="UTI";
+                  console.log("ENERGYv1: min-sw point -> UTI "+helper.fdate(this.unixtime));
+              }
+          }
 
-            if (this.current_ah>this.ah_charge_point){
+         }else{  //soc lower than switch point 
+
+            if (this.current_ah>this.ah_charge_point){ //above charge point
 
               console.log("ENERGYv1: AH_CHARGE < AH < AH_SWITCH -> UTI "+helper.fdate(this.unixtime));
               suggested_mode="UTI";
               
-            }else{
+            }else{ //lower than charge point
 
-              //console.log("ENERGYv1: AH < AH_CHARGE");
               suggested_mode="UTI";
               console.log("ENERGYv1: AH < AH_CHARGE -> UTI "+helper.fdate(this.unixtime));
 

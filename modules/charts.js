@@ -15,7 +15,7 @@ class charts{
         let html=`<div>
                     <label>Energy model v1 test simulation</label>
                     <button class="btn btn-secondary" onclick="this.nextElementSibling.classList.toggle('hide');">Toggle chartparams!</button>
-                    <textarea class="hide">
+                    <textarea style="min-height: 300px" class="form-control hide">
                     {
                     "type":"energymodeltest1",
                     "start_time": "now",
@@ -39,7 +39,7 @@ class charts{
         let html2=`<div>
                    <label>MAIN CHART</label>
                    <button class="btn btn-secondary" onclick="this.nextElementSibling.classList.toggle('hide');">Toggle chartparams!</button>
-                   <textarea class="hide">
+                   <textarea style="min-height: 300px" class="form-control hide">
                     {"type": "maingraph", "interval":"days"}
                     </textarea>
                    
