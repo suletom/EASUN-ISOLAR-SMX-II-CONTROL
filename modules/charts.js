@@ -88,9 +88,10 @@ class charts{
         let graphconsumption=[];
 
         //run model from first to last date
-        let mode="";
-        let chargemode="";
+        let mode=data.current_mode;
+        let chargemode=data.current_charge;
         let annot=[];
+        let init=0;
         
 
         let stepping=120; //sec
@@ -109,6 +110,18 @@ class charts{
             
             if (t>show_time) {
 
+              if (init==0){ //init state -> show modes
+                init++;
+                let ob=charts.annot(t,charts.modcols[data.current_mode],data.current_mode,
+                  '#000',{"offsetX": -20});
+                annot.push(ob);
+                let ob1=charts.annot(t,charts.modcols[data.current_charge],data.current_charge,
+                  '#000',{"offsetY": -38,"offsetX": -20}
+                  );
+                annot.push(ob1);
+              
+              }
+
               if (mode!=newmode.suggested_mode && newmode.suggested_mode!==undefined){
 
                 let ob=charts.annot(t,charts.modcols[newmode.suggested_mode],newmode.suggested_mode,
@@ -122,9 +135,10 @@ class charts{
                 let ob1=charts.annot(t,charts.modcols[newmode.suggested_charge],newmode.suggested_charge,
                   '#000',{"offsetY": -38}
                   );
-                 
+                
                 annot.push(ob1);
               }
+              
               
               console.log("CMS2: "+newmode.suggested_mode);
               mode=newmode.suggested_mode;
@@ -134,17 +148,29 @@ class charts{
             
             graphdata.push([t*1000,newmode.predicted_data]);
             graphbattsoc.push([t*1000, Math.round((data.current_ah/data.ah_capacity)*100) ]);
+
             graphconsumption.push([t*1000, 
               (mode=="SBU"?((data.consumption_a+data.self_consumption_a)*data.voltage):(data.self_consumption_a*data.voltage))]);
-
+            
             if (t>show_time) {
               //simulate dischare/charge for next cycle..
               let new_current_ah=data.current_ah;
               console.log("new_current_ah:",new_current_ah);
+
+              let solar_amps_left=newmode.predicted_data/data.voltage;
+
               if (mode=="SBU"){
-                //calculated consuption
-                new_current_ah+=(-(stepping/3600)*data.consumption_a);
-                new_current_ah+=(-(stepping/3600)*data.self_consumption_a);
+                
+                //current simulated solar watts > consumption
+                if (newmode.predicted_data > (data.consumption_a+data.self_consumption_a)*data.voltage ){
+                  //no discharge
+                  solar_amps_left=(newmode.predicted_data/data.voltage)-(data.consumption_a+data.self_consumption_a);
+                }else{
+                  //calculated consuption
+                  new_current_ah+=(-(stepping/3600)*data.consumption_a);
+                  new_current_ah+=(-(stepping/3600)*data.self_consumption_a);
+                }
+
                 console.log("new_current_ah - cons:",new_current_ah);
               }else{
                 if (mode=="UTI"){
@@ -163,7 +189,10 @@ class charts{
               }else{
 
                 if (newmode.predicted_data>0) {
-                  charge=(( newmode.predicted_data/data.voltage));
+
+                  //solar amps
+                  //charge=((newmode.predicted_data/data.voltage));
+                  charge=solar_amps_left;
 
                   //limit charger amps
                   if (charge>data.charge_max_a){
@@ -172,7 +201,7 @@ class charts{
 
                   charge=charge*(stepping/3600);
                 }  
-                console.log("charget:",charge);
+                console.log("charge:",charge);
                 console.log("predicted_data:",newmode.predicted_data);
                 
               }
