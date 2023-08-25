@@ -121,14 +121,23 @@ class energymodels{
                                         
                                     );
 
-                                    this.msg=helper.fdate()+": "+JSON.stringify(modelresult);
+                                    this.msg="<p>"+helper.fdate()+": "+JSON.stringify(modelresult)+"</p>";
 
+                                    let ci=0;
                                     for(let j=this.modelresults.length-1;j>=0;j--){
+
                                         this.msg+='<p class="smalltext">'+helper.fdate(this.modelresults[j].time)+": "+JSON.stringify(this.modelresults[j].res)+"</p>";
+                                        ci++;
+                                        if (ci>10) break;
                                     }
 
-                                    this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
+                                    if (this.modelresults.length==0 || 
+                                        (this.modelresults.length>0 && 
+                                            (this.modelresults[this.modelresults.length-1].res.suggested_mode!=modelresult.suggested_mode || this.modelresults[this.modelresults.length-1].res.suggested_charge!=modelresult.suggested_charge  ) ) ) {
 
+                                        this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
+
+                                    }
                                     //already has data: check change
                                     if (this.modelresults.length>1){
                                         let lastmr=this.modelresults[this.modelresults.length-2];
