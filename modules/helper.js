@@ -15,9 +15,14 @@ class etc{
         )
     };
 
-    static fdate = function(ts){
+    static fdate = function(ts=null){
 
-        var date0 = new Date(ts * 1000);
+        var date0 = null;
+        if (ts==null) {
+            date0 = new Date();
+        }else{
+            date0 = new Date(ts * 1000);
+        }    
         let year=date0.getFullYear();
         let mon=date0.getMonth()+1;
         let day=date0.getDate();
