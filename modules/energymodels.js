@@ -121,8 +121,11 @@ class energymodels{
                                         
                                     );
 
-
                                     this.msg=helper.fdate()+": "+JSON.stringify(modelresult);
+
+                                    for(let j=this.modelresults.length-1;j>=0;j--){
+                                        this.msg+='<p class="smalltext">'+helper.fdate(this.modelresults.time)+": "+JSON.stringify(this.modelresults.res)+"</p>";
+                                    }
 
                                     this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
 
@@ -132,7 +135,7 @@ class energymodels{
                                         
                                         if (lastmr.suggested_mode!=modelresult.res.suggested_mode || lastmr.suggested_charge!=modelresult.res.suggested_charge) {
                                             notifier.notifier(configobj,"SMX ALERT "+configobj.ipaddress,
-                                            "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.res.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.res.suggested_charge);
+                                            "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.res.suggested_charge);
                                         }
                                     }
 

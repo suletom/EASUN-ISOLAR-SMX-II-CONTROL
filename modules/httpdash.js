@@ -616,6 +616,10 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                 background-color: white;
             }
 
+            .smalltext{
+                font-size: 8px;
+            }
+
             </style>
         </head>
         <body class="notconnected">
