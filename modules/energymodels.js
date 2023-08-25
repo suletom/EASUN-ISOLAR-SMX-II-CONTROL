@@ -45,6 +45,16 @@ class energymodels{
         return sch;
     }
 
+    get_current(){
+
+        let out="";
+        if (this.msg!=undefined && this.msg!=""){
+            out=this.msg;
+        }
+        return out;
+
+    }
+
     run(configobj,currentdata,history,nowtime="") {
 
         if (nowtime==""){
@@ -58,6 +68,7 @@ class energymodels{
 
         if (prediction==null){
             console.log("ENERGY_ERROR:","Prediction empty!");
+            this.msg="ENERGY_ERROR: Prediction empty!";
             return false;
         }else{
 
@@ -66,62 +77,75 @@ class energymodels{
 
                 if (configobj["energymgmt"][0]["model_chosen"]=="energymodel1") {
 
-                    if (
-                        configobj["energymgmt"][0]["min_point"] != undefined &&
-                        configobj["energymgmt"][0]["switch_point"] != undefined &&
-                        configobj["energymgmt"][0]["charge_point"] != undefined && 
-                        configobj["energymgmt"][0]["preserve_point"] != undefined ){
-                            if ( configobj["energymgmt"][0]["min_point"]<100 && configobj["energymgmt"][0]["min_point"]>0 &&
-                                configobj["energymgmt"][0]["switch_point"]<100 && configobj["energymgmt"][0]["switch_point"]>0 &&
-                                configobj["energymgmt"][0]["charge_point"]<100 && configobj["energymgmt"][0]["charge_point"]>0 &&
-                                configobj["energymgmt"][0]["min_point"] > configobj["energymgmt"][0]["switch_point"] &&
-                                configobj["energymgmt"][0]["switch_point"] > configobj["energymgmt"][0]["charge_point"] &&
-                                configobj["energymgmt"][0]["preserve_point"]>0 && 
-                                configobj["energymgmt"][0]["preserve_point"]<100
-                            ){
+                    if (currentdata["battery_rv"]!=undefined && currentdata["battery_rv"]==1) {
 
-                                let ah_min_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["min_point"])/100);
-                                let ah_switch_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["switch_point"])/100);
-                                let ah_charge_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["charge_point"])/100);
-                                let ah_preserve_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["preserve_point"])/100);
+                        if (
+                            configobj["energymgmt"][0]["min_point"] != undefined &&
+                            configobj["energymgmt"][0]["switch_point"] != undefined &&
+                            configobj["energymgmt"][0]["charge_point"] != undefined && 
+                            configobj["energymgmt"][0]["preserve_point"] != undefined ){
+                                if ( configobj["energymgmt"][0]["min_point"]<100 && configobj["energymgmt"][0]["min_point"]>0 &&
+                                    configobj["energymgmt"][0]["switch_point"]<100 && configobj["energymgmt"][0]["switch_point"]>0 &&
+                                    configobj["energymgmt"][0]["charge_point"]<100 && configobj["energymgmt"][0]["charge_point"]>0 &&
+                                    configobj["energymgmt"][0]["min_point"] > configobj["energymgmt"][0]["switch_point"] &&
+                                    configobj["energymgmt"][0]["switch_point"] > configobj["energymgmt"][0]["charge_point"] &&
+                                    configobj["energymgmt"][0]["preserve_point"]>0 && 
+                                    configobj["energymgmt"][0]["preserve_point"]<100
+                                ){
 
-                                //here begins the magic
-                                let energy=new energy_ver1();
-                                
-                                return energy.run(nowtime,prediction,
-                                    ah_min_point,
-                                    ah_switch_point,  
-                                    ah_charge_point,
-                                    ah_preserve_point,
-                                    currentdata["battery_ah_left"],
-                                    currentdata["OutputPriority_text"],
-                                    currentdata["battery_capacity_ah"],
-                                    currentdata["ChargerSourcePriority_text"],
-                                    currentdata["BatteryCurrent"],
-                                    currentdata["BatteryVoltage"],
-                                    currentdata["MaxChargerCurrent"]
+                                    let ah_min_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["min_point"])/100);
+                                    let ah_switch_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["switch_point"])/100);
+                                    let ah_charge_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["charge_point"])/100);
+                                    let ah_preserve_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["preserve_point"])/100);
+
+                                    //here begins the magic
+                                    let energy=new energy_ver1();
                                     
-                                );
+                                    let modelresult=energy.run(nowtime,null,prediction,
+                                        ah_min_point,
+                                        ah_switch_point,  
+                                        ah_charge_point,
+                                        ah_preserve_point,
+                                        currentdata["battery_ah_left"],
+                                        currentdata["OutputPriority_text"],
+                                        currentdata["battery_capacity_ah"],
+                                        currentdata["ChargerSourcePriority_text"],
+                                        currentdata["BatteryCurrent"],
+                                        currentdata["BatteryVoltage"],
+                                        currentdata["MaxChargerCurrent"]
+                                        
+                                    );
 
-                            }
-                            else{
-                                console.log("ENERGY_ERROR:","Missing min/switch/charge percents data values are bad!");
-                                return false;
-                            }
+                                    this.msg=helper.fdate()+": "+JSON.stringify(modelresult);
 
+                                }
+                                else{
+                                    console.log("ENERGY_ERROR:","Missing min/switch/charge percents data values are bad!");
+                                    this.msg="ENERGY_ERROR: Missing min/switch/charge percents or data values are wrong!";
+                                    return false;
+                                }
+
+                        }else{
+                            console.log("ENERGY_ERROR:","Missing min/switch/charge percents!");
+                            this.msg="ENERGY_ERROR: Missing min/switch/charge percents!";
+                            return false;
+                        }
                     }else{
-                        console.log("ENERGY_ERROR:","Missing min/switch/charge percents!");
+                        console.log("ENERGY_ERROR:","Warn: Current battery or inverter data not available.(Check selected plugin!)");
+                        this.msg="ENERGY_WARNING: Current battery or inverter info not available.(Check selected plugin!)";
                         return false;
-                    }
+                    }    
                     
                 }
                 else{
                     console.log("ENERGY_ERROR:","Model not selected!");
+                    this.msg="ENERGY_ERROR: Model not selected!";
                     return false;
                 }
 
             }else{
                 console.log("ENERGY_INFO:","No model chosen!");
+                this.msg="ENERGY_INFO: No model chosen!";
                 return false;
             }
 

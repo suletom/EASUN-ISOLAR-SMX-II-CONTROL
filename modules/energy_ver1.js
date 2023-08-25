@@ -8,7 +8,7 @@ class energyver1 {
       
     }
 
-    run(unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a){
+    run(unixtime,current_solar_watts,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a){
       //console.log("ENERGYv1: ",helper.fdate(unixtime));
 
       this.prediction=prediction;
@@ -50,7 +50,12 @@ class energyver1 {
         prevdatekey=datekey;
 
       }
-      console.log({"predicted_data":this.predicted_data,"date":helper.timestamptodate(this.unixtime)});
+
+      if (current_solar_watts!==null) {
+         this.predicted_data=current_solar_watts;
+      }
+
+      console.log({"Predicted solar watts (or realtime data if available)":this.predicted_data,"date":helper.timestamptodate(this.unixtime)});
 
       return this.get_suggested_mode();
 

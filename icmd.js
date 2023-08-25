@@ -210,6 +210,9 @@ if (process.argv.length<3){
 
             let wg3={'batteryinfo':batterymodel.get_current()};
             dov={...dov,...wg3};
+
+            let wg4={'energyinfo':energymodel.get_current()};
+            dov={...dov,...wg4};
         }
               
         res.json(dov);

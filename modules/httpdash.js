@@ -397,6 +397,10 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                                 let bi=document.querySelector('#batteryinfo');
                                 bi.innerHTML=jvalue;
                             }
+                            if (key=="energyinfo") {
+                                let bi=document.querySelector('#energymodelinfo');
+                                bi.innerHTML=jvalue;
+                            }
                             
                             let elem=document.querySelector('#param'+key);
                             if (elem !== null && elem !== undefined){
@@ -633,6 +637,9 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                 <div id="notif-batt" class="d-flex justify-content-center notifb">
                     <div class="card-body"><label>BATTERYINFO</label><div id="batteryinfo" class="contener"></div></div>
                 </div>  
+                <div id="notif-energy" class="d-flex justify-content-center notifb">
+                    <div class="card-body"><label>ENERGY MANAGEMET MODEL INFO</label><div id="energymodelinfo" class="contener"></div></div>
+                </div>
                 <div id="notif-cont" class="d-flex justify-content-center notifb">
                     <div class="card-body"><label>Notifications</label><table id="notifs" class="table"></table></div>
                 </div>  

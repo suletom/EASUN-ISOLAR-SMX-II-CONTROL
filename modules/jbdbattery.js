@@ -35,6 +35,8 @@ class jbdbattery {
         //charge -> positive amps
         let arr=fdata.split(",");
 
+        console.log("JBDBATTERY: DEBUG: ",fdata);
+
         if (arr.length!=7){
             errorinfo.push("Batteryinfo wrong data!");
         }
@@ -49,16 +51,7 @@ class jbdbattery {
         
         let rv=(errorinfo.length>0?0:1);
 
-
-        /*
-        let info="";
-        if (rv==1){
-            info+=soc+"% "+state+((remain!=0)?(" Remaining hours: "+remain):"")+" "+(finalah.toFixed(1)+"/"+capacity+" Ah left");
-            info+=" Voltage: "+batteryvoltage+ " Amps:"+amps;
-        }else{
-            info+=errorinfo.join("; ");
-        }
-        */
+        
         let info="";
         if (errorinfo.length>0){
             rv=0;
