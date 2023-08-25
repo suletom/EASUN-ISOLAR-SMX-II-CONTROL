@@ -392,7 +392,7 @@ class charts{
      
       //mode=newmode.suggested_mode;
       //chargemode=newmode.suggested_charge;
-
+      /*
       let energymodel = new energymodels();
 
       for(let key in prediction.result.watts) {
@@ -420,6 +420,7 @@ class charts{
             lastts=lastts+300;
           }
       }
+      */
     
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
     };
