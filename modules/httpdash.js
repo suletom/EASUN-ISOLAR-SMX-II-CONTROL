@@ -617,7 +617,8 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
             }
 
             .smalltext{
-                font-size: 8px;
+                font-size: 10px;
+                margin: 0px;
             }
 
             </style>
