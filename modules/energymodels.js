@@ -1,8 +1,13 @@
 const energy_ver1 = require("./energy_ver1.js");
 const forecast = require("./forecast.js");
 const helper = require("./helper.js");
+const notifier = require("./notifier.js");
 
 class energymodels{
+
+    constructor() {
+        this.modelresults=[];
+    }    
 
     static get_ui_schema=function(){
 
@@ -116,8 +121,24 @@ class energymodels{
                                         
                                     );
 
+                                    
                                     this.msg=helper.fdate()+": "+JSON.stringify(modelresult);
 
+                                    this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
+
+                                    //already has data: check change
+                                    if (this.modelresults.length>1){
+                                        let lastmr=this.modelresults[this.modelresults.length-2];
+                                        
+                                        if (lastmr.suggested_mode!=modelresult.suggested_mode || lastmr.suggested_charge!=modelresult.suggested_charge) {
+                                            notifier.notifier(configobj,"SMX ALERT "+configobj.ipaddress,
+                                            "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.suggested_charge);
+                                        }
+                                    }
+
+                                    if (this.modelresults.length>100) {
+                                        this.modelresults.shift();
+                                    }
                                 }
                                 else{
                                     console.log("ENERGY_ERROR:","Missing min/switch/charge percents data values are bad!");
