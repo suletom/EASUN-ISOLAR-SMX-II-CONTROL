@@ -121,7 +121,7 @@ class energymodels{
                                         
                                     );
 
-                                    if (modelresult==false){
+                                    if (modelresult==false || modelresult==null){
                                         this.msg="<p>"+helper.fdate()+": ERROR -> N/A</p>";
                                     }else{
 
@@ -150,9 +150,9 @@ class energymodels{
                                             if (this.modelresults.length>1){
                                                 lastmr=this.modelresults[this.modelresults.length-2];
                                             }
-                                            if (lastmr.suggested_mode!=modelresult.res.suggested_mode || lastmr.suggested_charge!=modelresult.res.suggested_charge) {
-                                                notifier.notifier(configobj,"SMX ALERT "+configobj.ipaddress,
-                                                "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.res.suggested_charge);
+                                            if (lastmr.suggested_mode!=modelresult.suggested_mode || lastmr.suggested_charge!=modelresult.suggested_charge) {
+                                                notifier.notifier(configobj,"SMX NOTICE "+configobj.ipaddress,
+                                                "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.suggested_charge);
                                             }
 
                                         }
