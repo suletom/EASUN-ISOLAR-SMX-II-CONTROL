@@ -133,21 +133,26 @@ class energymodels{
 
                                     if (this.modelresults.length==0 || 
                                         (this.modelresults.length>0 && 
-                                            (this.modelresults[this.modelresults.length-1].res.suggested_mode!=modelresult.suggested_mode || this.modelresults[this.modelresults.length-1].res.suggested_charge!=modelresult.suggested_charge  ) ) ) {
+                                            (
+                                                this.modelresults[this.modelresults.length-1].res.suggested_mode!=modelresult.suggested_mode ||
+                                                this.modelresults[this.modelresults.length-1].res.suggested_charge!=modelresult.suggested_charge  
+                                            )
+                                        )
+                                       ) {
 
                                         this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
-
-                                    }
-                                    //already has data: check change
-                                    if (this.modelresults.length>1){
-                                        let lastmr=this.modelresults[this.modelresults.length-2];
-                                        
+                                        //check change -> notifiy
+                                        let lastmr={"suggested_mode":"INITIAL","suggested_charge":"INITIAL"}
+                                        if (this.modelresults.length>1){
+                                            lastmr=this.modelresults[this.modelresults.length-2];
+                                        }
                                         if (lastmr.suggested_mode!=modelresult.res.suggested_mode || lastmr.suggested_charge!=modelresult.res.suggested_charge) {
                                             notifier.notifier(configobj,"SMX ALERT "+configobj.ipaddress,
                                             "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.res.suggested_charge);
                                         }
-                                    }
 
+                                    }
+                                    
                                     if (this.modelresults.length>100) {
                                         this.modelresults.shift();
                                     }
