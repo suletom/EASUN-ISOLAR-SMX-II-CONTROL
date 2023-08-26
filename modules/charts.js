@@ -392,7 +392,7 @@ class charts{
      
       //mode=newmode.suggested_mode;
       //chargemode=newmode.suggested_charge;
-      /*
+      
       let energymodel = new energymodels();
 
       for(let key in prediction.result.watts) {
@@ -401,26 +401,28 @@ class charts{
           if (predtime > lastts) {
 
             let newmode=energymodel.run(config,currentdata,history);
-            
-            
-            if (outputmode!=newmode.suggested_mode){
+            if (newmode!=false){
+
+              if (outputmode!=newmode.suggested_mode){
               
-              annot.push(
-                charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_mode],newmode.suggested_mode,'#000')
-              );
-            }
+                annot.push(
+                  charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_mode],newmode.suggested_mode,'#000')
+                );
+              }
+  
+              if (chargemode!=newmode.suggested_charge){
+                annot.push(
+                  charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_charge],newmode.suggested_charge, '#000',{"offsetY": -38})
+                );
+              }
 
-            if (chargemode!=newmode.suggested_charge){
-              annot.push(
-                charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_charge],newmode.suggested_charge, '#000',{"offsetY": -38})
-              );
             }
-
+            
             graphdata.push([predtime*1000,prediction.result.watts[key]]);
             lastts=lastts+300;
           }
       }
-      */
+      
     
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
     };

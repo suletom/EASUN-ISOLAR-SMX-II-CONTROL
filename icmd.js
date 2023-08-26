@@ -227,15 +227,18 @@ if (process.argv.length<3){
     });
     
     monitor_lock=0;
-        
-    setInterval(function() { 
+      
+    setTimeout(function(){
+        setInterval(function() { 
 
-        console.log("Running internal tasks! #############################################################################################");
-        wd.run(configobj,store.get(),store.gethistory());
-        batterymodel.run(configobj,store.get(),store.gethistory());
-        energymodel.run(configobj,store.get(),store.gethistory());
-        
-    },30000);
+            console.log("Running internal tasks! #############################################################################################");
+            wd.run(configobj,store.get(),store.gethistory());
+            batterymodel.run(configobj,store.get(),store.gethistory());
+            energymodel.run(configobj,store.get(),store.gethistory());
+            
+        },30000);
+    },30000
+    );
 
     // 0 -> full query   1 -> only important
     function monitor(prio=0) {
