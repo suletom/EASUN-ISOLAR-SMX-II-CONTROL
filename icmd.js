@@ -237,7 +237,7 @@ if (process.argv.length<3){
             energymodel.run(configobj,store.get(),store.gethistory());
             
         },30000);
-    },30000
+    },60000
     );
 
     // 0 -> full query   1 -> only important

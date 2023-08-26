@@ -121,40 +121,46 @@ class energymodels{
                                         
                                     );
 
-                                    this.msg="<p>"+helper.fdate()+": "+JSON.stringify(modelresult)+"</p>";
+                                    if (modelresult==false){
+                                        this.msg="<p>"+helper.fdate()+": ERROR -> N/A</p>";
+                                    }else{
 
-                                    let ci=0;
-                                    for(let j=this.modelresults.length-1;j>=0;j--){
+                                        this.msg="<p>"+helper.fdate()+": "+JSON.stringify(modelresult)+"</p>";
 
-                                        this.msg+='<p class="smalltext">'+helper.fdate(this.modelresults[j].time)+": "+JSON.stringify(this.modelresults[j].res)+"</p>";
-                                        ci++;
-                                        if (ci>10) break;
-                                    }
+                                        let ci=0;
+                                        for(let j=this.modelresults.length-1;j>=0;j--){
 
-                                    if (this.modelresults.length==0 || 
-                                        (this.modelresults.length>0 && 
-                                            (
-                                                this.modelresults[this.modelresults.length-1].res.suggested_mode!=modelresult.suggested_mode ||
-                                                this.modelresults[this.modelresults.length-1].res.suggested_charge!=modelresult.suggested_charge  
+                                            this.msg+='<p class="smalltext">'+helper.fdate(this.modelresults[j].time)+": "+JSON.stringify(this.modelresults[j].res)+"</p>";
+                                            ci++;
+                                            if (ci>10) break;
+                                        }
+
+                                        if (this.modelresults.length==0 || 
+                                            (this.modelresults.length>0 && 
+                                                (
+                                                    this.modelresults[this.modelresults.length-1].res.suggested_mode!=modelresult.suggested_mode ||
+                                                    this.modelresults[this.modelresults.length-1].res.suggested_charge!=modelresult.suggested_charge  
+                                                )
                                             )
-                                        )
-                                       ) {
+                                        ) {
 
-                                        this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
-                                        //check change -> notifiy
-                                        let lastmr={"suggested_mode":"INITIAL","suggested_charge":"INITIAL"}
-                                        if (this.modelresults.length>1){
-                                            lastmr=this.modelresults[this.modelresults.length-2];
+                                            this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
+                                            //check change -> notifiy
+                                            let lastmr={"suggested_mode":"INITIAL","suggested_charge":"INITIAL"}
+                                            if (this.modelresults.length>1){
+                                                lastmr=this.modelresults[this.modelresults.length-2];
+                                            }
+                                            if (lastmr.suggested_mode!=modelresult.res.suggested_mode || lastmr.suggested_charge!=modelresult.res.suggested_charge) {
+                                                notifier.notifier(configobj,"SMX ALERT "+configobj.ipaddress,
+                                                "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.res.suggested_charge);
+                                            }
+
                                         }
-                                        if (lastmr.suggested_mode!=modelresult.res.suggested_mode || lastmr.suggested_charge!=modelresult.res.suggested_charge) {
-                                            notifier.notifier(configobj,"SMX ALERT "+configobj.ipaddress,
-                                            "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.res.suggested_charge);
+                                        
+                                        if (this.modelresults.length>100) {
+                                            this.modelresults.shift();
                                         }
 
-                                    }
-                                    
-                                    if (this.modelresults.length>100) {
-                                        this.modelresults.shift();
                                     }
                                 }
                                 else{
