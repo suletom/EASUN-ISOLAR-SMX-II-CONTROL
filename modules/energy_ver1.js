@@ -8,7 +8,7 @@ class energyver1 {
       
     }
 
-    run(unixtime,current_solar_watts,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a){
+    run(unixtime,current_solar_watts,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a,full_consumption_w){
       //console.log("ENERGYv1: ",helper.fdate(unixtime));
 
       this.prediction=prediction;
@@ -30,6 +30,7 @@ class energyver1 {
 
       this.voltage=voltage;
       this.charge_max_a=charge_max_a;
+      this.full_consumption_w=full_consumption_w;
 
       //calculate remaining time with current load
       this.time_to_min_s=((current_ah-ah_min_point)/(consumption_a))*3600;
