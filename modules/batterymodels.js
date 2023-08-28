@@ -162,7 +162,7 @@ class batterymodels{
 
             switch (configobj["battery"][0]["battery_chosen"]) {
                 case 'software_battery': 
-                    battype='sotware_battery';
+                    battype='software_battery';
                 break;
                 case 'external_battery': 
                     battype='external_battery';
