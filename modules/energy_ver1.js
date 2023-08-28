@@ -33,8 +33,8 @@ class energyver1 {
       this.full_consumption_w=full_consumption_w;
 
       //calculate remaining time with current load
-      this.time_to_min_s=((current_ah-ah_min_point)/(consumption_a))*3600;
-      this.time_to_switch_s=((current_ah-ah_switch_point)/(consumption_a))*3600;
+      //this.time_to_min_s=((current_ah-ah_min_point)/(consumption_a))*3600;
+      //this.time_to_switch_s=((current_ah-ah_switch_point)/(consumption_a))*3600;
 
       let prevdatekey="";
       let cob=helper.fdateobj(this.unixtime);
@@ -91,9 +91,8 @@ class energyver1 {
             solar_input_wh+= (this.prediction.result.watts[datekey]*((kdate-lastdk)/3600))
 
             //search for next enough solar input
-            if (this.prediction.result.watts[datekey]>(this.consumption_a*this.voltage)){
-              //console.log("ENERGYv1: charge_enough: next predicted time when solar available: "+this.prediction.result.watts[datekey]+" > "+(this.consumption_a*this.voltage));
-              needed_time_to_solar=datekey;
+            if (this.prediction.result.watts[datekey]>(this.full_consumption_w)){
+                 needed_time_to_solar=datekey;
               break;
             }
           }  
@@ -117,7 +116,7 @@ class energyver1 {
           //console.log("ENERGYv1: charge_enough: time diff for solar in sec: ",timediff);
 
           //calculate consumption for that time
-          let consumption_wh=(timediff/3600)*(this.consumption_a*this.voltage);
+          let consumption_wh=(timediff/3600)*(this.full_consumption_w);
 
           //console.log("ENERGYv1: charge_enough: consumption_wh: ",consumption_wh);
 
