@@ -229,14 +229,20 @@ if (process.argv.length<3){
     setTimeout(function(){
         setInterval(function() { 
 
-            console.log("Running internal tasks! #############################################################################################");
+            console.log("Running watchdog task! #############################################################################################");
             wd.run(configobj,store.get(),store.gethistory());
-            batterymodel.run(configobj,store.get(),store.gethistory());
-            energymodel.run(configobj,store.get(),store.gethistory());
             
         },30000);
     },60000
     );
+
+    setInterval(function() { 
+
+        console.log("Running internal tasks! #############################################################################################");
+        batterymodel.run(configobj,store.get(),store.gethistory());
+        energymodel.run(configobj,store.get(),store.gethistory());
+        
+    },30000);
 
     // 0 -> full query   1 -> only important
     function monitor(prio=0) {
@@ -263,7 +269,7 @@ if (process.argv.length<3){
                     
                     if (stateobject !== undefined && stateobject.outobj.constructor === Object && Object.keys(stateobject.outobj).length > 0) {
                        store.store(stateobject.outobj,prio,batterymodel.get_chosen());
-                    }    
+                    }
 
                     monitor_lock=0;
 

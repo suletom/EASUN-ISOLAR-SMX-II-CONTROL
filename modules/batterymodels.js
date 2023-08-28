@@ -183,7 +183,6 @@ class batterymodels{
 
         this.batterydata=obj;
     }
-
     
 
     software_battery(config){
