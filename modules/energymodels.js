@@ -108,7 +108,7 @@ class energymodels{
                                     
                                     let modelresult=energy.run(nowtime,null,prediction,
                                         ah_min_point,
-                                        ah_switch_point,  
+                                        ah_switch_point,
                                         ah_charge_point,
                                         ah_preserve_point,
                                         currentdata["battery_ah_left"],
@@ -117,8 +117,8 @@ class energymodels{
                                         currentdata["ChargerSourcePriority_text"],
                                         currentdata["BatteryCurrent"],
                                         currentdata["BatteryVoltage"],
-                                        currentdata["MaxChargerCurrent"]
-                                        
+                                        currentdata["MaxChargerCurrent"],
+                                        currentdata["LoadActivePower"]
                                     );
 
                                     if (modelresult==false || modelresult==null){
