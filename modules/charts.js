@@ -400,6 +400,7 @@ class charts{
 
           if (predtime > lastts) {
 
+            /*
             let newmode=energymodel.run(config,currentdata,history);
             if (newmode!=false){
 
@@ -417,6 +418,7 @@ class charts{
               }
 
             }
+            */
             
             graphdata.push([predtime*1000,prediction.result.watts[key]]);
             lastts=lastts+300;
