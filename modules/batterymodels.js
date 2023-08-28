@@ -116,16 +116,21 @@ class batterymodels{
 
         let r={};
 
-        if (this.batterydata[this.batterychosen] != undefined){
-            let cdata=this.batterydata[this.batterychosen];
-            r["battery_rv"]=cdata.rv;
-            if (cdata.rv==1) {
+        if (this.batterychosen=="") {
+            r["battery_rv"]=0;
+        }else{
 
-                r["battery_soc"]=cdata.soc;
-                r["battery_ah_left"]=cdata.ah_left;
-                r["battery_capacity_ah"]=cdata.capacity_ah;
-                r["battery_seen"]=helper.unixTimestamp();
-                
+            if (this.batterydata[this.batterychosen] != undefined){
+                let cdata=this.batterydata[this.batterychosen];
+                r["battery_rv"]=cdata.rv;
+                if (cdata.rv==1) {
+
+                    r["battery_soc"]=cdata.soc;
+                    r["battery_ah_left"]=cdata.ah_left;
+                    r["battery_capacity_ah"]=cdata.capacity_ah;
+                    r["battery_seen"]=helper.unixTimestamp();
+                    
+                }
             }
         }
         
