@@ -103,7 +103,7 @@ class charts{
 
         for(let t=first_date;t<last_date;t=t+stepping){
             console.log("CM: "+data.current_mode);
-            let newmode=energy.run(t,null,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.preserve_ah,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a);
+            let newmode=energy.run(t,null,prediction,data.ah_min_point,data.ah_switch_point,data.ah_charge_point,data.preserve_ah,data.current_ah,data.current_mode,data.ah_capacity,data.current_charge,data.consumption_a,data.voltage,data.charge_max_a,data.consumption_a*data.voltage);
 
             if (start_time<t && start_time>t-stepping){
 
