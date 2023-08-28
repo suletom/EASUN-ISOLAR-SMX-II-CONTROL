@@ -116,7 +116,7 @@ class batterymodels{
 
         let r={};
 
-        if (this.batterychosen=="") {
+        if (this.batterychosen==undefined || this.batterychosen=="") {
             r["battery_rv"]=0;
         }else{
 
