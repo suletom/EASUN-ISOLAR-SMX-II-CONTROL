@@ -148,7 +148,7 @@ class energymodels{
                                             //check change -> notifiy
                                             let lastmr={"suggested_mode":"INITIAL","suggested_charge":"INITIAL"}
                                             if (this.modelresults.length>1){
-                                                lastmr=this.modelresults[this.modelresults.length-2];
+                                                lastmr=this.modelresults[this.modelresults.length-2].res;
                                             }
                                             if (lastmr.suggested_mode!=modelresult.suggested_mode || lastmr.suggested_charge!=modelresult.suggested_charge) {
                                                 notifier.notifier(configobj,"SMX NOTICE "+configobj.ipaddress,

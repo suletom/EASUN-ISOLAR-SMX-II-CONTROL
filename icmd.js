@@ -27,8 +27,6 @@ let real_time_monitor_interval=10000;
 let low_freq_monitor_at_nth_interval=4;
 let full_param_query_at_nth_interval=20;
 
-//let current_data_store='currentdata.json';
-
 if (process.argv.length<3){
 
     console.log("\nNo command supplied! To explore modbus debug options or test from command line, use: npm start help\nStarting web ui mode....\n");

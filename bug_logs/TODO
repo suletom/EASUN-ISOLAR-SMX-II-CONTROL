@@ -20,8 +20,16 @@ Priority list:
 -auto updated graph: (consumption, pv power, battery soc + prediction!?): +
 -model fine tuning: search for sunset -> uti +
 -model demo testing graph: +
--battery plugin -> data checking
--model state change safe control
+
+BUGS:
+-battery plugin -> data checking: not valid data can arrive -> check logs
+-model state change safe control: 
+-Last state display not working (initial state/undefined state)
+-timeings: empty param check fires -> on start
+
+
+
+TODO
 -test model with local history
 
 FIX: 
