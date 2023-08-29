@@ -125,12 +125,12 @@ class energymodels{
                                         this.msg="<p>"+helper.fdate()+": ERROR -> N/A</p>";
                                     }else{
 
-                                        this.msg="<p>"+helper.fdate()+": "+JSON.stringify(modelresult)+"</p>";
+                                        this.msg="<p>"+helper.fdate()+": "+modelresult.suggested_mode+"  "+modelresult.suggested_charge+"  ("+modelresult.predicted_data+")</p>";
 
                                         let ci=0;
                                         for(let j=this.modelresults.length-1;j>=0;j--){
 
-                                            this.msg+='<p class="smalltext">'+helper.fdate(this.modelresults[j].time)+": "+JSON.stringify(this.modelresults[j].res)+"</p>";
+                                            this.msg+='<p class="smalltext">'+helper.fdate(this.modelresults[j].time)+": "+this.modelresults[j].res.suggested_mode+"  "+this.modelresults[j].res.suggested_charge+"  ("+this.modelresults[j].res.predicted_data+")</p>";
                                             ci++;
                                             if (ci>10) break;
                                         }

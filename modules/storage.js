@@ -83,8 +83,8 @@ class paramstorage {
     get(){
 
         let ret={};
-        //after 2 minutes set notconnected state
-        if (this.history.length==0 || this.currentdata["lastseen"]<helper.unixTimestamp()-120){
+        //after 200 sec -> set notconnected state
+        if (this.history.length==0 || this.currentdata["lastseen"]<helper.unixTimestamp()-200){
             this.currentdata["state"]="notconnected";
         }
         ret=this.currentdata;

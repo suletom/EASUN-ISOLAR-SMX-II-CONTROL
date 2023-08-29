@@ -48,7 +48,10 @@ class jbdbattery {
         let cycles=parseInt(arr[6]);
         let amps=parseFloat(arr[2]);
         let soc=Math.round((finalah/capacity)*100);
-        
+        //hardcoded check: sometimes returned data comes shifted
+        if (capacity!=220){
+            errorinfo.push("Batteryinfo wrong data (got bad values)! "+fdata);
+        }
         let rv=(errorinfo.length>0?0:1);
 
         
