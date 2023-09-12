@@ -125,10 +125,12 @@ class energyver1 {
           console.log("ENERGYv1: charge_enough: consumption_wh with solar input included: ",consumption_wh);
 
           let min_ah_to_store=((calc_to_sw_point==1)?this.ah_switch_point:this.ah_min_point);
+          console.log("ENERGYv1: charge_enough: calc to:param: "+calc_to_sw_point);
 
           //200   4200/24 (168) 168+44
           if (this.current_ah > ((consumption_wh/this.voltage)+min_ah_to_store) ){
               console.log("ENERGYv1: charge_enough: true (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+")  min_ah_to_store: "+min_ah_to_store);
+
               return true;
           }else{
               console.log("ENERGYv1: charge_enough: false (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+") min_ah_to_store: "+min_ah_to_store);
