@@ -252,7 +252,7 @@ if (process.argv.length<3){
             safeswitchinst.init(currstore['OutputPriority_text'],currstore['ChargerSourcePriority_text']);
         }
         
-        safeswitchinst.switch(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
+        safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
         
         
     },30000);
