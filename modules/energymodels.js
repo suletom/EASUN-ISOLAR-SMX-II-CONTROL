@@ -7,6 +7,7 @@ class energymodels{
 
     constructor() {
         this.modelresults=[];
+       
     }    
 
     static get_ui_schema=function(){
@@ -103,6 +104,8 @@ class energymodels{
                                     let ah_charge_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["charge_point"])/100);
                                     let ah_preserve_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["preserve_point"])/100);
 
+                                  
+
                                     //here begins the magic
                                     let energy=new energy_ver1();
                                     
@@ -112,9 +115,9 @@ class energymodels{
                                         ah_charge_point,
                                         ah_preserve_point,
                                         currentdata["battery_ah_left"],
-                                        currentdata["OutputPriority_text"],
+                                        currentdata['OutputPriority_text'],
                                         currentdata["battery_capacity_ah"],
-                                        currentdata["ChargerSourcePriority_text"],
+                                        currentdata['ChargerSourcePriority_text'],
                                         currentdata["BatteryCurrent"],
                                         currentdata["BatteryVoltage"],
                                         currentdata["MaxChargerCurrent"],
@@ -122,7 +125,10 @@ class energymodels{
                                     );
 
                                     if (modelresult==false || modelresult==null){
-                                        this.msg="<p>"+helper.fdate()+": ERROR -> N/A</p>";
+
+                                        this.msg="<p>"+helper.fdate()+": ERROR: modelresult -> N/A</p>";
+                                        return false;
+
                                     }else{
 
                                         this.msg="<p>"+helper.fdate()+": "+modelresult.suggested_mode+"  "+modelresult.suggested_charge+"  ("+modelresult.predicted_data+")</p>";
@@ -132,8 +138,15 @@ class energymodels{
 
                                             this.msg+='<p class="smalltext">'+helper.fdate(this.modelresults[j].time)+": "+this.modelresults[j].res.suggested_mode+"  "+this.modelresults[j].res.suggested_charge+"  ("+this.modelresults[j].res.predicted_data+")</p>";
                                             ci++;
-                                            if (ci>10) break;
+                                            if (ci>20) break;
                                         }
+
+
+                                        //truncate internal log
+                                        if (this.modelresults.length>100) {
+                                            this.modelresults.shift();
+                                        }
+
 
                                         if (this.modelresults.length==0 || 
                                             (this.modelresults.length>0 && 
@@ -146,21 +159,15 @@ class energymodels{
 
                                             this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
                                             //check change -> notifiy
-                                            let lastmr={"suggested_mode":"INITIAL","suggested_charge":"INITIAL"}
+                                            let lastmr={"suggested_mode":"INITIAL "+currentdata['OutputPriority_text'],"suggested_charge":"INITIAL "+currentdata['ChargerSourcePriority_text']};
                                             if (this.modelresults.length>1){
                                                 lastmr=this.modelresults[this.modelresults.length-2].res;
                                             }
-                                            if (lastmr.suggested_mode!=modelresult.suggested_mode || lastmr.suggested_charge!=modelresult.suggested_charge) {
-                                                notifier.notifier(configobj,"SMX NOTICE "+configobj.ipaddress,
-                                                "Suggested output mode switch: "+lastmr.suggested_mode+" -> "+modelresult.suggested_mode+"\n Charger priority: "+lastmr.suggested_charge+" -> "+modelresult.suggested_charge);
-                                            }
+
+                                            return modelresult;
 
                                         }
                                         
-                                        if (this.modelresults.length>100) {
-                                            this.modelresults.shift();
-                                        }
-
                                     }
                                 }
                                 else{

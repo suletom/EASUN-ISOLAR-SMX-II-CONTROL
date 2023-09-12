@@ -27,7 +27,7 @@ class jbdbattery {
 
         let mtime=helper.unixTimestamp(new Date(statsobj.mtime));
         if (mtime<helper.unixTimestamp()-300){
-            console.log("JBDBATTERY:",error);
+            console.log("JBDBATTERY: file too old.");
             errorinfo.push("Batteryinfo file too old: "+filename);
         }
         //          meter, volts,amps,watts,remain,capacity,cycles

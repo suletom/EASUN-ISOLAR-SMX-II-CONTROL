@@ -13,6 +13,7 @@ const helper = require("./modules/helper.js");
 const charts = require("./modules/charts.js");
 const batterymodels = require("./modules/batterymodels.js");
 const energymodels = require("./modules/energymodels.js");
+const safeswitch = require("./modules/safeswitch.js");
 
 
 
@@ -67,6 +68,8 @@ if (process.argv.length<3){
     let wd = new watchdog();
     let batterymodel = new batterymodels();
     let energymodel = new energymodels();
+
+    let safeswitchinst = new safeswitch();
 
     var app = express();
 
@@ -209,7 +212,7 @@ if (process.argv.length<3){
             let wg3={'batteryinfo':batterymodel.get_current()};
             dov={...dov,...wg3};
 
-            let wg4={'energyinfo':energymodel.get_current()};
+            let wg4={'energyinfo':energymodel.get_current()+"<div>"+safeswitchinst.getstate()+"</div>"};
             dov={...dov,...wg4};
         }
               
@@ -239,8 +242,18 @@ if (process.argv.length<3){
     setInterval(function() { 
 
         console.log("Running internal tasks! #############################################################################################");
-        batterymodel.run(configobj,store.get(),store.gethistory());
-        energymodel.run(configobj,store.get(),store.gethistory());
+
+        let currstore=store.get();
+
+        batterymodel.run(configobj,currstore,store.gethistory());
+        let suggestion=energymodel.run(configobj,currstore,store.gethistory());
+        
+        if (currstore['OutputPriority_text'] != undefined && currstore['OutputPriority_text'] != "N/A" && currstore['ChargerSourcePriority_text']!=undefined && currstore['OutputPriority_text'] != "N/A" ){
+            safeswitchinst.init(currstore['OutputPriority_text'],currstore['ChargerSourcePriority_text']);
+        }
+        
+        safeswitchinst.switch(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
+        
         
     },30000);
 
