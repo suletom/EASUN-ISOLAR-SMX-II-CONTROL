@@ -414,10 +414,11 @@ controllerobject.controller(process.argv,35,1,
         process.exit(result);
     },
     function(log){
-         log.forEach(element => {
-            console.log(element);   
-         });
-         
+
+        log.forEach(element => {
+           console.log(element);   
+        });
+
     }
 );
 

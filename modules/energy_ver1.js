@@ -118,11 +118,11 @@ class energyver1 {
           //calculate consumption for that time
           let consumption_wh=(timediff/3600)*(this.full_consumption_w);
 
-          //console.log("ENERGYv1: charge_enough: consumption_wh: ",consumption_wh);
+          console.log("ENERGYv1: charge_enough: consumption_wh: ",consumption_wh);
 
           consumption_wh-=solar_input_wh;
           
-          //console.log("ENERGYv1: charge_enough: consumption_wh with solar input included: ",consumption_wh);
+          console.log("ENERGYv1: charge_enough: consumption_wh with solar input included: ",consumption_wh);
 
           let min_ah_to_store=((calc_to_sw_point==1)?this.ah_switch_point:this.ah_min_point);
 
