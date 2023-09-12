@@ -11,7 +11,7 @@ class semulator{
 
         let newmode=this.energycontroller.run(this.config,currentdata,history,time);
         if (newmode!==false) {
-            this.data.current_mode=newmode.
+            this.data.current_mode=newmode.s
             this.data.current_charge=
         }
     }
