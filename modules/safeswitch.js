@@ -43,21 +43,21 @@ class safeswitch{
 
                 if ( (this.stored_time+this.safe_change_time_sec)<helper.unixTimestamp()){
 
-                    _switch(config,mode,charge);
+                    this._switch(config,mode,charge);
 
                 }else{
                     console.log("SWITCHER: Preventing switch due to time.");
                 }
             }
 
-            if (stored_mode=="SBU" && mode=="UTI") {
+            if (this.stored_mode=="SBU" && mode=="UTI") {
 
-                _switch(config,mode,charge);
+                this._switch(config,mode,charge);
 
             }
 
-            if (stored_mode=="UTI" && mode=="UTI" && (charge!=this.stored_charge)) {
-                _switch(config,mode,charge);
+            if (this.stored_mode=="UTI" && mode=="UTI" && (charge!=this.stored_charge)) {
+                this._switch(config,mode,charge);
             }
 
         }
