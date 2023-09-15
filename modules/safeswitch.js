@@ -39,7 +39,7 @@ class safeswitch{
         if (mode!=this.stored_mode || charge!=this.stored_charge){
 
             //UTI -> SBU: check time
-            if (stored_mode=="UTI" && mode=="SBU") {
+            if (this.stored_mode=="UTI" && mode=="SBU") {
 
                 if ( (this.stored_time+this.safe_change_time_sec)<helper.unixTimestamp()){
 
