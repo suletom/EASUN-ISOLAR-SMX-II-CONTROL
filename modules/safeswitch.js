@@ -16,8 +16,12 @@ class safeswitch{
         if (this.stored_mode=="") {
             this.stored_mode=init_mode;
             this.stored_charge=init_charge;
-        }    
+        }
 
+    }
+
+    getmodes(){
+        return {"stored_mode":this.stored_mode, "stored_charge":this.stored_charge}
     }
 
     getstate(){
