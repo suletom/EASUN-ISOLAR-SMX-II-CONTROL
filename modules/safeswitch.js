@@ -6,7 +6,7 @@ class safeswitch{
     constructor() {
 
         this.safe_change_time_sec=3600*4;
-        this.stored_charge_time=0;
+        this.stored_change_time=0;
         this.stored_mode="";
         this.stored_charge="";
     }
@@ -33,7 +33,7 @@ class safeswitch{
 
     switch_mode(config,mode,charge){
 
-
+        console.log("SWITCHER: switch_mode called:",mode,charge);
         if (this.stored_mode=="" || this.stored_charge=="" ){
             //not initialized, not doing anything
             console.log("SWITCHER: Mode safe switcher not initialized, not changing mode.");
@@ -41,12 +41,13 @@ class safeswitch{
         }
 
         if (mode!=this.stored_mode || charge!=this.stored_charge){
-
+            console.log("SWITCHER: change detected....");
             //UTI -> SBU: check time
             if (this.stored_mode=="UTI" && mode=="SBU") {
 
-                if ( (this.stored_time+this.safe_change_time_sec)<helper.unixTimestamp()){
-
+                console.log("SWITCHER: UTI -> SBU");
+                if ( (this.stored_change_time+this.safe_change_time_sec)<helper.unixTimestamp()){
+                    console.log("SWITCHER: UTI -> SBU time ok!");
                     this._switch(config,mode,charge);
 
                 }else{
@@ -55,12 +56,13 @@ class safeswitch{
             }
 
             if (this.stored_mode=="SBU" && mode=="UTI") {
-
+                console.log("SWITCHER: SBU -> UTI");
                 this._switch(config,mode,charge);
 
             }
 
             if (this.stored_mode=="UTI" && mode=="UTI" && (charge!=this.stored_charge)) {
+                console.log("SWITCHER: UTI -> UTI, changeing charge mode....");
                 this._switch(config,mode,charge);
             }
 
@@ -76,7 +78,7 @@ class safeswitch{
         this.stored_mode=mode;
         this.stored_charge=charge;
 
-        this.stored_charge_time=helper.unixTimestamp();
+        this.stored_change_time=helper.unixTimestamp();
 
     }
     

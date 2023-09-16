@@ -168,7 +168,6 @@ class energymodels{
 
                                         }
 
-                                        this.msg="ENERGY_INFO: No change since last one, no suggestion.";
                                         return false;
                                         
                                     }
