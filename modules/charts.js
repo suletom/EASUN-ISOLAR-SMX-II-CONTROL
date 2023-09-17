@@ -2,6 +2,7 @@ const energymodels = require("./energymodels.js");
 const energyv1 = require("./energy_ver1.js"); 
 const forecast = require("./forecast.js");
 const helper = require("./helper.js");
+const systememulator = require("./systememulator.js");
 
 class charts{
 
@@ -71,6 +72,7 @@ class charts{
         }
 
 
+
         let first_date="";
         let last_date="";
         for(let key in prediction.result.watts) {
@@ -85,7 +87,10 @@ class charts{
            show_time=parseInt(start_time);
         }
 
-        let energy=new energyv1();
+        let energymodel = new energymodels();
+        let systememu=new systememulator(config,energymodel,data,history,prediction);
+
+        //let energy=new energyv1();
 
         let graphdata=[];
         let graphbattsoc=[];
