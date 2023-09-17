@@ -28,7 +28,7 @@ class safeswitch{
         if (this.stored_mode==""){
             return "Virtual state: not inited.";
         }
-        return "Virtual state: "+this.stored_mode+", "+this.stored_charge;
+        return "Virtual state: "+this.stored_mode+", "+this.stored_charge+" Next switch after: "+helper.fdate(stored_change_time+this.safe_change_time_sec);
     }    
 
     switch_mode(config,mode,charge){
