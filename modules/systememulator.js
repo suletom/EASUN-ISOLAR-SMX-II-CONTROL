@@ -90,15 +90,14 @@ class systememulator{
       //solar charge
       new_current_ah+=charge;
 
+      console.log(this.data);
+
       this.data["battery_ah_left"]=new_current_ah;
 
       if (this.data["battery_ah_left"]>this.data["battery_capacity_ah"]){
         this.data["battery_ah_left"]=this.data["battery_capacity_ah"];
       }
-      if (this.data["battery_ah_left"]){
-        this.data["battery_ah_left"]=0;
-      }
-
+     
       this.data["battery_soc"]=Math.round((this.data["battery_ah_left"]/this.data["battery_capacity_ah"])*100);
 
       return this.data;
