@@ -99,6 +99,8 @@ class systememulator{
         this.data["battery_ah_left"]=0;
       }
 
+      this.data["battery_soc"]=Math.round((this.data["battery_ah_left"]/this.data["battery_capacity_ah"])*100);
+
       return this.data;
     }
 

@@ -298,6 +298,8 @@ class charts{
       return ob;
     }
 
+
+
     static _getchart=function(inpdata,config,currentdata,history){
 
       let start_time="";
@@ -368,69 +370,71 @@ class charts{
         charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff',{"offsetY": 40})
       );
      
-      let tss=forecast.search_sunsets(prediction.result.watts);
+      if (prediction!=null){
 
-      tss.sunsets.forEach(function(el){
+        let tss=forecast.search_sunsets(prediction.result.watts);
 
-        let sunsettmp={
-          "x": el*1000,
-          "borderColor": "#000",
-          "label": {
-            "borderColor": "#fac657",
-            "style": {
-              "color": "#fff",
-              "background": "#fac657",
-              "fontSize": "8px"
-            },
-            "text": "S",
-            "position": 'bottom',
-            "offsetY": 15,
-            "offsetX": 10,
-          }
-        };
+        tss.sunsets.forEach(function(el){
 
+          let sunsettmp={
+            "x": el*1000,
+            "borderColor": "#000",
+            "label": {
+              "borderColor": "#fac657",
+              "style": {
+                "color": "#fff",
+                "background": "#fac657",
+                "fontSize": "8px"
+              },
+              "text": "S",
+              "position": 'bottom',
+              "offsetY": 15,
+              "offsetX": 10,
+            }
+          };
+
+          
+          annot.push(sunsettmp);
+
+
+        });
+
+        let energycontroller = new energymodels();
+        let owndata = currentdata;
+
+        let emulator = new systememulator(config,energycontroller,owndata,history,prediction);
         
-        annot.push(sunsettmp);
+        let stepping=300;
+        for(let key in prediction.result.watts) {
+            let predtime=helper.unixTimestamp(new Date(key));
 
+            if (predtime > lastts) {
 
-      });
+              let newdata=emulator.calculate(predtime,stepping);
 
-     
-      //mode=newmode.suggested_mode;
-      //chargemode=newmode.suggested_charge;
-      
-      let energymodel = new energymodels();
+              graphbattsoc.push([predtime*1000,newdata["battery_soc"]]);
+              graphconsumption.push([predtime*1000,currentdata["LoadActivePower"]]);
 
-      for(let key in prediction.result.watts) {
-          let predtime=helper.unixTimestamp(new Date(key));
-
-          if (predtime > lastts) {
-
-            /*
-            let newmode=energymodel.run(config,currentdata,history);
-            if (newmode!=false){
-
-              if (outputmode!=newmode.suggested_mode){
+              if (newdata["OutputPriority_text"]!=currentdata["OutputPriority_text"]){
               
                 annot.push(
-                  charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_mode],newmode.suggested_mode,'#000')
-                );
-              }
-  
-              if (chargemode!=newmode.suggested_charge){
-                annot.push(
-                  charts.annot(helper.unixTimestamp(),charts.modcols[newmode.suggested_charge],newmode.suggested_charge, '#000',{"offsetY": -38})
+                  charts.annot(predtime,charts.modcols[newdata["OutputPriority_text"]],newdata["OutputPriority_text"],'#444')
                 );
               }
 
+              if (newdata["ChargerSourcePriority_text"]!=currentdata["ChargerSourcePriority_text"]){
+              
+                annot.push(
+                  charts.annot(predtime,charts.modcols[newdata["ChargerSourcePriority_text"]],newdata["ChargerSourcePriority_text"],'#444')
+                );
+              }
+
+              
+              graphdata.push([predtime*1000,prediction.result.watts[key]]);
+              lastts=lastts+stepping;
             }
-            */
-            
-            graphdata.push([predtime*1000,prediction.result.watts[key]]);
-            lastts=lastts+300;
-          }
+        }
       }
-      
     
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
     };
