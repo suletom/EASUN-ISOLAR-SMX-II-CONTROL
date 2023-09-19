@@ -42,15 +42,17 @@ class systememulator{
 
       let self_consumption_a=(this.config["inverter_self_consumption"]!==undefined?this.config["inverter_self_consumption"]:0);
 
+      let consuption_a=this.data["LoadApparentPower"]/this.data["BatteryVoltage"];
+
       if (this.data['OutputPriority_text']=="SBU"){
         
         //current simulated solar watts > consumption
-        if (suggestion.predicted_data > (this.data["BatteryCurrent"]+self_consumption_a)*this.data["BatteryVoltage"] ){
+        if (suggestion.predicted_data > (consuption_a+self_consumption_a)*this.data["BatteryVoltage"] ){
           //no discharge
-          solar_amps_left=(suggestion.predicted_data/this.data["BatteryVoltage"])-(this.data["BatteryCurrent"]+self_consumption_a);
+          solar_amps_left=(suggestion.predicted_data/this.data["BatteryVoltage"])-(consuption_a+self_consumption_a);
         }else{
           //calculated consuption
-          new_current_ah+=(-(stepping/3600)*this.data["BatteryCurrent"]);
+          new_current_ah+=(-(stepping/3600)*consuption_a);
           new_current_ah+=(-(stepping/3600)*self_consumption_a);
         }
 
