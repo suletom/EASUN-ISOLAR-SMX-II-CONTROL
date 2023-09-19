@@ -370,7 +370,7 @@ class charts{
         charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff',{"offsetY": 40})
       );
      
-      if (prediction!=null){
+      if (prediction!=null && (currentdata['battery_rv']!==undefined && currentdata['battery_rv']===1)){
 
         let tss=forecast.search_sunsets(prediction.result.watts);
 
@@ -570,9 +570,11 @@ class charts{
 
     static getchart=function(data,config,currentdata,history) {
 
-      if (typeof data["type"] !== undefined && data["type"]==="energymodeltest1"){
+      /*if (typeof data["type"] !== undefined && data["type"]==="energymodeltest1"){
         return charts._getdemochart(data,config);
       }
+      */
+
       if (typeof data["type"] !== undefined && data["type"]==="maingraph"){
 
         if (history.length>0){
