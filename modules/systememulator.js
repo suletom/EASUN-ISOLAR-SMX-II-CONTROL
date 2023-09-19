@@ -37,7 +37,7 @@ class systememulator{
 
       let new_current_ah=this.data["battery_ah_left"];
 
-      let solar_amps_left=this.data['OutputPriority_text']/this.data["BatteryVoltage"];
+      let solar_amps_left=suggestion.predicted_data/this.data["BatteryVoltage"];
 
       let self_consumption_a=(this.config["inverter_self_consumption"]!==undefined?this.config["inverter_self_consumption"]:0);
 
