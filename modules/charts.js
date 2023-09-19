@@ -425,7 +425,7 @@ class charts{
 
 
               let newdata=emulator.calculate(ptime,stepping);
-              
+              console.log("ndd:",newdata);
               graphbattsoc.push([ptime*1000,newdata["battery_soc"]]);
               graphconsumption.push([ptime*1000,currentdata["LoadActivePower"]]);
 
