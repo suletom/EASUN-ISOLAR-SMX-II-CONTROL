@@ -400,9 +400,9 @@ class charts{
         });
 
         let energycontroller = new energymodels();
-        let owndata = currentdata;
+        let owndata = JSON.parse(JSON.stringify(currentdata));
 
-        let emulator = new systememulator(config,energycontroller,owndata,history,prediction);
+        let emulator = new systememulator(config,energycontroller,JSON.parse(JSON.stringify(currentdata)),history,prediction);
 
         
 
@@ -427,16 +427,16 @@ class charts{
               let newdata=emulator.calculate(ptime,stepping);
               console.log("ndd:",newdata);
               graphbattsoc.push([ptime*1000,newdata["battery_soc"]]);
-              graphconsumption.push([ptime*1000,currentdata["LoadActivePower"]]);
+              graphconsumption.push([ptime*1000,owndata["LoadActivePower"]]);
 
-              if (newdata["OutputPriority_text"]!=currentdata["OutputPriority_text"]){
+              if (newdata["OutputPriority_text"]!=owndata["OutputPriority_text"]){
                 console.log("annot push:"+newdata["OutputPriority_text"]);
                 annot.push(
                   charts.annot(ptime,charts.modcols[newdata["OutputPriority_text"]],newdata["OutputPriority_text"],'#444')
                 );
               }
 
-              if (newdata["ChargerSourcePriority_text"]!=currentdata["ChargerSourcePriority_text"]){
+              if (newdata["ChargerSourcePriority_text"]!=owndata["ChargerSourcePriority_text"]){
 
                 annot.push(
                   charts.annot(ptime,charts.modcols[newdata["ChargerSourcePriority_text"]],newdata["ChargerSourcePriority_text"],'#444')
@@ -445,7 +445,7 @@ class charts{
 
               
               graphdata.push([ptime*1000,curp]);
-              
+              owndata=JSON.parse(JSON.stringify(newdata));   
         }
         
       }
