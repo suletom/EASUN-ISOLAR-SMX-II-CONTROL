@@ -403,16 +403,14 @@ class charts{
         let owndata = JSON.parse(JSON.stringify(currentdata));
 
         let emulator = new systememulator(config,energycontroller,JSON.parse(JSON.stringify(currentdata)),history,prediction);
-
         
-
         let stepping=300;
 
         for(let key in prediction.result.watts) {
           lastts=helper.unixTimestamp(new Date(key));
         }
 
-        for (let ptime=helper.unixTimestamp();ptime<lastts;ptime=ptime+stepping){
+        for (let ptime=helper.unixTimestamp();ptime<=lastts;ptime=ptime+stepping){
         
               let curp=0;
               for(let key in prediction.result.watts) {
@@ -425,7 +423,7 @@ class charts{
 
 
               let newdata=emulator.calculate(ptime,stepping);
-              console.log("ndd:",newdata);
+              //console.log("ndd:",newdata);
               graphbattsoc.push([ptime*1000,newdata["battery_soc"]]);
               graphconsumption.push([ptime*1000,owndata["LoadActivePower"]]);
 

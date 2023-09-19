@@ -23,8 +23,7 @@ class systememulator{
       }
 
       let safeout=this.safeswitchinst.getmodes();
-      this.data['OutputPriority_text']=safeout.stored_mode;
-      this.data['ChargerSourcePriority_text']=safeout.stored_charge;
+
       /*
       currentdata["battery_ah_left"],
       currentdata['OutputPriority_text'],
@@ -98,6 +97,9 @@ class systememulator{
       }
      
       this.data["battery_soc"]=Math.round((this.data["battery_ah_left"]/this.data["battery_capacity_ah"])*100);
+
+      this.data['OutputPriority_text']=safeout.stored_mode;
+      this.data['ChargerSourcePriority_text']=safeout.stored_charge;
 
       return this.data;
     }
