@@ -403,39 +403,51 @@ class charts{
         let owndata = currentdata;
 
         let emulator = new systememulator(config,energycontroller,owndata,history,prediction);
+
         
-        lastts=helper.unixTimestamp();
 
         let stepping=300;
+
         for(let key in prediction.result.watts) {
-            let predtime=helper.unixTimestamp(new Date(key));
+          lastts=helper.unixTimestamp(new Date(key));
+        }
 
-            if (predtime > lastts) {
+        for (let ptime=helper.unixTimestamp();ptime<lastts;ptime=ptime+stepping){
+        
+              let curp=0;
+              for(let key in prediction.result.watts) {
+                let pd=helper.unixTimestamp(new Date(key));
+                if (pd>ptime){
+                  curp=prediction.result.watts[key];
+                  break;
+                }
+              }
 
-              let newdata=emulator.calculate(predtime,stepping);
 
-              graphbattsoc.push([predtime*1000,newdata["battery_soc"]]);
-              graphconsumption.push([predtime*1000,currentdata["LoadActivePower"]]);
+              let newdata=emulator.calculate(ptime,stepping);
+
+              graphbattsoc.push([ptime*1000,newdata["battery_soc"]]);
+              graphconsumption.push([ptime*1000,currentdata["LoadActivePower"]]);
 
               if (newdata["OutputPriority_text"]!=currentdata["OutputPriority_text"]){
               
                 annot.push(
-                  charts.annot(predtime,charts.modcols[newdata["OutputPriority_text"]],newdata["OutputPriority_text"],'#444')
+                  charts.annot(ptime,charts.modcols[newdata["OutputPriority_text"]],newdata["OutputPriority_text"],'#444')
                 );
               }
 
               if (newdata["ChargerSourcePriority_text"]!=currentdata["ChargerSourcePriority_text"]){
               
                 annot.push(
-                  charts.annot(predtime,charts.modcols[newdata["ChargerSourcePriority_text"]],newdata["ChargerSourcePriority_text"],'#444')
+                  charts.annot(ptime,charts.modcols[newdata["ChargerSourcePriority_text"]],newdata["ChargerSourcePriority_text"],'#444')
                 );
               }
 
               
-              graphdata.push([predtime*1000,prediction.result.watts[key]]);
-              lastts=lastts+stepping;
-            }
+              graphdata.push([ptime*1000,curp]);
+              
         }
+        
       }
     
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
