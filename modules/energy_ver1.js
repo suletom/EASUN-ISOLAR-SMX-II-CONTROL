@@ -171,7 +171,7 @@ class energyver1 {
 
         //if charged: switch before sunset if power won't be enough
         if (this.sunset_preseve_switch()){
-          console.log("ENERGYv1: sunset preserve -> swtich to UTI "+helper.fdate(this.unixtime));
+          console.log("ENERGYv1: sunset preserve -> switch to UTI "+helper.fdate(this.unixtime));
           suggested_mode="UTI";
         }
                 

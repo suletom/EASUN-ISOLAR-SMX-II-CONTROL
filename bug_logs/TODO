@@ -25,7 +25,7 @@ BUGS:
 -battery plugin -> data checking: not valid data can arrive -> check logs: workarounded
 -Last state display not working (initial state/undefined state): +
 -timeings: empty param check fires -> on start: +
--model state change safe control: 
+-model state change safe control: wip
 
 
 

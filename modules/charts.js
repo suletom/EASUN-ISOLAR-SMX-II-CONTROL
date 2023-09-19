@@ -50,12 +50,13 @@ class charts{
 
         return [
             {'id':'maingraph','html':html2},
-            {'id':'energymodeltest1','html':html}
+            /*{'id':'energymodeltest1','html':html}*/
+            
         ];
     }
     
 
-    
+    /*
     static _getdemochart=function(data,config){
 
         let start_time="";
@@ -267,7 +268,7 @@ class charts{
              
         return charts._graph("demo",graphdata,graphbattsoc,graphconsumption,annot);
     }
-
+    */
 
     //history[cv]["timestamp"]
     static annot=function(timestamp,color,text,textcolor="",obj=null){
