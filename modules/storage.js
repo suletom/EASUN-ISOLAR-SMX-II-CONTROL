@@ -88,8 +88,8 @@ class paramstorage {
             this.currentdata["state"]="notconnected";
         }
         ret=this.currentdata;
-                
-        return ret;
+
+        return JSON.parse(JSON.stringify(ret));
     }
 
     gethistory(){
