@@ -9,15 +9,17 @@ class safeswitch{
         this.stored_change_time=0;
         this.stored_mode="";
         this.stored_charge="";
+        this.send_notif=1;
     }
 
-    init(init_mode,init_charge){
+    init(init_mode,init_charge,notif){
 
         if (this.stored_mode=="") {
             this.stored_mode=init_mode;
             this.stored_charge=init_charge;
         }
 
+        this.send_notif=notif;
     }
 
     getmodes(){
@@ -72,8 +74,10 @@ class safeswitch{
 
     _switch(configobj,mode,charge){
 
-        notifier.notifier(configobj,"SMX NOTICE "+configobj.ipaddress,
+        if (this.send_notif) {
+            notifier.notifier(configobj,"SMX NOTICE "+configobj.ipaddress,
                                                     "Suggested output mode switch: "+this.stored_mode+" -> "+mode+"\n Charger priority: "+this.stored_charge+" -> "+charge);
+        }
 
         this.stored_mode=mode;
         this.stored_charge=charge;

@@ -15,7 +15,7 @@ class systememulator{
 
       let suggestion=this.energycontroller.run(this.config,this.data,this.history,time);
       if (this.data['OutputPriority_text'] != undefined && this.data['OutputPriority_text'] != "N/A" && this.data['ChargerSourcePriority_text']!=undefined && this.data['OutputPriority_text'] != "N/A" ){
-          this.safeswitchinst.init(this.data['OutputPriority_text'],this.data['ChargerSourcePriority_text']);
+          this.safeswitchinst.init(this.data['OutputPriority_text'],this.data['ChargerSourcePriority_text'],0);
       }
       
       if (suggestion!=false) {
