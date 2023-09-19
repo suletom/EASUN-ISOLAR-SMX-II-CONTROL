@@ -404,6 +404,8 @@ class charts{
 
         let emulator = new systememulator(config,energycontroller,owndata,history,prediction);
         
+        lastts=helper.unixTimestamp();
+
         let stepping=300;
         for(let key in prediction.result.watts) {
             let predtime=helper.unixTimestamp(new Date(key));
