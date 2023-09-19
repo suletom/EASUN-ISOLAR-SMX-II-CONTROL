@@ -417,7 +417,7 @@ class charts{
               let curp=0;
               for(let key in prediction.result.watts) {
                 let pd=helper.unixTimestamp(new Date(key));
-                if (pd>ptime){
+                if (pd>=ptime){
                   curp=prediction.result.watts[key];
                   break;
                 }
@@ -430,14 +430,14 @@ class charts{
               graphconsumption.push([ptime*1000,currentdata["LoadActivePower"]]);
 
               if (newdata["OutputPriority_text"]!=currentdata["OutputPriority_text"]){
-              
+                console.log("annot push:"+newdata["OutputPriority_text"]);
                 annot.push(
                   charts.annot(ptime,charts.modcols[newdata["OutputPriority_text"]],newdata["OutputPriority_text"],'#444')
                 );
               }
 
               if (newdata["ChargerSourcePriority_text"]!=currentdata["ChargerSourcePriority_text"]){
-              
+
                 annot.push(
                   charts.annot(ptime,charts.modcols[newdata["ChargerSourcePriority_text"]],newdata["ChargerSourcePriority_text"],'#444')
                 );
