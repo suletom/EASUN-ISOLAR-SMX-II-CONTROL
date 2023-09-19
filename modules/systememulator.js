@@ -36,10 +36,7 @@ class systememulator{
       currentdata["LoadActivePower"]
       */
 
-      console.log("ncadata:",this.data);
-
       let new_current_ah=this.data["battery_ah_left"];
-      console.log("new_current_ah:",new_current_ah);
 
       let solar_amps_left=this.data['OutputPriority_text']/this.data["BatteryVoltage"];
 
@@ -92,12 +89,10 @@ class systememulator{
       //solar charge
       new_current_ah+=charge;
 
-      
-
       this.data["battery_ah_left"]=new_current_ah;
 
       if (this.data["battery_ah_left"]>this.data["battery_capacity_ah"]){
-        this.data["battery_ah_left"]=this.data["battery_capacity_ah"];
+        this.data["battery_ah_left"]=Math.round(this.data["battery_capacity_ah"]);
       }
      
       this.data["battery_soc"]=Math.round((this.data["battery_ah_left"]/this.data["battery_capacity_ah"])*100);
