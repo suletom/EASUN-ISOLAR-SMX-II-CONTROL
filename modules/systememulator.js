@@ -90,7 +90,7 @@ class systememulator{
       //solar charge
       new_current_ah+=charge;
 
-      console.log(this.data);
+      console.log("nca:",new_current_ah);
 
       this.data["battery_ah_left"]=new_current_ah;
 
