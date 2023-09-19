@@ -39,7 +39,7 @@ class systememulator{
       console.log("ncadata:",this.data);
 
       let new_current_ah=this.data["battery_ah_left"];
-      //console.log("new_current_ah:",new_current_ah);
+      console.log("new_current_ah:",new_current_ah);
 
       let solar_amps_left=this.data['OutputPriority_text']/this.data["BatteryVoltage"];
 
