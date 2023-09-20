@@ -12,7 +12,7 @@ class safeswitch{
         this.send_notif=1;
     }
 
-    init(init_mode,init_charge,notif){
+    init(init_mode,init_charge,notif=1){
 
         if (this.stored_mode=="") {
             this.stored_mode=init_mode;
@@ -35,7 +35,7 @@ class safeswitch{
 
     switch_mode(config,mode,charge){
 
-        console.log("SWITCHER: switch_mode called:",mode,charge);
+        console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" switch_mode called:",mode,charge);
         if (this.stored_mode=="" || this.stored_charge=="" ){
             //not initialized, not doing anything
             console.log("SWITCHER: Mode safe switcher not initialized, not changing mode.");
@@ -43,28 +43,28 @@ class safeswitch{
         }
 
         if (mode!=this.stored_mode || charge!=this.stored_charge){
-            console.log("SWITCHER: change detected....");
+            console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" change detected....");
             //UTI -> SBU: check time
             if (this.stored_mode=="UTI" && mode=="SBU") {
 
-                console.log("SWITCHER: UTI -> SBU");
+                console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" UTI -> SBU");
                 if ( (this.stored_change_time+this.safe_change_time_sec)<helper.unixTimestamp()){
-                    console.log("SWITCHER: UTI -> SBU time ok!");
+                    console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" UTI -> SBU time ok!");
                     this._switch(config,mode,charge);
 
                 }else{
-                    console.log("SWITCHER: Preventing switch due to time.");
+                    console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" Preventing switch due to time.");
                 }
             }
 
             if (this.stored_mode=="SBU" && mode=="UTI") {
-                console.log("SWITCHER: SBU -> UTI");
+                console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" SBU -> UTI");
                 this._switch(config,mode,charge);
 
             }
 
             if (this.stored_mode=="UTI" && mode=="UTI" && (charge!=this.stored_charge)) {
-                console.log("SWITCHER: UTI -> UTI, changeing charge mode....");
+                console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" UTI -> UTI, changeing charge mode....");
                 this._switch(config,mode,charge);
             }
 
@@ -75,6 +75,7 @@ class safeswitch{
     _switch(configobj,mode,charge){
 
         if (this.send_notif) {
+            console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" sending notification");
             notifier.notifier(configobj,"SMX NOTICE "+configobj.ipaddress,
                                                     "Suggested output mode switch: "+this.stored_mode+" -> "+mode+"\n Charger priority: "+this.stored_charge+" -> "+charge);
         }
