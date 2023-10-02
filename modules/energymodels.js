@@ -51,7 +51,7 @@ class energymodels{
         return sch;
     }
 
-    param_ok(param,data){
+    param_ok(data,param){
 
         //check if exists
         if (data[param]!==undefined){
@@ -69,8 +69,8 @@ class energymodels{
         return false;
     }
 
-    param_int_ok(param,data){
-        if (this.param_ok(param,data)){
+    param_int_ok(data,param){
+        if (this.param_ok(data,param)){
             if (Number.isInteger(data[param])){
                 return true;
             }else{
@@ -81,8 +81,8 @@ class energymodels{
         return false;
     }
 
-    param_float_ok(param,data){
-        if (this.param_ok(param,data)){
+    param_float_ok(data,param){
+        if (this.param_ok(data,param)){
             if (!Number.isNaN(data[param])){
                 
                 if (Number(data[param]) === data[param] && data[param] % 1 !== 0) {
