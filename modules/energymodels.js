@@ -162,7 +162,7 @@ class energymodels{
                                     this.param_ok(currentdata,"OutputPriority_text");
                                     this.param_int_ok(currentdata,"battery_capacity_ah");
                                     this.param_ok(currentdata,"ChargerSourcePriority_text");
-                                    this.param_int_ok(currentdata,"BatteryCurrent");
+                                    this.param_float_ok(currentdata,"BatteryCurrent");
                                     this.param_float_ok(currentdata,"BatteryVoltage");
                                     this.param_int_ok(currentdata,"MaxChargerCurrent");
                                     this.param_int_ok(currentdata,"LoadActivePower");
