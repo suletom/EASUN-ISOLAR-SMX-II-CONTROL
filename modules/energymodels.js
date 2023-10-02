@@ -51,6 +51,59 @@ class energymodels{
         return sch;
     }
 
+    param_ok(param,data){
+
+        //check if exists
+        if (data[param]!==undefined){
+
+            if (data[param]!="N/A"){
+                return true;
+            }else{
+                console.log("Model Param error: ",param," -> ",data[param]);
+            }
+
+        }else{
+            console.log("Model Param error: ",param," -> undefined",data);
+        }
+
+        return false;
+    }
+
+    param_int_ok(param,data){
+        if (this.param_ok(param,data)){
+            if (Number.isInteger(data[param])){
+                return true;
+            }else{
+                console.log("Model Param not integer: ",param," -> ",data[param]);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    param_float_ok(param,data){
+        if (this.param_ok(param,data)){
+            if (!Number.isNaN(data[param])){
+                
+                if (Number(data[param]) === data[param] && data[param] % 1 !== 0) {
+                    return true;
+                }
+
+                if (Number.isInteger(data[param])){
+                    return true;
+                }
+
+                console.log("Model Param type is unknown: ",param," -> ",data[param]);
+
+            }else{
+                console.log("Model Param is NaN: ",param," -> ",data[param]);
+                return false;
+            }
+        }
+        return false;
+    }
+    
+
     get_current(){
 
         let out="";
@@ -104,7 +157,16 @@ class energymodels{
                                     let ah_charge_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["charge_point"])/100);
                                     let ah_preserve_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["preserve_point"])/100);
 
-                                  
+                                    //check current input data
+                                    this.param_int_ok(currentdata,"battery_ah_left");
+                                    this.param_ok(currentdata,"OutputPriority_text");
+                                    this.param_int_ok(currentdata,"battery_capacity_ah");
+                                    this.param_ok(currentdata,"ChargerSourcePriority_text");
+                                    this.param_int_ok(currentdata,"BatteryCurrent");
+                                    this.param_float_ok(currentdata,"BatteryVoltage");
+                                    this.param_int_ok(currentdata,"MaxChargerCurrent");
+                                    this.param_int_ok(currentdata,"LoadActivePower");
+
 
                                     //here begins the magic
                                     let energy=new energy_ver1();
