@@ -160,7 +160,7 @@ class energymodels{
                                     //check current input data
                                     this.param_int_ok(currentdata,"battery_ah_left");
                                     this.param_ok(currentdata,"OutputPriority_text");
-                                    this.param_int_ok(currentdata,"battery_capacity_ah");
+                                    this.param_float_ok(currentdata,"battery_capacity_ah");
                                     this.param_ok(currentdata,"ChargerSourcePriority_text");
                                     this.param_float_ok(currentdata,"BatteryCurrent");
                                     this.param_float_ok(currentdata,"BatteryVoltage");
