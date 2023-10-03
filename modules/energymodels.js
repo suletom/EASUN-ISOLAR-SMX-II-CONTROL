@@ -85,7 +85,7 @@ class energymodels{
         if (this.param_ok(data,param)){
             if (!Number.isNaN(data[param])){
                 
-                if (Number(data[param]) === data[param] && data[param] % 1 !== 0) {
+                if (Number(data[param]) === data[param] && ((data[param] % 1) !== 0 ) ) {
                     return true;
                 }
 
