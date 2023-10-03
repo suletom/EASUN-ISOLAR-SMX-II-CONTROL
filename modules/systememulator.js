@@ -91,7 +91,7 @@ class systememulator{
       //solar charge
       new_current_ah+=charge;
 
-      this.data["battery_ah_left"]=Number.parseFloat(new_current_ah).toFixed(3);
+      this.data["battery_ah_left"]=parseFloat(Number.parseFloat(new_current_ah).toFixed(3));
 
       if (this.data["battery_ah_left"]>this.data["battery_capacity_ah"]){
         this.data["battery_ah_left"]=Math.round(this.data["battery_capacity_ah"]);
