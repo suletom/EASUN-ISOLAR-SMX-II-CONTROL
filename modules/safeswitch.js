@@ -33,7 +33,14 @@ class safeswitch{
         return "Virtual state: "+this.stored_mode+", "+this.stored_charge+" Next switch after: "+helper.fdate(this.stored_change_time+this.safe_change_time_sec);
     }    
 
-    switch_mode(config,mode,charge){
+    switch_mode(config,mode,charge,now=null){
+
+        let nowtime=helper.unixTimestamp();
+        if (now==null) {
+            nowtime=helper.unixTimestamp();
+        }else{
+            nowtime=now;
+        }
 
         console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" switch_mode called:",mode,charge);
         if (this.stored_mode=="" || this.stored_charge=="" ){
@@ -48,9 +55,9 @@ class safeswitch{
             if (this.stored_mode=="UTI" && mode=="SBU") {
 
                 console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" UTI -> SBU");
-                if ( (this.stored_change_time+this.safe_change_time_sec)<helper.unixTimestamp()){
+                if ( (this.stored_change_time+this.safe_change_time_sec)<nowtime){
                     console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" UTI -> SBU time ok!");
-                    this._switch(config,mode,charge);
+                    this._switch(config,mode,charge,nowtime);
 
                 }else{
                     console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" Preventing switch due to time, switch after: "+helper.fdate(this.stored_change_time+this.safe_change_time_sec));
@@ -59,20 +66,20 @@ class safeswitch{
 
             if (this.stored_mode=="SBU" && mode=="UTI") {
                 console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" SBU -> UTI");
-                this._switch(config,mode,charge);
+                this._switch(config,mode,charge,nowtime);
 
             }
 
             if (this.stored_mode=="UTI" && mode=="UTI" && (charge!=this.stored_charge)) {
                 console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" UTI -> UTI, changeing charge mode....");
-                this._switch(config,mode,charge);
+                this._switch(config,mode,charge,nowtime);
             }
 
         }
 
     }
 
-    _switch(configobj,mode,charge){
+    _switch(configobj,mode,charge,nowtime){
 
         if (this.send_notif) {
             console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" sending notification");
@@ -83,7 +90,7 @@ class safeswitch{
         this.stored_mode=mode;
         this.stored_charge=charge;
 
-        this.stored_change_time=helper.unixTimestamp();
+        this.stored_change_time=nowtime;
 
     }
     
