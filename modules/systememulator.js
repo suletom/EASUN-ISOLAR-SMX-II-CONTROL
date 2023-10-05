@@ -51,7 +51,9 @@ class systememulator{
           //no discharge
           solar_amps_left=(suggestion.predicted_data/this.data["BatteryVoltage"])-(consuption_a+self_consumption_a);
         }else{
-          //calculated consuption
+
+    
+           //calculated consuption
           new_current_ah+=(-(stepping/3600)*consuption_a);
           new_current_ah+=(-(stepping/3600)*self_consumption_a);
         }
@@ -64,6 +66,8 @@ class systememulator{
           //console.log("new_current_ah - cons:",new_current_ah);
         }
       }
+
+      console.log("solar_amps_left:"+solar_amps_left);
 
       let charge=0;
 
