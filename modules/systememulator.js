@@ -21,9 +21,25 @@ class systememulator{
       
       if (suggestion!=false) {
         this.safeswitchinst.switch_mode(this.config,suggestion.suggested_mode,suggestion.suggested_charge,time);
+
       }
 
       let safeout=this.safeswitchinst.getmodes();
+
+      let prediction=0;
+      let prevdatekey=0;
+      let cob=helper.fdateobj(time);
+      let current_date_str=cob.year+"-"+cob.mon+"-"+cob.day+" "+cob.hour+":"+cob.min+":"+cob.sec;
+      for(let datekey in this.prediction.result.watts){
+
+        //search for current hour prediction
+        if (current_date_str<datekey && current_date_str>prevdatekey){
+          prediction=this.prediction.result.watts[datekey];
+        }
+
+        prevdatekey=datekey;
+
+      }
 
       /*
       currentdata["battery_ah_left"],
@@ -38,8 +54,8 @@ class systememulator{
 
       let new_current_ah=this.data["battery_ah_left"];
 
-      console.log("spb:"+suggestion.predicted_data+"  bv"+this.data["BatteryVoltage"]);
-      let solar_amps_left=suggestion.predicted_data/this.data["BatteryVoltage"];
+      
+      let solar_amps_left=prediction/this.data["BatteryVoltage"];
 
       let self_consumption_a=(this.config["inverter_self_consumption"]!==undefined?this.config["inverter_self_consumption"]:0);
 
@@ -48,9 +64,9 @@ class systememulator{
       if (this.data['OutputPriority_text']=="SBU"){
         
         //current simulated solar watts > consumption
-        if (suggestion.predicted_data > (consuption_a+self_consumption_a)*this.data["BatteryVoltage"] ){
+        if (prediction > (consuption_a+self_consumption_a)*this.data["BatteryVoltage"] ){
           //no discharge
-          solar_amps_left=(suggestion.predicted_data/this.data["BatteryVoltage"])-(consuption_a+self_consumption_a);
+          solar_amps_left=(prediction/this.data["BatteryVoltage"])-(consuption_a+self_consumption_a);
         }else{
 
     
@@ -78,7 +94,7 @@ class systememulator{
         //console.log("charges:",charge);
       }else{
 
-        if (suggestion.predicted_data>0) {
+        if (prediction>0) {
 
           //solar amps
           charge=solar_amps_left;
