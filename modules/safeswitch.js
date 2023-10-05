@@ -53,7 +53,7 @@ class safeswitch{
                     this._switch(config,mode,charge);
 
                 }else{
-                    console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" Preventing switch due to time.");
+                    console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" Preventing switch due to time, switch after: "+helper.fdate(this.stored_change_time+this.safe_change_time_sec));
                 }
             }
 
