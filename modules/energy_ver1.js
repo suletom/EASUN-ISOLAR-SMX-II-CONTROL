@@ -87,14 +87,15 @@ class energyver1 {
           let kdate=helper.unixTimestamp(new Date(datekey));
 
           if (current_date_str<datekey){
-
-            solar_input_wh+= (this.prediction.result.watts[datekey]*((kdate-lastdk)/3600))
-
+            
             //search for next enough solar input
             if (this.prediction.result.watts[datekey]>(this.full_consumption_w)){
                  needed_time_to_solar=datekey;
               break;
             }
+
+            solar_input_wh+= (this.prediction.result.watts[datekey]*((kdate-lastdk)/3600))
+
           }  
         
           lastdk=kdate;
