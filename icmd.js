@@ -150,6 +150,9 @@ if (process.argv.length<3){
 
         if ( inp.paramid!=undefined && (inp.value!=undefined) && req.query.client!=undefined ){
 
+            _send_command(configobj,inp.paramid,inp.value,req.query.client);
+
+            /*
             let args=[process.argv[0],process.argv[1],'set-smx-param'];
 
             if (configobj.ipaddress!==undefined){
@@ -169,6 +172,7 @@ if (process.argv.length<3){
                 client=req.query.client;
             }    
             command_queue.push({"client":client,"args":args});
+            */
 
             res.json({"rv": 1,"msg": "Operation queued!"});
             
@@ -246,6 +250,23 @@ if (process.argv.length<3){
         let currstore=store.get();
 
         let virtual_states=safeswitchinst.getmodes();
+
+        //real switching -> after switch immediately or after some time
+        if (safeswitchinst.need_sync()){
+
+            if (currstore['OutputPriority_text']!=virtual_states.stored_mode){
+                let param="";
+                _send_command(configobj,param,virtual_states.stored_mode,'internal');
+               
+            }
+
+            if (currstore['ChargerSourcePriority_text']!=virtual_states.stored_charge){
+                let param="";
+                _send_command(configobj,param,virtual_states.stored_charge,'internal');
+            }
+
+        }
+        
 
         //pass virtual state for model for "testing"
         if (virtual_states.stored_mode!="") {
@@ -352,12 +373,14 @@ if (process.argv.length<3){
 
                         if (result==0){
                             console.log("Modify OK!",tmpa.args);
-                            
-                            command_result.push({"date":helper.unixTimestamp(),"client": tmpa.client,"msg":"Modify OK!","args":tmpa.args});
-                            
+                            if (tmpa.client!='internal') {
+                                command_result.push({"date":helper.unixTimestamp(),"client": tmpa.client,"msg":"Modify OK!","args":tmpa.args});
+                            }    
+                          
                         }else{
-
-                            command_result.push({"date":helper.unixTimestamp(),"client": tmpa.client,"msg":"Modify Error!","args":tmpa.args});
+                            if (tmpa.client!='internal') {
+                                command_result.push({"date":helper.unixTimestamp(),"client": tmpa.client,"msg":"Modify Error!","args":tmpa.args});
+                            }    
                             console.log("Modify Error!",tmpa.args);
                         }
                     },
@@ -408,6 +431,45 @@ if (process.argv.length<3){
     
 }
 
+
+function _send_command(configobj,paramid,value,clientid=undefined){
+
+    let args=[process.argv[0],process.argv[1],'set-smx-param'];
+
+    if (configobj.ipaddress!==undefined){
+        args.push(configobj.ipaddress);
+    }
+    if (configobj.localipaddress!==undefined && configobj.localipaddress!=""){
+        args.push("localip="+configobj.localipaddress);
+    }
+
+    if (paramid.match(/^[0-9]+$/)) {
+        args.push(paramid);
+    }else{
+
+        var commands={};
+        let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
+    
+        try{
+            commands=JSON.parse(cdata);
+        }catch(e){
+            console.log("command -> error getting param id from param string: "+paramid);
+        }
+        
+    }
+    
+    
+    args.push(value);
+
+    console.log("command -> queue:",args);
+
+    let client="";
+    if (clientid != undefined){
+        client=clientid;
+    }    
+    command_queue.push({"client":client,"args":args});
+
+}
 
 
 //cmd script mode
