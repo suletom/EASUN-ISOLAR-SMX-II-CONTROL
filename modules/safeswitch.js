@@ -10,7 +10,7 @@ class safeswitch{
         this.stored_mode="";
         this.stored_charge="";
         this.send_notif=1;
-    }
+        this.allow_sync=false;    }
 
     init(init_mode,init_charge,notif=1){
 
@@ -20,6 +20,22 @@ class safeswitch{
         }
 
         this.send_notif=notif;
+    }
+
+    /* true if state changed at the moment, but after returns false for some time to wait to sync inverter parameters back */
+    need_sync(){
+
+        let nowtime=helper.unixTimestamp();
+        if (nowtime-this.stored_change_time<(5*60)) {
+            if (this.allow_sync) {
+                this.allow_sync=false;
+                return true;
+            }
+            return false;
+        }else{
+            return true;
+        }
+
     }
 
     getmodes(){
@@ -92,6 +108,7 @@ class safeswitch{
 
         this.stored_change_time=nowtime;
 
+        this.allow_sync=true;
     }
     
 }

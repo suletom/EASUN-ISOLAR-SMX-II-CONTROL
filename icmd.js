@@ -251,22 +251,7 @@ if (process.argv.length<3){
 
         let virtual_states=safeswitchinst.getmodes();
 
-        //real switching -> after switch immediately or after some time
-        if (safeswitchinst.need_sync()){
-
-            if (currstore['OutputPriority_text']!=virtual_states.stored_mode){
-                let param="";
-                _send_command(configobj,param,virtual_states.stored_mode,'internal');
                
-            }
-
-            if (currstore['ChargerSourcePriority_text']!=virtual_states.stored_charge){
-                let param="";
-                _send_command(configobj,param,virtual_states.stored_charge,'internal');
-            }
-
-        }
-        
 
         //pass virtual state for model for "testing"
         if (virtual_states.stored_mode!="") {
@@ -283,7 +268,23 @@ if (process.argv.length<3){
         
         if (suggestion!=false) {
             safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
-        }    
+        }
+
+        //real switching -> after switch immediately or after some time
+        if (configobj.energymgmt!=undefined && configobj.energymgmt[0]!=undefined && configobj.energymgmt[0].allow_model_control!=undefined && configobj.energymgmt[0].allow_model_control=="True" &&  safeswitchinst.need_sync()){
+
+            if (currstore['OutputPriority_text']!=virtual_states.stored_mode){
+                let param="";
+                _send_command(configobj,param,virtual_states.stored_mode,'internal');
+               
+            }
+
+            if (currstore['ChargerSourcePriority_text']!=virtual_states.stored_charge){
+                let param="";
+                _send_command(configobj,param,virtual_states.stored_charge,'internal');
+            }
+
+        }
         
     },30000);
 
@@ -455,7 +456,16 @@ function _send_command(configobj,paramid,value,clientid=undefined){
         }catch(e){
             console.log("command -> error getting param id from param string: "+paramid);
         }
-        
+
+        let nc=commands.commands.find(cdf => cdf.name === 'get_smx_param');
+                    
+        if (nc!=undefined && nc.hasOwnProperty('definition') && Array.isArray(nc.definition)) {
+            let ind=nc.definition.findIndex(o => o.num == paramid );
+            args.push(ind);
+        }else{
+            console.log("command -> error, not found parameter id: "+paramid);
+            return;
+        }
     }
     
     

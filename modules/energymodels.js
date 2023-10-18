@@ -43,6 +43,11 @@ class energymodels{
                     "type": "number",
                     "title": "Minimum SOC to swith to UTI when prediction won't be enough",
                     
+                },
+                "allow_model_control": {
+                    "type": "string",
+                    "title": "Allow model control",
+                    "enum": ["False","True"],
                 }
                 
             }
