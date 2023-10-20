@@ -216,7 +216,7 @@ if (process.argv.length<3){
             let wg3={'batteryinfo':batterymodel.get_current()};
             dov={...dov,...wg3};
 
-            let wg4={'energyinfo':energymodel.get_current()+"<div>"+safeswitchinst.getstate()+"</div>"};
+            let wg4={'energyinfo':energymodel.get_current()+"<div>"+safeswitchinst.getstate()+"</div><div>MODE CONTROL: "+(mode_control_enabled(configobj)?"<span>ON</span>":"<span>OFF</span>")+"</div>"};
             dov={...dov,...wg4};
         }
               
@@ -251,8 +251,6 @@ if (process.argv.length<3){
 
         let virtual_states=safeswitchinst.getmodes();
 
-               
-
         //pass virtual state for model for "testing"
         if (virtual_states.stored_mode!="") {
             currstore['OutputPriority_text']=virtual_states.stored_mode;
@@ -268,20 +266,23 @@ if (process.argv.length<3){
         
         if (suggestion!=false) {
             safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
-        }
+        
+            //real switching -> after switch immediately or after some time
+            if (mode_control_enabled(configobj) &&  safeswitchinst.need_sync()){
 
-        //real switching -> after switch immediately or after some time
-        if (configobj.energymgmt!=undefined && configobj.energymgmt[0]!=undefined && configobj.energymgmt[0].allow_model_control!=undefined && configobj.energymgmt[0].allow_model_control=="True" &&  safeswitchinst.need_sync()){
+                new_virtual_states=safeswitchinst.getmodes();
 
-            if (currstore['OutputPriority_text']!=virtual_states.stored_mode){
-                let param="";
-                _send_command(configobj,param,virtual_states.stored_mode,'internal');
-               
-            }
+                if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode){
+                    
+                    _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
+                
+                }
 
-            if (currstore['ChargerSourcePriority_text']!=virtual_states.stored_charge){
-                let param="";
-                _send_command(configobj,param,virtual_states.stored_charge,'internal');
+                if (currstore['ChargerSourcePriority_text']!=new_virtual_states.stored_charge){
+                    
+                    _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
+                }
+
             }
 
         }
@@ -430,56 +431,71 @@ if (process.argv.length<3){
 
     monitor_interval=setInterval(function(){ scheduler(); },real_time_monitor_interval);
     
-}
 
+    function _send_command(configobj,paramid,value,clientid=undefined){
 
-function _send_command(configobj,paramid,value,clientid=undefined){
+        console.log("command -> "+paramid+" : "+value);
 
-    let args=[process.argv[0],process.argv[1],'set-smx-param'];
-
-    if (configobj.ipaddress!==undefined){
-        args.push(configobj.ipaddress);
-    }
-    if (configobj.localipaddress!==undefined && configobj.localipaddress!=""){
-        args.push("localip="+configobj.localipaddress);
-    }
-
-    if (paramid.match(/^[0-9]+$/)) {
-        args.push(paramid);
-    }else{
-
-        var commands={};
-        let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
+        let args=[process.argv[0],process.argv[1],'set-smx-param'];
     
-        try{
-            commands=JSON.parse(cdata);
-        }catch(e){
-            console.log("command -> error getting param id from param string: "+paramid);
+        if (configobj.ipaddress!==undefined){
+            args.push(configobj.ipaddress);
         }
-
-        let nc=commands.commands.find(cdf => cdf.name === 'get_smx_param');
-                    
-        if (nc!=undefined && nc.hasOwnProperty('definition') && Array.isArray(nc.definition)) {
-            let ind=nc.definition.findIndex(o => o.num == paramid );
-            args.push(ind);
+        if (configobj.localipaddress!==undefined && configobj.localipaddress!=""){
+            args.push("localip="+configobj.localipaddress);
+        }
+    
+        if (paramid.match(/^[0-9]+$/)) {
+            args.push(paramid);
         }else{
-            console.log("command -> error, not found parameter id: "+paramid);
-            return;
+
+            console.log("command -> looking for param def");
+    
+            var commands={};
+            let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
+        
+            try{
+                commands=JSON.parse(cdata);
+            }catch(e){
+                console.log("command -> error getting param id from param string: "+paramid);
+            }
+    
+            let nc=commands.commands.find(cdf => cdf.name === 'get_smx_param');
+                                    
+            if (nc!=undefined && nc.hasOwnProperty('definition') && Array.isArray(nc.definition)) {
+                let ind=nc.definition.findIndex(o => o.name == paramid );
+                if (ind!=-1) {
+                    args.push(nc.definition[ind].num);
+                }else{
+                    console.log("command -> error, not found parameter id: "+paramid);
+                }
+                
+            }else{
+                console.log("command -> error, not found parameter id: "+paramid);
+                return;
+            }
         }
+        
+        
+        args.push(value);
+    
+        console.log("command -> queue:",args);
+    
+        let client="";
+        if (clientid != undefined){
+            client=clientid;
+        }    
+        command_queue.push({"client":client,"args":args});
+    
     }
     
-    
-    args.push(value);
+    function mode_control_enabled(configobj){
+        return (configobj.energymgmt!=undefined && configobj.energymgmt[0]!=undefined && configobj.energymgmt[0].allow_model_control!=undefined && configobj.energymgmt[0].allow_model_control=="True");
+    }
 
-    console.log("command -> queue:",args);
-
-    let client="";
-    if (clientid != undefined){
-        client=clientid;
-    }    
-    command_queue.push({"client":client,"args":args});
 
 }
+
 
 
 //cmd script mode

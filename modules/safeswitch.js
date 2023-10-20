@@ -25,6 +25,11 @@ class safeswitch{
     /* true if state changed at the moment, but after returns false for some time to wait to sync inverter parameters back */
     need_sync(){
 
+        //safety check, if inited
+        if (this.stored_mode==""){
+            return false;
+        }
+
         let nowtime=helper.unixTimestamp();
         if (nowtime-this.stored_change_time<(5*60)) {
             if (this.allow_sync) {

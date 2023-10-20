@@ -121,6 +121,7 @@ class energymodels{
 
     run(configobj,currentdata,history,nowtime="") {
 
+
         if (nowtime==""){
             nowtime=helper.unixTimestamp();
         }
