@@ -267,10 +267,11 @@ if (process.argv.length<3){
         if (suggestion!=false) {
             safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
         
+            console.log("Energymodel has suggestion");
             //real switching -> after switch immediately or after some time
             if (mode_control_enabled(configobj) &&  safeswitchinst.need_sync()){
-
-                new_virtual_states=safeswitchinst.getmodes();
+                console.log("Energymodel: mode_control_enabled AND safewsitch need_sync");
+                let new_virtual_states=safeswitchinst.getmodes();
 
                 if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode){
                     
