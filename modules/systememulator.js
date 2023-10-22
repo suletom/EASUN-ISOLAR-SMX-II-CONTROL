@@ -90,7 +90,7 @@ class systememulator{
       let charge=0;
 
       //console.log("charge0:",charge);
-      if (['ChargerSourcePriority_text']=="SNU"){
+      if (this.data['ChargerSourcePriority_text']=="SNU"){
         charge=(stepping/3600)*this.data["MaxChargerCurrent"];
         //console.log("charges:",charge);
       }else{
