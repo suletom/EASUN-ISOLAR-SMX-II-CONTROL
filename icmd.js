@@ -252,10 +252,10 @@ if (process.argv.length<3){
         let virtual_states=safeswitchinst.getmodes();
 
         //pass virtual state for model for "testing"
-        if (virtual_states.stored_mode!="") {
-            currstore['OutputPriority_text']=virtual_states.stored_mode;
-            currstore['ChargerSourcePriority_text']=virtual_states.stored_charge;
-        }
+        //if (virtual_states.stored_mode!="") {
+        //    currstore['OutputPriority_text']=virtual_states.stored_mode;
+        //    currstore['ChargerSourcePriority_text']=virtual_states.stored_charge;
+        //}
 
         batterymodel.run(configobj,currstore,store.gethistory());
         let suggestion=energymodel.run(configobj,currstore,store.gethistory());
