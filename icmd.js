@@ -262,6 +262,11 @@ if (process.argv.length<3){
         
         if (currstore['OutputPriority_text'] != undefined && currstore['OutputPriority_text'] != "N/A" && currstore['ChargerSourcePriority_text']!=undefined && currstore['OutputPriority_text'] != "N/A" ){
             safeswitchinst.init(currstore['OutputPriority_text'],currstore['ChargerSourcePriority_text']);
+
+            //if (mode_control_enabled(configobj)){
+            //    
+            //}
+
         }
         
         if (suggestion!=false) {
