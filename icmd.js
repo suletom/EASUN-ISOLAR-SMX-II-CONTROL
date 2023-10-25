@@ -251,30 +251,58 @@ if (process.argv.length<3){
 
         let virtual_states=safeswitchinst.getmodes();
 
+        /**
+         * Virtual mode:
+
+            1. init állapot -> felveszi ami van
+            2. normál futásnál a fake-elt állapotot szolgáltatja a model számára
+
+           Production mode:
+           
+           1. init állapot -> felveszi ami van
+           2. szinkronizáljuk az állapotokat:
+            - ha van váltás akkor az inverter fele
+            - a model adathalmaza az inveterről kapott adat
+
+
+           Bad test case:
+
+                safeswitch in UTI
+                inveter in SBU
+                mode_control: disabled
+
+                -mode_control: enable (turned on)
+                -model test result: based on inveter data: need switching to UTI
+                -safeswitch thinks no need to switch due to its in UTI
+                    
+            Resolution:
+                ???? feed data back to update virtual states in safeswitch -> makes chaos when inverter data is not immediately got back
+                ???? resync once when control turned on?: meanwhile state could be changed manualy tha same problem occurs....
+
+         */
+
         //pass virtual state for model for "testing"
-        //if (virtual_states.stored_mode!="") {
-        //    currstore['OutputPriority_text']=virtual_states.stored_mode;
-        //    currstore['ChargerSourcePriority_text']=virtual_states.stored_charge;
-        //}
+        if (!mode_control_enabled(configobj) && virtual_states.stored_mode!="") {
+            currstore['OutputPriority_text']=virtual_states.stored_mode;
+            currstore['ChargerSourcePriority_text']=virtual_states.stored_charge;
+        }
 
         batterymodel.run(configobj,currstore,store.gethistory());
         let suggestion=energymodel.run(configobj,currstore,store.gethistory());
         
         if (currstore['OutputPriority_text'] != undefined && currstore['OutputPriority_text'] != "N/A" && currstore['ChargerSourcePriority_text']!=undefined && currstore['OutputPriority_text'] != "N/A" ){
             safeswitchinst.init(currstore['OutputPriority_text'],currstore['ChargerSourcePriority_text']);
-
-            //if (mode_control_enabled(configobj)){
-            //    
-            //}
-
         }
         
         if (suggestion!=false) {
             safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
         
             console.log("Energymodel has suggestion");
-            //real switching -> after switch immediately or after some time
+            //real switching -> after switch immediately or after some time: let time to get result back in currentstore data
             if (mode_control_enabled(configobj) &&  safeswitchinst.need_sync()){
+
+
+                //optimális eset: kell váltani -> a safeswitch átvált
                 console.log("Energymodel: mode_control_enabled AND safewsitch need_sync");
                 let new_virtual_states=safeswitchinst.getmodes();
 

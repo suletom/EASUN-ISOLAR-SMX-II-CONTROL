@@ -164,14 +164,16 @@ class energymodels{
                                     let ah_preserve_point=currentdata["battery_capacity_ah"]*((configobj["energymgmt"][0]["preserve_point"])/100);
 
                                     //check current input data
-                                    this.param_float_ok(currentdata,"battery_ah_left");
-                                    this.param_ok(currentdata,"OutputPriority_text");
-                                    this.param_int_ok(currentdata,"battery_capacity_ah");
-                                    this.param_ok(currentdata,"ChargerSourcePriority_text");
-                                    this.param_float_ok(currentdata,"BatteryCurrent");
-                                    this.param_float_ok(currentdata,"BatteryVoltage");
-                                    this.param_int_ok(currentdata,"MaxChargerCurrent");
-                                    this.param_int_ok(currentdata,"LoadActivePower");
+                                    let perr=true;
+
+                                    perr &=this.param_float_ok(currentdata,"battery_ah_left");
+                                    perr &=this.param_ok(currentdata,"OutputPriority_text");
+                                    perr &=this.param_int_ok(currentdata,"battery_capacity_ah");
+                                    perr &=this.param_ok(currentdata,"ChargerSourcePriority_text");
+                                    perr &=this.param_float_ok(currentdata,"BatteryCurrent");
+                                    perr &=this.param_float_ok(currentdata,"BatteryVoltage");
+                                    perr &=this.param_int_ok(currentdata,"MaxChargerCurrent");
+                                    perr &=this.param_int_ok(currentdata,"LoadActivePower");
 
 
                                     //here begins the magic
@@ -192,7 +194,7 @@ class energymodels{
                                         currentdata["LoadActivePower"]
                                     );
 
-                                    if (modelresult==false || modelresult==null){
+                                    if (modelresult==false || modelresult==null || perr==false){
 
                                         this.msg="<p>"+helper.fdate()+": ERROR: modelresult -> N/A</p>";
                                         return false;
