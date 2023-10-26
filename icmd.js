@@ -278,6 +278,7 @@ if (process.argv.length<3){
             Resolution:
                 ???? feed data back to update virtual states in safeswitch -> makes chaos when inverter data is not immediately got back
                 ???? resync once when control turned on?: meanwhile state could be changed manualy tha same problem occurs....
+                ???? if state differ and control on -> don't switch, rather sync
 
          */
 
@@ -287,41 +288,53 @@ if (process.argv.length<3){
             currstore['ChargerSourcePriority_text']=virtual_states.stored_charge;
         }
 
-        batterymodel.run(configobj,currstore,store.gethistory());
-        let suggestion=energymodel.run(configobj,currstore,store.gethistory());
-        
-        if (currstore['OutputPriority_text'] != undefined && currstore['OutputPriority_text'] != "N/A" && currstore['ChargerSourcePriority_text']!=undefined && currstore['OutputPriority_text'] != "N/A" ){
-            safeswitchinst.init(currstore['OutputPriority_text'],currstore['ChargerSourcePriority_text']);
-        }
-        
-        if (suggestion!=false) {
-            safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
-        
-            console.log("Energymodel has suggestion");
-            //real switching -> after switch immediately or after some time: let time to get result back in currentstore data
-            if (mode_control_enabled(configobj) &&  safeswitchinst.need_sync()){
+        if  (
+            mode_control_enabled(configobj) && 
+                (currstore['OutputPriority_text']!=virtual_states.stored_mode || currstore['ChargerSourcePriority_text']!=virtual_states.stored_charge)
+            ){
 
-
-                //optimális eset: kell váltani -> a safeswitch átvált
-                console.log("Energymodel: mode_control_enabled AND safewsitch need_sync");
-                let new_virtual_states=safeswitchinst.getmodes();
-
-                if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode){
-                    
-                    _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
+                console.log("Virtual state differs from real, syncronizing states");
+                _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
+                _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
                 
-                }
+        }else{
 
-                if (currstore['ChargerSourcePriority_text']!=new_virtual_states.stored_charge){
+            batterymodel.run(configobj,currstore,store.gethistory());
+            let suggestion=energymodel.run(configobj,currstore,store.gethistory());
+            
+            if (currstore['OutputPriority_text'] != undefined && currstore['OutputPriority_text'] != "N/A" && currstore['ChargerSourcePriority_text']!=undefined && currstore['OutputPriority_text'] != "N/A" ){
+                safeswitchinst.init(currstore['OutputPriority_text'],currstore['ChargerSourcePriority_text']);
+            }
+            
+            if (suggestion!=false) {
+                safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
+            
+                console.log("Energymodel has suggestion");
+                //real switching -> after switch immediately or after some time: let time to get result back in currentstore data
+                if (mode_control_enabled(configobj) &&  safeswitchinst.need_sync()){
+
+
+                    //optimális eset: kell váltani -> a safeswitch átvált
+                    console.log("Energymodel: mode_control_enabled AND safewsitch need_sync");
+                    let new_virtual_states=safeswitchinst.getmodes();
+
+                    if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode){
+                        
+                        _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
                     
-                    _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
+                    }
+
+                    if (currstore['ChargerSourcePriority_text']!=new_virtual_states.stored_charge){
+                        
+                        _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
+                    }
+
                 }
 
             }
-
-        }
+        }    
         
-    },30000);
+    },60000);
 
     // 0 -> full query   1 -> only important
     function monitor(prio=0) {
