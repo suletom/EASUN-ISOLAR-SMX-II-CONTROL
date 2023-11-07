@@ -159,10 +159,10 @@ class energyver1 {
         //console.log("ENERGYv1: AH > AH_MIN");
         if (this.current_mode=="UTI") {
           if (pred_ok){
-            console.log("ENERGYv1: charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+            console.log("ENERGYv1: (IN UTI) charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
             suggested_mode="SBU";
           }else{
-            console.log("ENERGYv1: charge_seems_NOT_enough -> stay in UTI"+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+            console.log("ENERGYv1: (IN UTI) charge_seems_NOT_enough -> stay in UTI"+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
             suggested_mode="UTI";  
           }
         }else{
@@ -186,10 +186,18 @@ class energyver1 {
 
               if (this.charge_enough(1)){
                 suggested_mode="SBU";
-                console.log("ENERGYv1: (IN SBU) min-sw point -> SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                console.log("ENERGYv1: (IN SBU) above sw point -> SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
               }else{
-                suggested_mode="UTI";
-                console.log("ENERGYv1: (IN SBU) min-sw point -> UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+
+                if (this.consumption_a<=0){
+                  suggested_mode="SBU";
+                  console.log("ENERGYv1: (IN SBU) above sw point, charging -> STAY IN SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                }else{
+                  suggested_mode="UTI"
+                  console.log("ENERGYv1: (IN SBU) above sw point -> UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                }
+
+                
               }
 
            }else{
