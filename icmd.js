@@ -289,13 +289,13 @@ if (process.argv.length<3){
         }
 
         if  (
-            mode_control_enabled(configobj) && 
+            mode_control_enabled(configobj) && virtual_states.stored_mode!="" &&
                 (currstore['OutputPriority_text']!=virtual_states.stored_mode || currstore['ChargerSourcePriority_text']!=virtual_states.stored_charge)
             ){
 
                 console.log("Virtual state differs from real, syncronizing states");
-                _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
-                _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
+                _send_command(configobj,"OutputPriority",virtual_states.stored_mode,'internal');
+                _send_command(configobj,"ChargerSourcePriority",virtual_states.stored_charge,'internal');
                 
         }else{
 
@@ -309,9 +309,9 @@ if (process.argv.length<3){
             if (suggestion!=false) {
                 safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
             
-                console.log("Energymodel has suggestion");
+                console.log("Energymodel has suggestion...");
                 //real switching -> after switch immediately or after some time: let time to get result back in currentstore data
-                if (mode_control_enabled(configobj) &&  safeswitchinst.need_sync()){
+                if (mode_control_enabled(configobj) && safeswitchinst.need_sync()){
 
 
                     //optimális eset: kell váltani -> a safeswitch átvált
