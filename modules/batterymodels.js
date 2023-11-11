@@ -164,7 +164,6 @@ class batterymodels{
 
         if (typeof configobj["battery"] != undefined && typeof configobj["battery"][0] != undefined && typeof configobj["battery"][0]["battery_chosen"] != undefined ) {
 
-
             switch (configobj["battery"][0]["battery_chosen"]) {
                 case 'software_battery': 
                     battype='software_battery';

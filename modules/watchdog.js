@@ -255,53 +255,27 @@ class watchdog {
         }
 
     }
-/*
-    check_battery_ui(){
 
-        return {"capacity_ah": {"type": "number", "title": "Battery capacity ah"},
-                "added_consumption_a": { "type": "number", "title": "Added Consuption (A)" },
-                "forecast_url": { "type": "string", "title": "forecast.solar API link to estimate (https://api.forecast.solar/estimate/47.686482/17.604971/20/100/4)" },
-                "preserve_ah": { "type": "number", "title": "Preserve x AH in battery" }
-        };
-    }
-*/
-/*
     check_battery(ind,data,goal,add=null){
 
-        let batinf=battery.calcsoc(add.capacity_ah,add.added_consumption_a,this.history);
+        if (data['battery_rv']==0 && (
+                helper.unixTimestamp()-data['battery_seen']
+            )>(60*3)
+        ) {
 
-        let info="";
-        if (batinf.rv==1){
-            info+=batinf.soc+"% "+batinf.state+((batinf.remaining!=0)?(" Remaining hours: "+batinf.remaining):"")+" "+(batinf.ah_left+" Ah left");
-        }else{
-            info+=batinf.errors.join("; ");
+            let info="";
+            info+="Battery seen: "+helper.fdate(data['battery_seen']);
+            this._pusherror(ind,"Battery info",goal,info);    
+
         }
 
-        info+="<br />"+energy.sdfdsf(data,batinf,add.forecast_url,add.preserve_ah);
-
-        this._pusherror(ind,"Battery info",goal,info);
-        this._pushok(ind,"Battery info",goal,info);
-
-    }
-*/
-    /*
-    check_battery_external(ind,data,goal,add=null){
-
-        let batinf=jbdbattery.calcsoc();
-
-        let info="";
-        if (batinf.rv==1){
-            info+="BMS info: "+batinf.soc+"% "+batinf.state+((batinf.remaining!=0)?(" Remaining hours: "+batinf.remaining):"")+" "+(batinf.ah_left+" Ah left");
-            info+=" Current:"+batinf.amps;
-        }else{
-            info+=batinf.errors.join("; ");
+        if (data['battery_rv']==1){
+            this._pushok(ind,"Battery info",goal,info);    
         }
-       
-        this._pusherror(ind,"Battery info",goal,info);
-        this._pushok(ind,"Battery info",goal,info);
-
+        
     }
-    */
+
+   
 
     _pusherror(ind,err,goal,info=null){
         

@@ -216,7 +216,7 @@ if (process.argv.length<3){
             let wg3={'batteryinfo':batterymodel.get_current()};
             dov={...dov,...wg3};
 
-            let wg4={'energyinfo':energymodel.get_current()+"<div>"+safeswitchinst.getstate()+"</div><div>MODE CONTROL: "+(mode_control_enabled(configobj)?"<span>ON</span>":"<span>OFF</span>")+"</div>"};
+            let wg4={'energyinfo':energymodel.get_current()+"<div>"+safeswitchinst.getstate()+"</div><div>MODE CONTROL: "+(mode_control_enabled(configobj)?"<span class=\"onbg\">ON</span>":"<span class=\"offbg\">OFF</span>")+"</div>"};
             dov={...dov,...wg4};
         }
               

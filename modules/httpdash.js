@@ -621,6 +621,14 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                 margin: 0px;
             }
 
+            .onbg{
+                background-color: red;
+            }
+
+            .offbg{
+                background-color: green;
+            }
+
             </style>
         </head>
         <body class="notconnected">

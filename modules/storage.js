@@ -105,6 +105,11 @@ class paramstorage {
         jsobject["timestamp"]=helper.unixTimestamp();
         jsobject["state"]="connected";
         jsobject["lastseen"]=jsobject["timestamp"];
+        if (jsobject["battery_seen"]===undefined){
+            if (this.currentdata["battery_seen"]!==undefined){
+                jsobject["battery_seen"]=this.currentdata["battery_seen"];
+            }
+        }
         
         //0->full prio
         if (completedata==0){
