@@ -667,7 +667,7 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
 
                     </div>
                 </div>
-                <button class="btn" onclick="document.querySelector('#allparams').classList.contains('hide')?document.querySelector('#allparams').classList.remove('hide'):document.querySelector('#allparams').classList.add('hide')">
+                <button class="btn btn-info m-5" onclick="document.querySelector('#allparams').classList.contains('hide')?document.querySelector('#allparams').classList.remove('hide'):document.querySelector('#allparams').classList.add('hide')">
                 Show/Hide all params         
                 </button>
                 <form id="allparams" class="hide">

@@ -57,11 +57,12 @@ class energy {
           if (diff>update_period){
             console.log("ENERGY:","need to fetch predicted data: file too old", url);    
             needfetch=1;
-          }else{
-            if (diff<(update_period*2)){
-              data_ok=1;
-            }
           }
+          
+          if (diff<(update_period*2)){
+            data_ok=1;
+          }
+          
         }
       }  
 
