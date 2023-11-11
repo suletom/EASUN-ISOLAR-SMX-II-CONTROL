@@ -238,7 +238,7 @@ class energyver1 {
 
       if (this.current_charge_mode=="SNU"){
 
-        if (this.charge_enough()){
+        if (this.charge_enough() && this.current_ah>this.ah_min_point){
           //console.log("chargeen: true");
           return "OSO";
         }else{
