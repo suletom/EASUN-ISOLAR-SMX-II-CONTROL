@@ -258,21 +258,26 @@ class watchdog {
 
     check_battery(ind,data,goal,add=null){
 
-        if (data['battery_rv']==0 && (
-                helper.unixTimestamp()-data['battery_seen']
-            )>(60*3)
-        ) {
 
-            let info="";
-            info+="Battery seen: "+helper.fdate(data['battery_seen']);
-            this._pusherror(ind,"Battery info",goal,info);    
+        if (this.param_ok('battery_rv',data)) {
 
+            if (data['battery_rv']==0 && (
+                    helper.unixTimestamp()-data['battery_seen']
+                )>(60*3)
+            ) {
+
+                let info="";
+                info+="Battery seen: "+helper.fdate(data['battery_seen']);
+                this._pusherror(ind,"Battery info",goal,info);    
+
+            }
+
+            if (data['battery_rv']==1){
+                let info="";
+                info+="Battery seen: "+helper.fdate(data['battery_seen']);
+                this._pushok(ind,"Battery info",goal,info);    
+            }
         }
-
-        if (data['battery_rv']==1){
-            this._pushok(ind,"Battery info",goal,info);    
-        }
-        
     }
 
    
