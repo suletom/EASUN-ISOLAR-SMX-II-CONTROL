@@ -251,39 +251,10 @@ if (process.argv.length<3){
 
         let virtual_states=safeswitchinst.getmodes();
 
-        /**
-         * Virtual mode:
-
-            1. init állapot -> felveszi ami van
-            2. normál futásnál a fake-elt állapotot szolgáltatja a model számára
-
-           Production mode:
-           
-           1. init állapot -> felveszi ami van
-           2. szinkronizáljuk az állapotokat:
-            - ha van váltás akkor az inverter fele
-            - a model adathalmaza az inveterről kapott adat
-
-
-           Bad test case:
-
-                safeswitch in UTI
-                inveter in SBU
-                mode_control: disabled
-
-                -mode_control: enable (turned on)
-                -model test result: based on inveter data: need switching to UTI
-                -safeswitch thinks no need to switch due to its in UTI
-                    
-            Resolution:
-                ???? feed data back to update virtual states in safeswitch -> makes chaos when inverter data is not immediately got back
-                ???? resync once when control turned on?: meanwhile state could be changed manualy tha same problem occurs....
-                ???? if state differ and control on -> don't switch, rather sync
-
-         */
-
+       
         //pass virtual state for model for "testing"
         if (!mode_control_enabled(configobj) && virtual_states.stored_mode!="") {
+            console.log("Mode control disabled: providing fake virtual state to model calculation for testing.");
             currstore['OutputPriority_text']=virtual_states.stored_mode;
             currstore['ChargerSourcePriority_text']=virtual_states.stored_charge;
         }
@@ -294,6 +265,7 @@ if (process.argv.length<3){
             ){
 
                 console.log("Virtual state differs from real, syncronizing states");
+
                 _send_command(configobj,"OutputPriority",virtual_states.stored_mode,'internal');
                 _send_command(configobj,"ChargerSourcePriority",virtual_states.stored_charge,'internal');
                 
@@ -301,12 +273,15 @@ if (process.argv.length<3){
 
             batterymodel.run(configobj,currstore,store.gethistory());
             let suggestion=energymodel.run(configobj,currstore,store.gethistory());
-            
+            console.log("Getting suggestion");
+
             if (currstore['OutputPriority_text'] != undefined && currstore['OutputPriority_text'] != "N/A" && currstore['ChargerSourcePriority_text']!=undefined && currstore['OutputPriority_text'] != "N/A" ){
+                
                 safeswitchinst.init(currstore['OutputPriority_text'],currstore['ChargerSourcePriority_text']);
             }
             
             if (suggestion!=false) {
+                
                 safeswitchinst.switch_mode(configobj,suggestion.suggested_mode,suggestion.suggested_charge);
             
                 console.log("Energymodel has suggestion...");
@@ -331,6 +306,8 @@ if (process.argv.length<3){
 
                 }
 
+            }else{
+                console.log("Got no suggestion.");
             }
         }    
         

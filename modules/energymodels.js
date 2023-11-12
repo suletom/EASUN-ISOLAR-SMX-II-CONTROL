@@ -201,6 +201,9 @@ class energymodels{
 
                                     }else{
 
+                                        //current suggestion by chosen model
+                                        console.log("ENERGY: current suggestion by chosen model:"+modelresult.suggested_mode+"  "+modelresult.suggested_charge+"  ("+modelresult.predicted_data+")");
+
                                         this.msg="<p>"+helper.fdate()+": "+modelresult.suggested_mode+"  "+modelresult.suggested_charge+"  ("+modelresult.predicted_data+")</p>";
 
                                         let ci=0;
@@ -225,6 +228,7 @@ class energymodels{
                                                     this.modelresults[this.modelresults.length-1].res.suggested_charge!=modelresult.suggested_charge  
                                                 )
                                             )
+                                           
                                         ) {
 
                                             this.modelresults.push({"res":modelresult,"time":helper.unixTimestamp()});
@@ -236,6 +240,19 @@ class energymodels{
 
                                             return modelresult;
 
+                                        }
+
+                                        //force trigger suggestion if real states on inveter differs
+                                        if (
+                                             (this.modelresults.length>0 && 
+                                                (
+                                                    currentdata['OutputPriority_text']=modelresult.suggested_mode ||
+                                                    currentdata['ChargerSourcePriority_text']!=modelresult.suggested_charge  
+                                                )
+                                            )
+                                           
+                                        ) {
+                                            return modelresult;
                                         }
 
                                         return false;
