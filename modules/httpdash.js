@@ -127,7 +127,7 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                             },
                             smtpauth: {
                                 type: "string",
-                                title: "Datalogger ip address",
+                                title: "SMTP encryption",
                                 enum: ["auto","ssl"],
                                 default: "auto"
                             },
