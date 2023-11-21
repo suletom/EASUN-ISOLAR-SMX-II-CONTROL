@@ -263,7 +263,7 @@ class watchdog {
 
             if (data['battery_rv']==0 && (
                     helper.unixTimestamp()-data['battery_seen']
-                )>(60*3)
+                )>(60*4)
             ) {
 
                 let info="";
