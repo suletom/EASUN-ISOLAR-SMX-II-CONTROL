@@ -104,8 +104,12 @@ class safeswitch{
 
         if (this.send_notif) {
             console.log("SWITCHER: "+(this.send_notif?"(live)":"(emulator)")+" sending notification");
+            ms="!! OFF !!";
+            if ((configobj.energymgmt!=undefined && configobj.energymgmt[0]!=undefined && configobj.energymgmt[0].allow_model_control!=undefined && configobj.energymgmt[0].allow_model_control=="True")){
+                ms="ENABLED";
+            }
             notifier.notifier(configobj,"SMX NOTICE "+configobj.ipaddress,
-                                                    "Suggested output mode switch: "+this.stored_mode+" -> "+mode+"\n Charger priority: "+this.stored_charge+" -> "+charge);
+                                                    "Suggested output mode switch: "+this.stored_mode+" -> "+mode+"\n Charger priority: "+this.stored_charge+" -> "+charge+"\n AUTO modeswitch: "+ms);
         }
 
         this.stored_mode=mode;

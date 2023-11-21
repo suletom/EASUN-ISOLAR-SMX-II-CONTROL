@@ -8,8 +8,21 @@ class energyver1 {
       
     }
 
-    run(unixtime,current_solar_watts,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a,full_consumption_w){
+    run(unixtime,current_solar_watts,prediction,ah_min_point,ah_switch_point,ah_charge_point,preserve_ah,current_ah,current_mode,ah_capacity,current_charge_mode,consumption_a,voltage,charge_max_a,full_consumption_w,history){
       //console.log("ENERGYv1: ",helper.fdate(unixtime));
+
+      this.history=history;
+
+      this.wasfullycharged=false;
+      if (history!=undefined && history.length>0) {
+        for(let cv=this.history.length-1;cv>0;cv--){
+
+          //try to fully charge at every 5 days
+          if ( this.history[cv]["timestamp"] > (helper.unixTimestamp()-(3600*24*5))  && this.history[cv]['battery_rv']==1 && this.history[cv]['battery_soc']==100){
+            this.wasfullycharged=true;
+          }
+        }
+      }  
 
       this.prediction=prediction;
       this.unixtime=unixtime;
@@ -159,8 +172,13 @@ class energyver1 {
         //console.log("ENERGYv1: AH > AH_MIN");
         if (this.current_mode=="UTI") {
           if (pred_ok){
-            console.log("ENERGYv1: (IN UTI) charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
-            suggested_mode="SBU";
+            if (this.wasfullycharged) {
+              console.log("ENERGYv1: (IN UTI) charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+              suggested_mode="SBU";
+            }else{
+              console.log("ENERGYv1: (IN UTI) charge_seems_enough, but full charge was long ago -> stay in to UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+              suggested_mode="UTI";
+            }  
           }else{
             console.log("ENERGYv1: (IN UTI) charge_seems_NOT_enough -> stay in UTI"+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
             suggested_mode="UTI";  

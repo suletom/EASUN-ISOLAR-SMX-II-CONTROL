@@ -191,7 +191,8 @@ class energymodels{
                                         currentdata["BatteryCurrent"],
                                         currentdata["BatteryVoltage"],
                                         currentdata["MaxChargerCurrent"],
-                                        currentdata["LoadActivePower"]
+                                        currentdata["LoadActivePower"],
+                                        history
                                     );
 
                                     if (modelresult==false || modelresult==null || perr==false){
