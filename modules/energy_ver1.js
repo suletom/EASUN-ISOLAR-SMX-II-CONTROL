@@ -24,6 +24,10 @@ class energyver1 {
         }
       }  
 
+      if (current_ah==ah_capacity) {
+        this.wasfullycharged=true;
+      }
+
       this.prediction=prediction;
       this.unixtime=unixtime;
       
