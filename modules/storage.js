@@ -11,7 +11,8 @@ class paramstorage {
         this.history_store="history";
         this.lastwrite=null;
         this.history_days=8;
-        
+        this.asyncdata=[];
+
         console.log("Loading recent history from files...");
         this.loadhistory();
   
@@ -100,6 +101,17 @@ class paramstorage {
         
         if (append!=null) {
             jsobject={...jsobject,...append};
+        }
+
+        if (this.asyncdata.length>0) {
+            this.asyncdata.forEach(function(el) {
+                if (jsobject["asyncdata"]!=undefined) {
+                    jsobject.asyncdata.push(el);
+                } else {
+                    jsobject["asyncdata"]=[];
+                    jsobject["asyncdata"].push(el);
+                }
+            });
         }
 
         jsobject["timestamp"]=helper.unixTimestamp();
@@ -191,6 +203,10 @@ class paramstorage {
             console.error(err);
         }
 
+    }
+
+    appendasync(data) {
+        this.asyncdata.push(data);
     }
 
 }
