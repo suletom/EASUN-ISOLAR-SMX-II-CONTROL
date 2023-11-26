@@ -294,7 +294,7 @@ if (process.argv.length<3){
                     let new_virtual_states=safeswitchinst.getmodes();
 
                     if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode){
-                        
+                        store.appendasync()
                         _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
                     
                     }

@@ -12,6 +12,7 @@ class energyver1 {
       //console.log("ENERGYv1: ",helper.fdate(unixtime));
 
       this.history=history;
+      this.reason=[];
 
       this.wasfullycharged=false;
       if (history!=undefined && history.length>0) {
@@ -172,39 +173,62 @@ class energyver1 {
       suggested_charge=this.charge_switch_control();
 
       if (this.current_ah>this.ah_min_point){
+        this.reason.push("Current AH "+this.current_ah+" > Min point AH "+this.ah_min_point);
 
         //console.log("ENERGYv1: AH > AH_MIN");
         if (this.current_mode=="UTI") {
+          this.reason.push("Current mode: UTI");
           if (pred_ok){
+
+            this.reason.push("Prediction to minimum point: ok");
+
             if (this.wasfullycharged) {
+              this.reason.push("Fully charged before");
+
               console.log("ENERGYv1: (IN UTI) charge_seems_enough -> swtich to SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+              
+              this.reason.push("Suggestion: SBU");
               suggested_mode="SBU";
             }else{
+
+              this.reason.push("No Full charge before");
               console.log("ENERGYv1: (IN UTI) charge_seems_enough, but full charge was long ago -> stay in to UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
               suggested_mode="UTI";
+              this.reason.push("Suggestion: UTI");
             }  
           }else{
+            this.reason.push("Prediction to minimum point: seems not enough!");
             console.log("ENERGYv1: (IN UTI) charge_seems_NOT_enough -> stay in UTI"+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+            this.reason.push("Suggestion: UTI");
             suggested_mode="UTI";  
           }
         }else{
+          this.reason.push("Current mode: NOT UTI");
           console.log("ENERGYv1: else current mode: "+this.current_mode+" -> switch to SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
           suggested_mode="SBU";
+          this.reason.push("Suggestion: SBU");
         }  
 
         //if charged: switch before sunset if power won't be enough
         if (this.sunset_preseve_switch()){
+          this.reason.push("Sunset preserve: switch before sunset");
           console.log("ENERGYv1: sunset preserve -> switch to UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
           suggested_mode="UTI";
+          this.reason.push("Suggestion: UTI");
         }
                 
       }else{ 
 
+        this.reason.push("Current AH "+this.current_ah+" <= Min point AH "+this.ah_min_point);
+
          //soc greater than switch point
          if(this.current_ah>this.ah_switch_point){
            //console.log("ENERGYv1: AH_SWITCH < AH < AH_MIN");
+           this.reason.push("Current AH "+this.current_ah+" > Switch point AH "+this.ah_switch_point);
 
            if (this.current_mode=="SBU") {
+
+              this.reason.push("Current mode: SBU");
 
               if (this.charge_enough(1)){
                 suggested_mode="SBU";
@@ -224,6 +248,7 @@ class energyver1 {
 
            }else{
 
+              this.reason.push("Current mode: NOT SBU");
               //if (this.charge_enough()){
               //    suggested_mode="SBU";
               //    console.log("ENERGYv1: min-sw point -> SBU "+helper.fdate(this.unixtime));
@@ -253,7 +278,7 @@ class energyver1 {
 
       }
 
-      return {"suggested_mode":suggested_mode,"suggested_charge":suggested_charge,"predicted_data":this.predicted_data};
+      return {"suggested_mode":suggested_mode,"suggested_charge":suggested_charge,"predicted_data":this.predicted_data,"reason": this.reason};
     }
 
     charge_switch_control() {
