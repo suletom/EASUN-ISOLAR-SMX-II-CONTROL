@@ -293,16 +293,20 @@ if (process.argv.length<3){
                     console.log("Energymodel: mode_control_enabled AND safewsitch need_sync");
                     let new_virtual_states=safeswitchinst.getmodes();
 
+                    let waschange=false;
                     if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode){
-                        store.appendasync()
+                        
+                        waschange=true;
                         _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
                     
                     }
 
                     if (currstore['ChargerSourcePriority_text']!=new_virtual_states.stored_charge){
-                        
+                        waschange=true;
                         _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
                     }
+
+                    if (waschange) store.appendasync(suggestion.reason);
 
                 }
 

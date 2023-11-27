@@ -112,6 +112,7 @@ class paramstorage {
                     jsobject["asyncdata"].push(el);
                 }
             });
+            this.asyncdata=[];
         }
 
         jsobject["timestamp"]=helper.unixTimestamp();

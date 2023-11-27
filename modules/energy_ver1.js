@@ -231,16 +231,28 @@ class energyver1 {
               this.reason.push("Current mode: SBU");
 
               if (this.charge_enough(1)){
+                this.reason.push("Prediction to switch point: seems enough!");
                 suggested_mode="SBU";
                 console.log("ENERGYv1: (IN SBU) above sw point -> SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                this.reason.push("Suggestion: SBU");
               }else{
 
+                this.reason.push("Prediction to switch point: seems not enough!");
+
                 if (this.consumption_a<=0){
+
+                  this.reason.push("Current battery consumtion -> charging");
+
                   suggested_mode="SBU";
                   console.log("ENERGYv1: (IN SBU) above sw point, charging -> STAY IN SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                  this.reason.push("Suggestion: SBU");
                 }else{
+
+                  this.reason.push("Current battery consumtion -> discharging");
+
                   suggested_mode="UTI"
                   console.log("ENERGYv1: (IN SBU) above sw point -> UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                  this.reason.push("Suggestion: UTI");
                 }
 
                 
@@ -255,19 +267,32 @@ class energyver1 {
               //}else{
                   suggested_mode="UTI";
                   console.log("ENERGYv1: min-sw point STAY IN UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                  this.reason.push("Suggestion: UTI");
               //}
           }
 
          }else{  //soc lower than switch point 
 
+            this.reason.push("Current AH "+this.current_ah+" < Switch point AH "+this.ah_switch_point);
+
             if (this.current_ah>this.ah_charge_point){ //above charge point
+
+              this.reason.push("Current AH "+this.current_ah+" > Charge point AH "+this.ah_charge_point);
 
               console.log("ENERGYv1: AH_CHARGE < AH < AH_SWITCH -> UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
               suggested_mode="UTI";
+
+              this.reason.push("Suggestion: UTI");
               
             }else{ //lower than charge point
 
+              this.reason.push("Current AH "+this.current_ah+" <= Charge point AH "+this.ah_charge_point);
+
               suggested_mode="UTI";
+
+              this.reason.push("Suggestion: UTI");
+              this.reason.push("Suggestion: SNU");
+
               console.log("ENERGYv1: AH < AH_CHARGE -> UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
 
               suggested_charge="SNU";
@@ -285,15 +310,25 @@ class energyver1 {
 
       if (this.current_charge_mode=="SNU"){
 
+        this.reason.push("Current mode: SNU");
+
         if (this.charge_enough() && this.current_ah>this.ah_min_point){
+
+          this.reason.push("Charge enough to minimum point AND current battery charge > minium point");
+          this.reason.push("Current mode: OSO");
           //console.log("chargeen: true");
           return "OSO";
+
         }else{
           //console.log("chargeen: false");
         }
-        
+
+        this.reason.push("Current mode: SNU");
         return "SNU";
+        
       }
+
+      this.reason.push("Current mode: OSO");
 
       return "OSO";
 
