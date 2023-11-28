@@ -306,7 +306,7 @@ if (process.argv.length<3){
                         _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
                     }
 
-                    if (waschange) store.appendasync(suggestion.reason);
+                    if (waschange) store.appendasync({"date": helper.unixTimestamp(),"reason":suggestion.reason});
 
                 }
 
