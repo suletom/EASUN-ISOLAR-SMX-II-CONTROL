@@ -103,17 +103,7 @@ class paramstorage {
             jsobject={...jsobject,...append};
         }
 
-        if (this.asyncdata.length>0) {
-            this.asyncdata.forEach(function(el) {
-                if (jsobject["asyncdata"]!=undefined) {
-                    jsobject.asyncdata.push(el);
-                } else {
-                    jsobject["asyncdata"]=[];
-                    jsobject["asyncdata"].push(el);
-                }
-            });
-            this.asyncdata=[];
-        }
+        
 
         jsobject["timestamp"]=helper.unixTimestamp();
         jsobject["state"]="connected";
@@ -126,7 +116,21 @@ class paramstorage {
         
         //0->full prio
         if (completedata==0){
+
+            if (this.asyncdata.length>0) {
+                this.asyncdata.forEach(function(el) {
+                    if (jsobject["asyncdata"]!=undefined) {
+                        jsobject.asyncdata.push(el);
+                    } else {
+                        jsobject["asyncdata"]=[];
+                        jsobject["asyncdata"].push(el);
+                    }
+                });
+                this.asyncdata=[];
+            }
+
             this.currentdata=jsobject;
+
         }else{
             this.currentdata={...this.currentdata,...jsobject};
         }
