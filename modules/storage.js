@@ -112,7 +112,11 @@ class paramstorage {
                     jsobject["asyncdata"].push(el);
                 }
             });
-            this.asyncdata=[];
+
+            //empty async data in case of full inverter data  ( else store asyncdata and update currentdata object at every non full update time)
+            if (completedata==0) {
+                this.asyncdata=[];
+            }    
         }
 
         jsobject["timestamp"]=helper.unixTimestamp();

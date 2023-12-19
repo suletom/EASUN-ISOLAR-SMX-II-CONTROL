@@ -294,14 +294,14 @@ if (process.argv.length<3){
                     let new_virtual_states=safeswitchinst.getmodes();
 
                     let waschange=false;
-                    if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode){
+                    if (currstore['OutputPriority_text']!=new_virtual_states.stored_mode) {
                         
                         waschange=true;
                         _send_command(configobj,"OutputPriority",new_virtual_states.stored_mode,'internal');
                     
                     }
 
-                    if (currstore['ChargerSourcePriority_text']!=new_virtual_states.stored_charge){
+                    if (currstore['ChargerSourcePriority_text']!=new_virtual_states.stored_charge) {
                         waschange=true;
                         _send_command(configobj,"ChargerSourcePriority",new_virtual_states.stored_charge,'internal');
                     }

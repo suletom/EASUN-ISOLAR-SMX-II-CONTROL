@@ -651,7 +651,7 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                     <div class="card-body"><label>BATTERYINFO</label><div id="batteryinfo" class="contener"></div></div>
                 </div>  
                 <div id="notif-energy" class="d-flex justify-content-center notifb">
-                    <div class="card-body"><label>ENERGY MANAGEMET MODEL INFO</label><div id="energymodelinfo" class="contener"></div></div>
+                    <div class="card-body"><label>ENERGY MANAGEMENT MODEL INFO</label><div id="energymodelinfo" class="contener"></div></div>
                 </div>
                 <div id="notif-cont" class="d-flex justify-content-center notifb">
                     <div class="card-body"><label>Notifications</label><table id="notifs" class="table"></table></div>
