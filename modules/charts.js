@@ -335,6 +335,23 @@ class charts{
 
         if (history[cv]["timestamp"] < start_time) continue;
 
+        let reasons=[]; 
+        if (history[cv]['OutputPriority_text']!=outputmod || chargemode!=history[cv]['ChargerSourcePriority_text']){
+          
+          for (let j=cv;j>0;j--){
+            if (history[j]["asyncdata"]!=undefined){
+              for (let a=0;a<history[j]["asyncdata"].length;a++){
+                if (history[j]["asyncdata"]["date"]+300 > history[cv]["timestamp"]){
+                  reasons.push(history[j]["asyncdata"]);
+                }
+
+                //just check last 50 history item
+                if (a>50) break;
+              }
+            }
+          }
+        }
+
         if (history[cv]['OutputPriority_text']!=outputmode) {
 
           annot.push(
