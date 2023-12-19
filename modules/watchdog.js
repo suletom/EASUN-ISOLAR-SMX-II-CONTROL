@@ -256,14 +256,29 @@ class watchdog {
 
     }
 
-    check_battery(ind,data,goal,add=null){
+    check_battery_value_ui(){
+        return {
+                "nobattmin": { "type": "number", "title": "Notifiy if no battery info(min)" },
+                
+            };
+    }
 
+    check_battery(ind,data,goal,add=null){
 
         if (this.param_ok('battery_rv',data)) {
 
+            let mv=6;
+
+            if (add!=null && add["nobattmin"]!=undefined){
+                let tm=parseInt(add.nobattmin);
+                if (!Number.isNaN(tm) && tm>0){
+                    mv=tm;
+                }
+            }    
+
             if (data['battery_rv']==0 && (
                     helper.unixTimestamp()-data['battery_seen']
-                )>(60*4)
+                )>(60*mv)
             ) {
 
                 let info="";

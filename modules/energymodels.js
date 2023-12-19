@@ -132,11 +132,21 @@ class energymodels{
         }
 
         if (prediction==null){
-            console.log("ENERGY_ERROR:","Prediction empty!");
-            this.msg="ENERGY_ERROR: Prediction empty!";
-            return false;
-        }else{
 
+            console.log("ENERGY_WARNING:","Prediction empty!");
+            this.msg="ENERGY_WARNING: Prediction empty!";
+
+            //create fake null prediction and notify
+            let td=helper.fdateobj();
+            let today=td.year+"-"+td.mon+"-"+td.day;
+
+            let to={};
+            to[today+" 08:00:00"]=0;
+            to[today+" 12:00:00"]=0;
+            to[today+" 16:00:00"]=0;
+            prediction={"result":{"watts":to}};
+
+        }
 
             if (typeof configobj["energymgmt"] != undefined && typeof configobj["energymgmt"][0] != undefined && typeof configobj["energymgmt"][0]["model_chosen"] != undefined ) {
 
@@ -290,7 +300,7 @@ class energymodels{
                 return false;
             }
 
-        }
+        
     }
 
 }
