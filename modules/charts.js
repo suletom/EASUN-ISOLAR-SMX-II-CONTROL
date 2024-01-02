@@ -387,6 +387,8 @@ class charts{
         charts.annot(helper.unixTimestamp(),'#000',"NOW",'#fff',{"offsetY": 40})
       );
      
+      console.log(prediction);
+
       if (prediction!=null && (currentdata['battery_rv']!==undefined && currentdata['battery_rv']===1)){
 
         let tss=forecast.search_sunsets(prediction.result.watts);
@@ -427,8 +429,8 @@ class charts{
           lastts=helper.unixTimestamp(new Date(key));
         }
 
-        console.log(prediction.result.watts);
         
+
         for (let ptime=helper.unixTimestamp();ptime<=lastts;ptime=ptime+stepping){
         
               let curp=0;
