@@ -427,6 +427,8 @@ class charts{
           lastts=helper.unixTimestamp(new Date(key));
         }
 
+        console.log(prediction.result.watts);
+        
         for (let ptime=helper.unixTimestamp();ptime<=lastts;ptime=ptime+stepping){
         
               let curp=0;
