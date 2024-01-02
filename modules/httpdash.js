@@ -6,7 +6,8 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
     let svg=fs.readFileSync('etc/display.svg',{encoding:'utf8', flag:'r'});
 
     let firststart=0;
-    if (typeof configobj["ipaddress"] == undefined){
+    
+    if (typeof configobj["ipaddress"] == "undefined" || configobj["ipaddress"]=="" ){
         firststart=1;
     }
 

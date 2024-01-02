@@ -336,7 +336,7 @@ class charts{
         if (history[cv]["timestamp"] < start_time) continue;
 
         let reasons=[]; 
-        if (history[cv]['OutputPriority_text']!=outputmod || chargemode!=history[cv]['ChargerSourcePriority_text']){
+        if (history[cv]['OutputPriority_text']!=outputmode || chargemode!=history[cv]['ChargerSourcePriority_text']){
           
           for (let j=cv;j>0;j--){
             if (history[j]["asyncdata"]!=undefined){
