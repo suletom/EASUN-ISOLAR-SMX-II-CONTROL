@@ -253,11 +253,11 @@ class energymodels{
 
                                         }
 
-                                        //force trigger suggestion if real states on inveter differs
+                                        //force trigger suggestion if real states on inverter differs
                                         if (
                                              (this.modelresults.length>0 && 
                                                 (
-                                                    currentdata['OutputPriority_text']=modelresult.suggested_mode ||
+                                                    currentdata['OutputPriority_text']!=modelresult.suggested_mode ||
                                                     currentdata['ChargerSourcePriority_text']!=modelresult.suggested_charge  
                                                 )
                                             )
