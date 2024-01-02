@@ -93,6 +93,7 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                     theme: 'bootstrap5',
                     no_additional_properties: true,
                     required_by_default: true,
+                    show_opt_in: true,
                     schema: {
                         type: "object",
                         title: "CONFIGURATION",
