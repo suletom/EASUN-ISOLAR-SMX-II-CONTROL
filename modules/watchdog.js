@@ -256,7 +256,7 @@ class watchdog {
 
     }
 
-    check_battery_value_ui(){
+    check_battery_ui(){
         return {
                 "nobattmin": { "type": "number", "title": "Notifiy if no battery info(min)" },
                 
