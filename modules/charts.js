@@ -519,6 +519,24 @@ class charts{
 
           <script>
 
+
+          function eachRecursive(obj)
+            {
+                for (var k in obj)
+                {
+                    if (typeof obj[k] == "object" && obj[k] !== null) {
+                        eachRecursive(obj[k]);
+                    } else {
+                      if (k=="clickcontent" && obj[k]!=""){
+                        
+                        obj["click"]=Function("function(){ alert(\""+obj[k]+"\") }");
+                      }
+                    }
+                        
+                }
+            }
+
+
           (function(){
 
             
@@ -618,7 +636,7 @@ class charts{
         };
 
 
-        //eachRecursive(options);
+        eachRecursive(options);
         console.log(options);
 
         let chart = new ApexCharts(document.querySelector("#chart_${id}"), options);
