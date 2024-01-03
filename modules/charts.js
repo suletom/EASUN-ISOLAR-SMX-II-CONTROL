@@ -15,14 +15,14 @@ class charts{
 
       let events=[];
       
-      for(let cv=history.length-1;cv>0;cv--){
+      for(let cv=history.length-1;cv>=0;cv--){
         if (history[cv]["asyncdata"]!=undefined ){
           //console.log(history[cv]["asyncdata"]);
           let eventtime=history[cv]["asyncdata"][0].date;
           console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"])+" len: "+
           history[cv]["asyncdata"].length);
           
-           for(let i=history[cv]["asyncdata"].length-1;i>0;i--){
+           for(let i=history[cv]["asyncdata"].length-1;i>=0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
               //console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
               if (srcdate>eventtime) {
