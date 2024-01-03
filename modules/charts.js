@@ -385,6 +385,7 @@ class charts{
 
        let reason=""; 
         if (history[cv]['OutputPriority_text']!=outputmode || chargemode!=history[cv]['ChargerSourcePriority_text']){
+          console.log("CCC : "+helper.fdate(history[cv]["timestamp"]));
           let reasons=charts.getasynclog(history,history[cv]["timestamp"]);
           if (reasons.length>0){
             for(let cj=0;cj<reasons.length;cj++){
