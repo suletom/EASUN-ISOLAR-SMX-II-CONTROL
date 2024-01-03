@@ -11,9 +11,11 @@ class charts{
     static getasynclog=function(history,srcdate){
 
       let events=[];
-
+      console.log(history);
       for(let cv=history.length-1;cv>0;cv--){
         if (history[cv]["asyncdata"]!=undefined ){
+          console.log(history[cv]["asyncdata"]);
+          
            for(let i=history[cv]["asyncdata"].length-1;i>0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
               if (srcdate>eventtime) {
