@@ -14,7 +14,7 @@ class charts{
 
       for(let cv=history.length-1;cv>0;cv--){
         if (history[cv]["asyncdata"]!=undefined ){
-           for(i=history[cv]["asyncdata"].length-1;i>0;i--){
+           for(let i=history[cv]["asyncdata"].length-1;i>0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
               if (srcdate>eventtime) {
                  //search in 5 min time window
