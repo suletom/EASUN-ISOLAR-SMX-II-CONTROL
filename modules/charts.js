@@ -528,7 +528,7 @@ class charts{
                     if (typeof obj[k] == "object" && obj[k] !== null)
                         eachRecursive(obj[k]);
                     else {
-                      if (k=="clickcontent"){
+                      if (k=="clickcontent" && obj[k]!=""){
                         eval("let el=function(){ alert(\""+obj[k]+"\") }")
                         obj["click"]=el;
                       }
@@ -632,7 +632,7 @@ class charts{
         };
 
 
-        eachRecursive(option);
+        eachRecursive(options);
         console.log(options);
 
         let chart = new ApexCharts(document.querySelector("#chart_${id}"), options);
