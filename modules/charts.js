@@ -13,7 +13,7 @@ class charts{
 
       console.log("CC Search subj: "+srcdate+" "+helper.fdate(srcdate));
 
-      fs.writeFileSync( "/tmp/test", history );
+      fs.writeFileSync( "/tmp/test", JSON.stringify(history) );
 
       let events=[];
       
