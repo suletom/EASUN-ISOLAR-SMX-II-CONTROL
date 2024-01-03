@@ -10,6 +10,8 @@ class charts{
 
     static getasynclog=function(history,srcdate){
 
+      console.log("CC Search subj: "+srcdate+" "+helper.fdate(srcdate));
+
       let events=[];
       
       for(let cv=history.length-1;cv>0;cv--){
@@ -18,9 +20,12 @@ class charts{
 
            for(let i=history[cv]["asyncdata"].length-1;i>0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
+              console.log("CC eventtimej: "+eventtime+" "+helper.fdate(eventtime));
               if (srcdate>eventtime) {
+                console.log("CC eventtime1: "+eventtime+" "+helper.fdate(eventtime));
                  //search in 5 min time window
                  if (srcdate-(5*60)<eventtime){
+                    console.log("CC eventtime2: "+eventtime+" "+helper.fdate(eventtime));
                     events.push(history[cv]["asyncdata"][i]);
                  }
               }
