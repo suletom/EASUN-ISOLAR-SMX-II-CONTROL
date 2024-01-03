@@ -3,7 +3,7 @@ const energyv1 = require("./energy_ver1.js");
 const forecast = require("./forecast.js");
 const helper = require("./helper.js");
 const systememulator = require("./systememulator.js");
-let fs = require('fs');
+//let fs = require('fs');
 
 class charts{
 
@@ -13,7 +13,7 @@ class charts{
 
       console.log("CC Search subj: "+srcdate+" "+helper.fdate(srcdate));
 
-      fs.writeFileSync( "/tmp/test", JSON.stringify(history) );
+      
 
       let events=[];
       
@@ -23,7 +23,7 @@ class charts{
 
            for(let i=history[cv]["asyncdata"].length-1;i>0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
-              console.log("CC eventtimej: "+eventtime+" "+helper.fdate(eventtime));
+              console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
               if (srcdate>eventtime) {
                 console.log("CC eventtime1: "+eventtime+" "+helper.fdate(eventtime));
                  //search in 5 min time window
