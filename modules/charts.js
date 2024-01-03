@@ -393,14 +393,14 @@ class charts{
 
           annot.push(
             charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['OutputPriority_text']],history[cv]['OutputPriority_text'],'#000',
-            { })
+            { "clickcontent": reason})
           );
         }  
 
         if (chargemode!=history[cv]['ChargerSourcePriority_text']){
 
           let ta=charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['ChargerSourcePriority_text']],history[cv]['ChargerSourcePriority_text'],
-          '#000',{"offsetY": -38,"click": "CLICKFN"}
+          '#000',{"offsetY": -38,"clickcontent": reason}
           );
 
           annot.push(
@@ -508,10 +508,7 @@ class charts{
       }
 
       let annotstr=JSON.stringify(annot);
-      //console.log(annotstr);
-      annotstr=annotstr.replaceAll('"CLICKFN"',"function(){ alert(\"as\"); }");
-      //console.log(annotstr);
-    
+      
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annotstr);
     };
 
@@ -523,6 +520,22 @@ class charts{
           <script>
 
           (function(){
+
+            function eachRecursive(obj)
+            {
+                for (var k in obj)
+                {
+                    if (typeof obj[k] == "object" && obj[k] !== null)
+                        eachRecursive(obj[k]);
+                    else {
+                      if (k=="clickcontent"){
+                        eval("let el=function(){ alert(\""+obj[k]+"\") }")
+                        obj["click"]=el;
+                      }
+                    }
+                        
+                }
+            }
 
             let graphdata1=${JSON.stringify(graphdata)};
             let battsoc1=${JSON.stringify(graphbattsoc)};
@@ -617,6 +630,10 @@ class charts{
             type: "solid"
           }
         };
+
+
+        eachRecursive(option);
+        console.log(options);
 
         let chart = new ApexCharts(document.querySelector("#chart_${id}"), options);
         chart.render();
