@@ -541,7 +541,7 @@ class charts{
                         eachRecursive(obj[k]);
                     } else {
                       if (k=="clickcontent" && obj[k]!=""){
-                        obj["click"]=Function("alert('"+obj[k]+"');"); 
+                        //obj["click"]=Function("alert('"+obj[k]+"');"); 
                       }
                     }
                 }
