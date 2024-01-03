@@ -508,7 +508,7 @@ class charts{
       }
 
       let annotstr=JSON.stringify(annot);
-      annotstr.replace("CLICKFN","function(){ alert(\"as\"); }");
+      annotstr.replace('"CLICKFN"',"function(){ alert(\"as\"); }");
     
       return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annotstr);
     };
