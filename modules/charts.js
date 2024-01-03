@@ -400,7 +400,7 @@ class charts{
         if (chargemode!=history[cv]['ChargerSourcePriority_text']){
 
           let ta=charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['ChargerSourcePriority_text']],history[cv]['ChargerSourcePriority_text'],
-          '#000',{"offsetY": -38,"click": 'function(){ alert("test"); }'}
+          '#000',{"offsetY": -38,"click": "CLICKFN"}
           );
 
           annot.push(
@@ -506,11 +506,14 @@ class charts{
         }
         
       }
+
+      let annotstr=JSON.stringify(annot);
+      annotstr.replace("CLICKFN","function(){ alert(\"as\"); }");
     
-      return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annot);
+      return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annotstr);
     };
 
-    static _graph=function(id,graphdata,graphbattsoc,graphconsumption,annot=[]){
+    static _graph=function(id,graphdata,graphbattsoc,graphconsumption,annot="[]"){
 
           let out=`
           <div id="chart_${id}"></div>
@@ -590,7 +593,7 @@ class charts{
             }
           }],
           annotations: {
-            xaxis: ${JSON.stringify(annot)}
+            xaxis: ${annot}
           },
           grid: {
             padding: {
