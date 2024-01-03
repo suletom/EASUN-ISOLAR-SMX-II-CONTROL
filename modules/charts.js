@@ -647,7 +647,7 @@ class charts{
         };
 
 
-        //eachRecursive(options);
+        eachRecursive(options);
         console.log(options);
 
         let chart = new ApexCharts(document.querySelector("#chart_${id}"), options);
