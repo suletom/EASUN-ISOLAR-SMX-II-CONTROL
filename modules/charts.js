@@ -13,14 +13,14 @@ class charts{
 
       console.log("CC Search subj: "+srcdate+" "+helper.fdate(srcdate));
 
-      
-
       let events=[];
       
       for(let cv=history.length-1;cv>0;cv--){
         if (history[cv]["asyncdata"]!=undefined ){
-          console.log(history[cv]["asyncdata"]);
-
+          //console.log(history[cv]["asyncdata"]);
+          let eventtime=history[cv]["asyncdata"][0].date;
+          console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
+          /*
            for(let i=history[cv]["asyncdata"].length-1;i>0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
               console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
@@ -33,6 +33,7 @@ class charts{
                  }
               }
            }
+           */
         }
       }
 
