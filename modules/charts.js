@@ -3,6 +3,7 @@ const energyv1 = require("./energy_ver1.js");
 const forecast = require("./forecast.js");
 const helper = require("./helper.js");
 const systememulator = require("./systememulator.js");
+let fs = require('fs');
 
 class charts{
 
@@ -11,6 +12,8 @@ class charts{
     static getasynclog=function(history,srcdate){
 
       console.log("CC Search subj: "+srcdate+" "+helper.fdate(srcdate));
+
+      fs.writeFileSync( "/tmp/test", history );
 
       let events=[];
       
