@@ -25,10 +25,12 @@ class charts{
            for(let i=history[cv]["asyncdata"].length-1;i>=0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
               //console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
+
+              "2024-01-03 14:39:32">"2024-01-03 12:52:13"
               if (srcdate>eventtime) {
                 console.log("CC eventtime1: "+eventtime+" "+helper.fdate(eventtime));
                  //search in 5 min time window
-                 if (srcdate-(5*60)<eventtime){
+                 if (srcdate-(15*60)<eventtime) {
                     console.log("CC eventtime2: "+eventtime+" "+helper.fdate(eventtime));
                     events.push(history[cv]["asyncdata"][i]);
                  }
