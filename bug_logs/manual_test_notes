@@ -1,0 +1,8 @@
+-bekapcsol-e a töltő bizonyos % alatt: OK!
+-kikapcsol-e a töltő: OK!
+-ha nincs időjárás adat akkor is átváltunk-e: mertés SBU-ban -> nincs forecast: SBU -> UTI: OK! utána OSO -> SNU: OK!
+-ha lemerült az akku akkor átvált-e magától (bms előtt?!)
+
+BUG: SNU ból nem vált vissza, pedig a model jót javasol, csak nincs trigger: egy feltétel el volt gépelve, tesztelve: OK!
+
+BUB2: visszavált a kalkuláció is UTI-ba, amikor még lenne neki hova merülni -> ennek az oka lehet az adatban vagy annak hinyában?
