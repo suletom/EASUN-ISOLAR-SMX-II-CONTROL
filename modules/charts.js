@@ -519,9 +519,7 @@ class charts{
 
           <script>
 
-          (function(){
-
-            function eachRecursive(obj)
+          function eachRecursive(obj)
             {
                 for (var k in obj)
                 {
@@ -536,6 +534,10 @@ class charts{
                         
                 }
             }
+
+          (function(){
+
+            
 
             let graphdata1=${JSON.stringify(graphdata)};
             let battsoc1=${JSON.stringify(graphbattsoc)};
