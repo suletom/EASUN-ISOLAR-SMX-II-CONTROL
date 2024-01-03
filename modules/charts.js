@@ -19,19 +19,19 @@ class charts{
         if (history[cv]["asyncdata"]!=undefined ){
           //console.log(history[cv]["asyncdata"]);
           let eventtime=history[cv]["asyncdata"][0].date;
-          console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"])+" len: "+
+          //console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"])+" len: "+
           history[cv]["asyncdata"].length);
           
            for(let i=history[cv]["asyncdata"].length-1;i>=0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
               //console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
 
-              "2024-01-03 14:39:32">"2024-01-03 12:52:13"
+              //"2024-01-03 14:39:32">"2024-01-03 12:52:13"
               if (srcdate>eventtime) {
-                console.log("CC eventtime1: "+eventtime+" "+helper.fdate(eventtime));
+                //console.log("CC eventtime1: "+eventtime+" "+helper.fdate(eventtime));
                  //search in 5 min time window
                  if (srcdate-(15*60)<eventtime) {
-                    console.log("CC eventtime2: "+eventtime+" "+helper.fdate(eventtime));
+                    //console.log("CC eventtime2: "+eventtime+" "+helper.fdate(eventtime));
                     events.push(history[cv]["asyncdata"][i]);
                  }
               }
@@ -39,7 +39,7 @@ class charts{
           
         }
       }
-      console.log("CC ret: ",events);
+      console.log("CC ret: ",JSON.stringify(events));
       return events;
 
     }
