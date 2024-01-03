@@ -400,7 +400,7 @@ class charts{
         if (chargemode!=history[cv]['ChargerSourcePriority_text']){
 
           let ta=charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['ChargerSourcePriority_text']],history[cv]['ChargerSourcePriority_text'],
-          '#000',{"offsetY": -38,"click": function(){ alert("test"); }}
+          '#000',{"offsetY": -38,"click": 'function(){ alert("test"); }'}
           );
 
           annot.push(
