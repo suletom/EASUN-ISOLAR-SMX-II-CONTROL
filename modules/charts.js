@@ -19,11 +19,12 @@ class charts{
         if (history[cv]["asyncdata"]!=undefined ){
           //console.log(history[cv]["asyncdata"]);
           let eventtime=history[cv]["asyncdata"][0].date;
-          console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
-          /*
+          console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"])+" len: "+
+          history[cv]["asyncdata"].length);
+          
            for(let i=history[cv]["asyncdata"].length-1;i>0;i--){
               let eventtime=history[cv]["asyncdata"][i].date;
-              console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
+              //console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"]));
               if (srcdate>eventtime) {
                 console.log("CC eventtime1: "+eventtime+" "+helper.fdate(eventtime));
                  //search in 5 min time window
@@ -33,10 +34,10 @@ class charts{
                  }
               }
            }
-           */
+          
         }
       }
-
+      console.log("CC ret: ",events);
       return events;
 
     }
