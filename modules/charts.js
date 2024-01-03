@@ -8,8 +8,30 @@ class charts{
 
     static modcols={"SBU":"#20b024","UTI":"#775DD0","OSO":"#ced10a","SNU":"#e62929"};
 
-    static getchartinfo=function(){
+    static getasynclog=function(history,srcdate){
 
+      let events=[];
+
+      for(let cv=history.length-1;cv>0;cv--){
+        if (history[cv]["asyncdata"]!=undefined ){
+           for(i=history[cv]["asyncdata"].length-1;i>0;i--){
+              let eventtime=history[cv]["asyncdata"][i].date;
+              if (srcdate>eventtime) {
+                 //search in 5 min time window
+                 if (srcdate-(5*60)<eventtime){
+                    events.push(history[cv]["asyncdata"][i]);
+                 }
+              }
+           }
+        }
+      }
+
+      return events;
+
+    }
+
+    static getchartinfo=function(){
+    
         //model test chart
         //{"unixtime,prediction,ah_min_point,ah_switch_point,ah_charge_point,current_ah,current_mode,current_charge,consumption_a,voltage"}
 
@@ -335,6 +357,7 @@ class charts{
 
         if (history[cv]["timestamp"] < start_time) continue;
 
+        /*
         let reasons=[]; 
         if (history[cv]['OutputPriority_text']!=outputmode || chargemode!=history[cv]['ChargerSourcePriority_text']){
           
@@ -351,11 +374,26 @@ class charts{
             }
           }
         }
+        */
+
+       let reason=""; 
+        if (history[cv]['OutputPriority_text']!=outputmode || chargemode!=history[cv]['ChargerSourcePriority_text']){
+          let reasons=charts.getasynclog(history,history[cv]["timestamp"]);
+          if (reasons.length>0){
+            for(let cj=0;cj<reasons.length;cj++){
+              reason+="<div><strong>"+helper.fdate(reasons[cj]["date"])+":</strong><br/>";
+              reason+=reasons[cj]["reason"].join("\n<br/>");
+              reason+="\n<br/><br/></div>";
+            }
+            
+          }
+        }
 
         if (history[cv]['OutputPriority_text']!=outputmode) {
 
           annot.push(
-            charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['OutputPriority_text']],history[cv]['OutputPriority_text'],'#000')
+            charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['OutputPriority_text']],history[cv]['OutputPriority_text'],'#000',
+            {"click": function(){ alert("test"); } })
           );
         }  
 
