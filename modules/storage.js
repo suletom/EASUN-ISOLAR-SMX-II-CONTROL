@@ -118,14 +118,16 @@ class paramstorage {
         if (completedata==0){
 
             if (this.asyncdata.length>0) {
-                this.asyncdata.forEach(function(el) {
+                for (let cj=0;cj<this.asyncdata.length;cj++) {
+                    let el=this.asyncdata[cj];
                     if (jsobject["asyncdata"]!=undefined) {
                         jsobject.asyncdata.push(el);
                     } else {
                         jsobject["asyncdata"]=[];
                         jsobject["asyncdata"].push(el);
                     }
-                });
+                }
+                
                 this.asyncdata=[];
             }
 
@@ -159,6 +161,9 @@ class paramstorage {
         //store current available data in every case
         console.log("Wiriting data history stucture...");
         this.storehistory();
+
+        this.currentdata=JSON.parse(JSON.stringify(this.currentdata));
+        this.currentdata["asyncdata"]=[];
 
     }
 
