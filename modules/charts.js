@@ -398,6 +398,7 @@ class charts{
           let reasons=charts.getasynclog(history,history[cv]["timestamp"]);
           if (reasons.length>0){
             for(let cj=0;cj<reasons.length;cj++){
+              loginfocnt++;
               reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\" style=\"display: none\"><strong>"+helper.fdate(reasons[cj]["date"])+":</strong><br/>";
               reason+=reasons[cj]["reason"].join("\n<br/>");
               reason+="\n<br/><br/></div>";
@@ -413,7 +414,7 @@ class charts{
             { "clickcontent": loginfocnt})
           );
           loginfo+=reason;
-          loginfocnt++;
+          
         }  
 
         if (chargemode!=history[cv]['ChargerSourcePriority_text']){
@@ -422,11 +423,8 @@ class charts{
           '#000',{"offsetY": -38,"clickcontent": loginfocnt}
           );
 
-          annot.push(
-            ta  
-          );
+          annot.push(ta);
           loginfo+=reason;
-          loginfocnt++;
           
         }
 
