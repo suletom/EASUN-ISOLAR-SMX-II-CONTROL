@@ -398,7 +398,7 @@ class charts{
           let reasons=charts.getasynclog(history,history[cv]["timestamp"]);
           if (reasons.length>0){
             for(let cj=0;cj<reasons.length;cj++){
-              reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\"><strong>"+helper.fdate(reasons[cj]["date"])+":</strong><br/>";
+              reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\" style=\"display: none\"><strong>"+helper.fdate(reasons[cj]["date"])+":</strong><br/>";
               reason+=reasons[cj]["reason"].join("\n<br/>");
               reason+="\n<br/><br/></div>";
             }
