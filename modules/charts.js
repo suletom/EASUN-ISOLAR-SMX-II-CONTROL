@@ -365,6 +365,8 @@ class charts{
       let graphdata=[];
       let graphbattsoc=[];
       let graphconsumption=[];
+      let loginfo="";
+      let loginfocnt=0;
 
       let lastts=0;
       for(let cv=0;cv<history.length;cv++){
@@ -396,7 +398,7 @@ class charts{
           let reasons=charts.getasynclog(history,history[cv]["timestamp"]);
           if (reasons.length>0){
             for(let cj=0;cj<reasons.length;cj++){
-              reason+="<div><strong>"+helper.fdate(reasons[cj]["date"])+":</strong><br/>";
+              reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\"><strong>"+helper.fdate(reasons[cj]["date"])+":</strong><br/>";
               reason+=reasons[cj]["reason"].join("\n<br/>");
               reason+="\n<br/><br/></div>";
             }
@@ -408,19 +410,23 @@ class charts{
 
           annot.push(
             charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['OutputPriority_text']],history[cv]['OutputPriority_text'],'#000',
-            { "clickcontent": reason})
+            { "clickcontent": loginfocnt})
           );
+          loginfo+=reason;
+          loginfocnt++;
         }  
 
         if (chargemode!=history[cv]['ChargerSourcePriority_text']){
 
           let ta=charts.annot(history[cv]["timestamp"],charts.modcols[history[cv]['ChargerSourcePriority_text']],history[cv]['ChargerSourcePriority_text'],
-          '#000',{"offsetY": -38,"clickcontent": reason}
+          '#000',{"offsetY": -38,"clickcontent": loginfocnt}
           );
 
           annot.push(
             ta  
           );
+          loginfo+=reason;
+          loginfocnt++;
           
         }
 
@@ -465,9 +471,7 @@ class charts{
             }
           };
 
-          
           annot.push(sunsettmp);
-
 
         });
 
@@ -482,8 +486,6 @@ class charts{
           lastts=helper.unixTimestamp(new Date(key));
         }
 
-        
-
         for (let ptime=helper.unixTimestamp();ptime<=lastts;ptime=ptime+stepping){
         
               let curp=0;
@@ -494,7 +496,6 @@ class charts{
                   break;
                 }
               }
-
 
               let newdata=emulator.calculate(ptime,stepping);
               //console.log("ndd:",newdata);
@@ -515,7 +516,6 @@ class charts{
                 );
               }
 
-              
               graphdata.push([ptime*1000,curp]);
               owndata=JSON.parse(JSON.stringify(newdata));   
         }
@@ -524,12 +524,15 @@ class charts{
 
       let annotstr=JSON.stringify(annot);
       
-      return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annotstr);
+      return charts._graph("chartn",graphdata,graphbattsoc,graphconsumption,annotstr,loginfo);
     };
 
-    static _graph=function(id,graphdata,graphbattsoc,graphconsumption,annot="[]"){
+    static _graph=function(id,graphdata,graphbattsoc,graphconsumption,annot="[]",loginfo=""){
 
           let out=`
+          <div class="loginfos">
+            ${loginfo}
+          </div>
           <div id="chart_${id}"></div>
 
           <script>
@@ -541,7 +544,7 @@ class charts{
                         eachRecursive(obj[k]);
                     } else {
                       if (k=="clickcontent" && obj[k]!=""){
-                        //obj["click"]=Function("alert('"+obj[k]+"');"); 
+                        obj["click"]=Function("document.querySelectorAll('.loginfo').forEach(el=>{el.style='display: none;';}); document.querySelector('#loginfo"+obj[k]+"').style='display: block;'"); 
                       }
                     }
                 }
