@@ -18,7 +18,7 @@ class charts{
       for(let cv=history.length-1;cv>=0;cv--){
         if (history[cv]["asyncdata"]!=undefined ){
           //console.log(history[cv]["asyncdata"]);
-          let eventtime=history[cv]["asyncdata"][0].date;
+          //let eventtime=history[cv]["asyncdata"][0].date;
           //console.log("CC eventtime: "+eventtime+" "+helper.fdate(eventtime)+" "+helper.fdate(history[cv]["timestamp"])+" len: "+
           //history[cv]["asyncdata"].length);
           
