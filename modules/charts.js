@@ -544,7 +544,7 @@ class charts{
                         eachRecursive(obj[k]);
                     } else {
                       if (k=="clickcontent" && obj[k]!=""){
-                        obj["click"]=Function("document.querySelectorAll('.loginfo').forEach(el=>{el.style='display: none;';}); document.querySelector('#loginfo"+obj[k]+"').style='display: block;'"); 
+                        obj["click"]=Function("document.querySelectorAll('.loginfo').forEach(el=>{el.style='display: none;';}); let e=document.querySelector('#loginfo"+obj[k]+"'); if (e!=null) e.style='display: block;'"); 
                       }
                     }
                 }
