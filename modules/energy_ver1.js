@@ -249,10 +249,13 @@ class energyver1 {
                 }else{
 
                   this.reason.push("Current battery consumtion -> discharging");
-
-                  suggested_mode="UTI"
-                  console.log("ENERGYv1: (IN SBU) above sw point -> UTI "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                  this.reason.push("Trying to stay in SBU...");
                   this.reason.push("Suggestion: UTI");
+                  suggested_mode="SBU"
+
+                  //suggested_mode="UTI"
+                  console.log("ENERGYv1: (IN SBU) above sw point -> SBU "+helper.fdate(this.unixtime)+" current ah:"+this.current_ah);
+                  //this.reason.push("Suggestion: UTI");
                 }
 
                 
