@@ -250,7 +250,7 @@ class energyver1 {
 
                   this.reason.push("Current battery consumtion -> discharging");
                   this.reason.push("Trying to stay in SBU...");
-                  this.reason.push("Suggestion: UTI");
+                  this.reason.push("Suggestion: SBU");
                   suggested_mode="SBU"
 
                   //suggested_mode="UTI"
