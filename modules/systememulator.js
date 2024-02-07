@@ -24,17 +24,18 @@ class systememulator{
       
       if (suggestion!=false) {
         this.safeswitchinst.switch_mode(this.config,suggestion.suggested_mode,suggestion.suggested_charge,time);
-        
+       
+        let safeout=this.safeswitchinst.getmodes();
+
+        if ((suggestion.suggested_mode!=safeout.stored_mode) ||
+            (suggestion.suggested_charge!=safeout.stored_charge)){
+
+              reasons.push({"date": time,"reason":suggestion.reason});
+
+        }
       }
 
       let safeout=this.safeswitchinst.getmodes();
-
-      if ((suggestion.suggested_mode!=safeout.stored_mode) ||
-          (suggestion.suggested_charge!=safeout.stored_charge)){
-
-            reasons.push({"date": time,"reason":suggestion.reason});
-
-      }
 
       let prediction=0;
       let prevdatekey=0;
