@@ -500,10 +500,11 @@ class charts{
               let reason="";
               if (newdata.reasons.length>0) {
 
-                for(let cj=0;cj<newdata.reasons.length;cj++){
+                console.log(newdata["reasons"]);
+                for(let cj=0;cj<newdata["reasons"].length;cj++){
                   loginfocnt++;
-                  reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\" style=\"display: none\"><strong>"+helper.fdate(newdata.reasons[cj]["date"])+":</strong><br/>";
-                  reason+=newdata.reasons[cj]["reason"].join("\n<br/>");
+                  reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\" style=\"display: none\"><strong>"+helper.fdate(newdata["reasons"][cj]["date"])+":</strong><br/>";
+                  reason+=newdata["reasons"][cj]["reason"].join("\n<br/>");
                   reason+="\n<br/><br/></div>";
                 }
                 
