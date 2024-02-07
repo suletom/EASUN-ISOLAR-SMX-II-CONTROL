@@ -355,7 +355,7 @@ class charts{
       if (typeof inpdata["interval"] != undefined && inpdata["interval"]=="day"){
         start_time=helper.unixTimestamp()-24*3600*1;
         sampletime=60;
-     }
+      }
 
       let prediction=forecast.getforecast(config["forecast_url"]);
 
@@ -498,9 +498,8 @@ class charts{
               let newdata=emulator.calculate(ptime,stepping);
               
               let reason="";
-              if (newdata.reasons.length>0) {
+              if (newdata["reasons"].length>0) {
 
-                console.log(newdata["reasons"]);
                 for(let cj=0;cj<newdata["reasons"].length;cj++){
                   loginfocnt++;
                   reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\" style=\"display: none\"><strong>"+helper.fdate(newdata["reasons"][cj]["date"])+":</strong><br/>";

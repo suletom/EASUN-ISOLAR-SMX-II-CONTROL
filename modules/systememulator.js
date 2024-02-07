@@ -27,8 +27,8 @@ class systememulator{
        
         let safeout=this.safeswitchinst.getmodes();
 
-        if ((suggestion.suggested_mode!=safeout.stored_mode) ||
-            (suggestion.suggested_charge!=safeout.stored_charge)){
+        if ((this.data['OutputPriority_text']!=safeout.stored_mode) ||
+            (this.data['ChargerSourcePriority_text']!=safeout.stored_charge)){
 
               reasons.push({"date": time,"reason":suggestion.reason});
 
