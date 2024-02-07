@@ -14,18 +14,27 @@ class systememulator{
 
     calculate(time,stepping){
 
+      let reasons=[];
+
       //console.log("BUGSRC before:",this.data);
       let suggestion=this.energycontroller.run(this.config,this.data,this.history,time);
-      if (this.data['OutputPriority_text'] != undefined && this.data['OutputPriority_text'] != "N/A" && this.data['ChargerSourcePriority_text']!=undefined && this.data['OutputPriority_text'] != "N/A" ){
+      if (this.data['OutputPriority_text'] != undefined && this.data['OutputPriority_text'] != "N/A" && this.data['ChargerSourcePriority_text']!=undefined && this.data['ChargerSourcePriority_text'] != "N/A" ){
           this.safeswitchinst.init(this.data['OutputPriority_text'],this.data['ChargerSourcePriority_text'],0);
       }
       
       if (suggestion!=false) {
         this.safeswitchinst.switch_mode(this.config,suggestion.suggested_mode,suggestion.suggested_charge,time);
-
+        
       }
 
       let safeout=this.safeswitchinst.getmodes();
+
+      if ((suggestion.suggested_mode!=safeout.stored_mode) ||
+          (suggestion.suggested_charge!=safeout.stored_charge)){
+
+            reasons.push({"date": time,"reason":suggestion.reason});
+
+      }
 
       let prediction=0;
       let prevdatekey=0;
@@ -123,6 +132,9 @@ class systememulator{
 
       this.data['OutputPriority_text']=safeout.stored_mode;
       this.data['ChargerSourcePriority_text']=safeout.stored_charge;
+
+
+      this.data['reasons']=reasons;
 
       //console.log("BUGSRC after:",this.data);
       return this.data;

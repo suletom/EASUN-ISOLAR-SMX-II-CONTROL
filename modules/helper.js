@@ -1,6 +1,10 @@
 class etc{
 
-    
+    /**
+     * 
+     * @param {*} Date object
+     * @returns Unix timestap
+     */
     static unixTimestamp = function(d=null) {  
         let bd=Date.now();
         if (d!==null){

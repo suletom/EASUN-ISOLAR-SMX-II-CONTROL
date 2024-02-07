@@ -496,6 +496,19 @@ class charts{
               }
 
               let newdata=emulator.calculate(ptime,stepping);
+              
+              let reason="";
+              if (newdata.reasons.length>0) {
+
+                for(let cj=0;cj<newdata.reasons.length;cj++){
+                  loginfocnt++;
+                  reason+="<div class=\"loginfo\" id=\"loginfo"+loginfocnt+"\" style=\"display: none\"><strong>"+helper.fdate(newdata.reasons[cj]["date"])+":</strong><br/>";
+                  reason+=newdata.reasons[cj]["reason"].join("\n<br/>");
+                  reason+="\n<br/><br/></div>";
+                }
+                
+              }
+
               //console.log("ndd:",newdata);
               graphbattsoc.push([ptime*1000,newdata["battery_soc"]]);
               graphconsumption.push([ptime*1000,owndata["LoadActivePower"]]);
@@ -503,15 +516,17 @@ class charts{
               if (newdata["OutputPriority_text"]!=owndata["OutputPriority_text"]){
                 console.log("annot push:"+newdata["OutputPriority_text"]);
                 annot.push(
-                  charts.annot(ptime,charts.modcols[newdata["OutputPriority_text"]],newdata["OutputPriority_text"],'#444')
+                  charts.annot(ptime,charts.modcols[newdata["OutputPriority_text"]],newdata["OutputPriority_text"],'#444', { "clickcontent": loginfocnt})
                 );
+                loginfo+=reason;
               }
 
               if (newdata["ChargerSourcePriority_text"]!=owndata["ChargerSourcePriority_text"]){
 
                 annot.push(
-                  charts.annot(ptime,charts.modcols[newdata["ChargerSourcePriority_text"]],newdata["ChargerSourcePriority_text"],'#444')
+                  charts.annot(ptime,charts.modcols[newdata["ChargerSourcePriority_text"]],newdata["ChargerSourcePriority_text"],'#444', { "clickcontent": loginfocnt})
                 );
+                loginfo+=reason;
               }
 
               graphdata.push([ptime*1000,curp]);
