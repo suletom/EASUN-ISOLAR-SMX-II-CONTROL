@@ -342,28 +342,32 @@ class energyver1 {
     //2. condition to switch: given soc percent but do not switch if energy will be enough!
     sunset_preseve_switch() {
       
-      //console.log("ENERGYv1: sunset: preserve check: curr_ah: ",this.current_ah," preserv_ah: ",this.preserve_ah);
+      //simple solution to only do this after noon
+      let timeobj=helper.fdateobj(this.unixtime);
+      if (timeobj.hour>=12){
       
-      //search for today sunset
-      let sd=forecast.search_sunsets(this.prediction.result.watts,this.unixtime);
-      //console.log("energy after ss:",sd);
-      if (sd.next_sunset!=0){
-        //found sunset
-        //console.log("ENERGYv1: found sunset ");
+        //search for today sunset
+        let sd=forecast.search_sunsets(this.prediction.result.watts,this.unixtime);
+        //console.log("energy after ss:",sd);
+        if (sd.next_sunset!=0){
+          //found sunset
+          //console.log("ENERGYv1: found sunset ");
 
-        //check if in SBU
-        if (this.current_mode=="SBU") {
-          
-          //check if battery below setpoint
-          if (this.current_ah<this.preserve_ah) {
-            //console.log("ENERGYv1: sunset: current_ah < preserve_ah");
-            if (!this.charge_enough(1)) {
-              //console.log("ENERGYv1: sunset: charge not enough -> suggest switch");
-              //suggest switch
-              return true;
+          //check if in SBU
+          if (this.current_mode=="SBU") {
+            
+            //check if battery below setpoint
+            if (this.current_ah<this.preserve_ah) {
+              //console.log("ENERGYv1: sunset: current_ah < preserve_ah");
+              if (!this.charge_enough(1)) {
+                //console.log("ENERGYv1: sunset: charge not enough -> suggest switch");
+                //suggest switch
+                return true;
+              }
             }
           }
         }
+
       }
 
       return false;
