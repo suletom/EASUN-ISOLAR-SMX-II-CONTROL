@@ -345,21 +345,33 @@ class energyver1 {
       //simple solution to only do this after noon
       let timeobj=helper.fdateobj(this.unixtime);
       if (timeobj.hour>=12){
+
+        console.log("ENERGYv1: sunset_preseve_switch after noon: check if need to switch");
       
         //search for today sunset
         let sd=forecast.search_sunsets(this.prediction.result.watts,this.unixtime);
         //console.log("energy after ss:",sd);
         if (sd.next_sunset!=0){
+
+          console.log("ENERGYv1: sunset_preseve_switch after noon: sunset found");
           //found sunset
           //console.log("ENERGYv1: found sunset ");
 
           //check if in SBU
           if (this.current_mode=="SBU") {
+
+            console.log("ENERGYv1: sunset_preseve_switch after noon: in SBU");
             
             //check if battery below setpoint
             if (this.current_ah<this.preserve_ah) {
+
+              console.log("ENERGYv1: sunset_preseve_switch after noon: battery below setpoint");
+
               //console.log("ENERGYv1: sunset: current_ah < preserve_ah");
               if (!this.charge_enough(1)) {
+
+                console.log("ENERGYv1: sunset_preseve_switch charge not enough to next switch point -> suggest switch");
+
                 //console.log("ENERGYv1: sunset: charge not enough -> suggest switch");
                 //suggest switch
                 return true;
@@ -368,6 +380,9 @@ class energyver1 {
           }
         }
 
+      }
+      else{
+        console.log("ENERGYv1: sunset_preseve_switch BEFORE noon -> do nothing");
       }
 
       return false;
