@@ -120,11 +120,14 @@ class energyver1 {
       }
 
       console.log("ENERGYv1: charge_enough: next predicted time when solar available: "+needed_time_to_solar);
+      this.reason.push("Charge enough: next predicted time when solar available: "+needed_time_to_solar);
 
       console.log("ENERGYv1: charge_enough: predicted solar input wh: "+solar_input_wh);
+      this.reason.push("Charge enough: predicted solar input wh: "+solar_input_wh);
 
       if (needed_time_to_solar==""){
           console.log("ENERGYv1: charge_enough: predicted solar missing return false");
+          this.reason.push("Charge enough: predicted solar missing -> return false");
           //not found in prediction -> false
           return false;
       }else{
@@ -137,23 +140,26 @@ class energyver1 {
           //calculate consumption for that time
           let consumption_wh=(timediff/3600)*(this.full_consumption_w);
 
-          console.log("ENERGYv1: charge_enough: consumption_wh: ",consumption_wh);
+          console.log("ENERGYv1: charge_enough: consumption(wh): ",consumption_wh);
+          this.reason.push("Charge enough: consumption(wh): "+consumption_wh);
 
           consumption_wh-=solar_input_wh;
           
-          console.log("ENERGYv1: charge_enough: consumption_wh with solar input included: ",consumption_wh);
+          console.log("ENERGYv1: charge_enough: consumption_wh with solar input included(wh): ",consumption_wh);
+          this.reason.push("Charge enough: consumption_wh with solar input included(wh): "+consumption_wh);
 
           let min_ah_to_store=((calc_to_sw_point==1)?this.ah_switch_point:this.ah_min_point);
           console.log("ENERGYv1: charge_enough: calc to:param: "+calc_to_sw_point+" ah_sw_point: "+this.ah_switch_point+" ah_min_point: "+this.ah_min_point);
-
+          this.reason.push("Charge enough: calc to: "+((calc_to_sw_point==1)?"switch point(switch to UTI)":"minimum point(for calculations)")+" -> "+min_ah_to_store+" AH");
 
           //200   4200/24 (168) 168+44
           if (this.current_ah > ((consumption_wh/this.voltage)+min_ah_to_store) ){
               console.log("ENERGYv1: charge_enough: true (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+")  min_ah_to_store: "+min_ah_to_store);
-
+              this.reason.push("Charge enough: true (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+")");
               return true;
           }else{
               console.log("ENERGYv1: charge_enough: false (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+") min_ah_to_store: "+min_ah_to_store);
+              this.reason.push("Charge enough: false (current_ah: "+this.current_ah+" calculated_ah: "+((consumption_wh/this.voltage)+min_ah_to_store)+")");
               return false;
           } 
           
