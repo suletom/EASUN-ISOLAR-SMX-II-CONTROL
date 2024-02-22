@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node icmd.js",
     "gen-ha-config": "node ha_template_generator/gen.js",
-    "systemd-install": "node other_utils/gen_systemd_service.js"
+    "systemd-install": "node other_utils/gen_systemd_service.js",
+    "emulator": "node testing/plugpro_emulator.js" 
   },
   "repository": {
     "type": "git",
