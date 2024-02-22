@@ -1,0 +1,10 @@
+Helló! Az alakalmazás teszteléséhez egy emulált TCP modbus gateway-re lenne szükségem.
+A gateway működése a következő: 
+-létrehoz egy egyszerű szervert az 58899-es UDP porton, amin figyeli a bejövő kapcsolatokat és ezeket logoja
+-ha kliens kapcsolódik hozzá a kliens a következő formában elküldi a saját ip címét: set>server=xxx.xxx.xxx.xxx:8899;
+-a gatewaynek ilyenkor a következő a feladatai amit logolni is szükséges: 
+1. válaszol a következő formában: rsp>server=1; (Itt a válaszban szereplő szám a csatlakozó kliens sorszáma)
+2. TCP kapcsolatot nyit a "set" paranccsal korábban a kliens által megadott ip címre a 8899-es portra.
+3. A TCP kapcsolaton érkező parancsok esetén a visszaírja a kapott parancsot a kapcsolatra
+
+
