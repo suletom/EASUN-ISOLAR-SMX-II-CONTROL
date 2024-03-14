@@ -7,4 +7,3 @@ A gateway működése a következő:
 2. TCP kapcsolatot nyit a "set" paranccsal korábban a kliens által megadott ip címre a 8899-es portra.
 3. A TCP kapcsolaton érkező parancsok esetén a visszaírja a kapott parancsot a kapcsolatra
 
-

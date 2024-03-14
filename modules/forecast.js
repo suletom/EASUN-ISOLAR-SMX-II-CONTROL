@@ -96,6 +96,7 @@ class energy {
               }
             }else{
               console.log("ENERGY: json content not valid!");
+              console.log(json);
             }
           }).catch(err => {
             console.log("ENERGY:",err);
