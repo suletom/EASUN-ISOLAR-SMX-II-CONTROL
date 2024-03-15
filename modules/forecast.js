@@ -102,19 +102,19 @@ class energy {
           })
           .then(function(res) { 
             console.log("ENERGY: fetched!");
-            let tt=res.text();
+            
             if (res["status"]!==undefined && res.status==429){  //rate limited
                 
                 //workaround: wait 1 hour before next try
                 try {
-                  fs.writeFileSync(forecastrespfile,tt);
+                  fs.writeFileSync(forecastrespfile,helper.fdate(helper.unixTimestamp())+" -> response.status=429");
                   console.log("ENERGY: writing response file -> pobably rate limited, postpone fetch");
                 } catch (err) {
                   console.log("ENERGY:",err);
                 }
 
             }
-            return tt;
+            return res.text();
           } )
           .then(text => JSON.parse(text))
           .then(function(json) {
