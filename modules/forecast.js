@@ -107,7 +107,6 @@ class energy {
                 
                 //workaround: wait 1 hour before next try
                 try {
-                  dataobj=json;
                   fs.writeFileSync(forecastrespfile,res.text());
                   console.log("ENERGY: writing response file -> pobably rate limited, postpone fetch");
                 } catch (err) {
