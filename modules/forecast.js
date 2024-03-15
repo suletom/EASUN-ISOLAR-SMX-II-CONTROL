@@ -102,6 +102,7 @@ class energy {
           })
           .then(function(res) { 
             console.log("ENERGY: fetched!");
+            console.log(res);
             if (res.statusCode==429){  //rate limited
                 
                 //workaround: wait 1 hour before next try
