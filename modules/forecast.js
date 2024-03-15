@@ -13,6 +13,7 @@ class energy {
     static getforecast(url="",update_period=1800) {
 
       let forecastfile="forecast.json";
+      let forecastrespfile="forecastresp.txt";
 
       let dataobj={};
 
@@ -66,6 +67,23 @@ class energy {
         }
       }  
 
+      let stats=null;
+      try{
+         stats = fs.statSync(forecastrespfile);
+      }catch(err) {
+        console.log("ENERGY:",err);
+      }
+      const HOUR = 1000 * 60 * 60;
+      const anHourAgo = Date.now() - HOUR;
+
+      if (stats!==null && stats!==undefined && stats["mtime"]!==undefined && 
+        stats["mtime"] && needfetch && stats.mtime>anHourAgo){
+
+        console.log("ENERGY:","WARN: found "+forecastrespfile+" with date:"+helper.fdate(helper.unixTimestamp(stats.mtime))+" -> not fetching forecast data, probably rate limited in last hour!!!!!!");
+        needfetch=0;
+
+      }
+
       if (needfetch){
        
         if (url===""){
@@ -82,7 +100,22 @@ class energy {
               "accept": "application/json"
             }
           })
-          .then(function(res) {  console.log("ENERGY: fetched!"); return res.text() } )
+          .then(function(res) { 
+            console.log("ENERGY: fetched!");
+            if (res.statusCode==429){  //rate limited
+                
+                //workaround: wait 1 hour before next try
+                try {
+                  dataobj=json;
+                  fs.writeFileSync(forecastrespfile,res.text());
+                  console.log("ENERGY: writing response file -> pobably rate limited, postpone fetch");
+                } catch (err) {
+                  console.log("ENERGY:",err);
+                }
+
+            }
+            return res.text()
+          } )
           .then(text => JSON.parse(text))
           .then(function(json) {
           
