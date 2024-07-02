@@ -364,7 +364,7 @@ function runscript(args) {
                 if (cmdstr === undefined) { 
                     console.log(outsum);
                     
-                    if (Object.keys(outobj).length === 0 && outobj.constructor === Object) {
+                    if (Object.keys(outobj).length > 0 && outobj.constructor === Object) {
                         console.log("JSON output:\n",outobj);
                         try {
                             fs.writeFileSync('currentdata.json',JSON.stringify(outobj));
