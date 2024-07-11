@@ -458,7 +458,7 @@ function runscript(args) {
             if (obj.hasOwnProperty('raw') && obj.raw===true){
                 hext=el;
             }
-            cmdtorun=obj.cmd.replace('{ARG'+i+'}',hext);
+            cmdtorun=cmdtorun.replace('{ARG'+i+'}',hext);
             i++;
         });
 
