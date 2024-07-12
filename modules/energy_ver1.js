@@ -350,7 +350,9 @@ class energyver1 {
       
       //simple solution to only do this after noon
       let timeobj=helper.fdateobj(this.unixtime);
-      if (timeobj.hour>=12){
+      
+      //hack: hardcoded value: do not switch after 22pm -> could be handled by state preserving model? Or use prediction sunset value? -> perhaps as a fallback?
+      if (timeobj.hour>=12 && timeobj.hour<22){
 
         console.log("ENERGYv1: sunset_preseve_switch after noon: check if need to switch");
       
