@@ -148,7 +148,7 @@ class energymodels{
 
         }
 
-            if (typeof configobj["energymgmt"] != undefined && typeof configobj["energymgmt"][0] != undefined && typeof configobj["energymgmt"][0]["model_chosen"] != undefined ) {
+            if (typeof configobj["energymgmt"] != "undefined" && typeof configobj["energymgmt"][0] != "undefined" && typeof configobj["energymgmt"][0]["model_chosen"] != "undefined" ) {
 
                 if (configobj["energymgmt"][0]["model_chosen"]=="energymodel1") {
 

@@ -133,6 +133,7 @@ class batterymodels{
                 }
             }
         }
+        console.log("ez:",r);
         
         return r;
     }
@@ -162,7 +163,7 @@ class batterymodels{
 
         let battype="inverter_battery";
 
-        if (typeof configobj["battery"] != undefined && typeof configobj["battery"][0] != undefined && typeof configobj["battery"][0]["battery_chosen"] != undefined ) {
+        if (typeof configobj["battery"] != undefined && typeof configobj["battery"][0] != "undefined" && typeof configobj["battery"][0]["battery_chosen"] != "undefined" ) {
 
             switch (configobj["battery"][0]["battery_chosen"]) {
                 case 'software_battery': 
