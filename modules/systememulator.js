@@ -70,7 +70,7 @@ class systememulator{
 
       let self_consumption_a=(this.config["inverter_self_consumption"]!==undefined?this.config["inverter_self_consumption"]:0);
 
-      let consuption_a=this.data["LoadApparentPower"]/this.data["BatteryVoltage"];
+      let consuption_a=this.data["LoadActivePower"]/this.data["BatteryVoltage"];
 
       if (this.data['OutputPriority_text']=="SBU"){
         
