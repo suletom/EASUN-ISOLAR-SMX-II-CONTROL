@@ -342,9 +342,12 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                             if (key=='notif'){
                                 let nots=""; 
                                 jvalue.forEach(function(el){
-                                    
+                                    let notd="";
+                                    if (el['notifieddate']!=undefined){
+                                        notd=" msg: "+el['notifieddate'];
+                                    }
                                     nots+=\`<tr class="alert alert-warning">
-                                            <td>\${el.errordate}</td>
+                                            <td>\${el.errordate}<sup>\${notd}</sup></td>
                                             <td>\${el.error}</td>
                                             <td>\${JSON.stringify(el.info)}</td>
                                             <td>ERR: \${el.present} 
@@ -444,7 +447,7 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
 
                             if (key=='CurrentFault'){
                                 let errcar=jvalue.match(/0: OK/g);
-                                if (errcar.length!=4){
+                                if (errcar===null || errcar.length!=4){
                                     document.querySelector('#delemCurrentFault').classList.add("fault");
                                 }else{
                                     document.querySelector('#delemCurrentFault').classList.remove("fault");

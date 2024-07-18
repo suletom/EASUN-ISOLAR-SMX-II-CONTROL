@@ -151,7 +151,7 @@ class watchdog {
             console.log("-------->>>> WATCHDOG: ALL GOOD! :) --------");
         }else{
             console.log("-------->>>> WATCHDOG:");
-
+           
             let senderrors=[];
             for(let j=0;j<this.errors.length;j++){
                 if (this.errors[j]["goal"] == "notify" && typeof this.errors[j]["notified"] == "undefined"){
@@ -177,11 +177,12 @@ class watchdog {
             
             this.errors=this.errors.filter(function(el){
                 //remove older than 24h if its in ok state
-                return (el["date"]>(helper.unixTimestamp()-(3600*24))  && el["lastok"]!==undefined && el["lastok"]>el["lastpresent"] );
-            });
-            
-            console.log("Current notifications:",this.errors);
 
+                //  && el["lastok"]!==undefined && el["lastok"]>el["lastpresent"]
+
+                return (el["date"]>(helper.unixTimestamp()-(3600*24)) );
+            });
+                        
         }    
         
     }
@@ -216,6 +217,8 @@ class watchdog {
                 this._pushok(ind,"Device not available",goal);
             }
 
+        }else{
+            this._pusherror(ind,"Device not available",goal);
         }
 
     }
@@ -300,18 +303,15 @@ class watchdog {
                 this._pushok(ind,"Battery info",goal,info);    
             }
         }else{
-            //let info="";
-            //info+="Battery unavailable";
-            //this._pusherror(ind,"Battery info",goal,info);
+            
         }
     }
 
    
 
     _pusherror(ind,err,goal,info=null){
+        console.log("_pusherror",ind,err,goal,info);
         
-        console.log("Pusherror!",ind,err,goal);
-
         let seen=this.errors.findIndex(function(el){ return el.error==ind+". "+err; });
         
         if (this.errors[seen] !=undefined){
@@ -332,6 +332,7 @@ class watchdog {
 
     _pushok(ind,err,goal,info=null){
        
+        console.log("_pushok",ind,err,goal,info);
         for(let i=0; i<this.errors.length;i++){
             if (this.errors[i]["error"]==ind+". "+err){
                 if (this.errors[i]["ok"]==undefined){
@@ -339,9 +340,16 @@ class watchdog {
                 }else{
                     this.errors[i]["ok"]+=1;
                 }
-                this.errors[i]["lastok"]=helper.unixTimestamp();
 
-                delete this.errors[i]["notified"];
+                if (this.errors[i]["lastok"]==undefined){
+                    delete this.errors[i]["notified"];
+                }
+
+                if (this.errors[i]["lastok"]!=undefined && this.errors[i]["lastok"]<this.errors[i]["lastpresent"]){
+                    delete this.errors[i]["notified"];    
+                }
+
+                this.errors[i]["lastok"]=helper.unixTimestamp();
 
                 if (info!==null){
                     this.errors[i]["info"]=info;
