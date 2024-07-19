@@ -346,10 +346,15 @@ const httpdash = function(req,configobj,ui_schema,battery_schema,energy_schema){
                                     if (el['notifieddate']!=undefined){
                                         notd=" msg: "+el['notifieddate'];
                                     }
+
+                                    let inf="";
+                                    if (el['info']!=undefined && el['info']!=""){
+                                        inf=JSON.stringify(el.info);
+                                    }
                                     nots+=\`<tr class="alert alert-warning">
                                             <td>\${el.errordate}<sup>\${notd}</sup></td>
                                             <td>\${el.error}</td>
-                                            <td>\${JSON.stringify(el.info)}</td>
+                                            <td>\${inf}</td>
                                             <td>ERR: \${el.present} 
                                             \${el.lastpresentdate}
                                             <td>

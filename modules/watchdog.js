@@ -322,6 +322,10 @@ class watchdog {
                 this.errors[seen]["present"]=1;
             }
 
+            if (this.errors[seen]["lastok"]!=undefined && this.errors[seen]["lastok"]>this.errors[seen]["lastpresent"]){
+                delete this.errors[seen]["notified"];
+            }
+
             this.errors[seen]["lastpresent"]=helper.unixTimestamp();
             
         }else{
