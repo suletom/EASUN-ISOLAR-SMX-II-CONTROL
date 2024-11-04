@@ -6,7 +6,7 @@ const { exit } = require('process');
 const { Buffer } = require('buffer');
 
 
-function runscript(args) {
+async function runscript(args) {
 
     var commands={};
     let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
@@ -152,46 +152,44 @@ function runscript(args) {
     }
 
 
-    function sendudp(devip){
+    async function sendudp(devip){
 
         try{
 
-            localIpV4Address().then(function(ip){
+            if (customip!=""){
+                ip=customip;
+            } else {
+		ip = await localIpV4Address();
+            }
             
-                if (customip!=""){
-                    ip=customip;
-                }
-                
-                console.log("Using local ip to create TCP server: "+(ip));
+            console.log("Using local ip to create TCP server: "+(ip));
 
-                starttcp();
+            starttcp();
 
-                var client = dgram.createSocket('udp4');
-                let port=58899;
-                let command="set>server="+ip+":8899;";
-                
-                console.log("Sending UDP packet(port: "+port+") to inform datalogger device to connect the TCP server:");
-                console.log(command);
+            var client = dgram.createSocket('udp4');
+            let port=58899;
+            let command="set>server="+ip+":8899;";
 
-                client.on('listening', function () {
-                    var address = client.address();
-                    console.log('UDP server listening on ' + address.address + ":" + address.port);
-                });
+            console.log("Sending UDP packet(port: "+port+") to inform datalogger device to connect the TCP server:");
+            console.log(command);
 
-                client.on('error', (err) => {
-                    console.log(`UDP server error:\n${err.stack}`);
-                    client.close();
-                });
-
-                client.on('message',function(message, remote){
-                    console.log(remote.address + ':' + remote.port +' - ' + message);
-                    console.log("Got answer, closing UDP socket...");
-                    client.close();
-                });
-
-                client.send(command,0, command.length, port, devip);
-
+            client.on('listening', function () {
+                var address = client.address();
+                console.log('UDP server listening on ' + address.address + ":" + address.port);
             });
+
+            client.on('error', (err) => {
+                console.log(`UDP server error:\n${err.stack}`);
+                client.close();
+            });
+
+            client.on('message',function(message, remote){
+                console.log(remote.address + ':' + remote.port +' - ' + message);
+                console.log("Got answer, closing UDP socket...");
+                client.close();
+            });
+
+            client.send(command,0, command.length, port, devip);
 
         }catch(e){
             console.log("Error: ",e);
