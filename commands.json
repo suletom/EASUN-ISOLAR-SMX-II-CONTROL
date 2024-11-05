@@ -152,7 +152,7 @@
                 {"num":"111","name":"LineFrequency","address":"0215","type":"UInt16BE","rate":0.01,"format": 2,"unit":"Hz"},
                 {"num":"112","name":"BatteryVoltage","address":"0101","type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"},
                 {"num":"113","name":"BatteryCurrent","address":"0102","type":"Int16BE","rate":0.1,"format": 1,"unit":"A"},
-                {"num":"114","name":"BattreySoc","address":"0100","type":"UInt16BE","rate":1,"format": 0,"unit":"%"},
+                {"num":"114","name":"BatterySoc","address":"0100","type":"UInt16BE","rate":1,"format": 0,"unit":"%"},
                 {"num":"115","name":"ChargeCurrentByLine","address":"021E","type":"Int16BE","rate":0.1,"format": 1,"unit":"A"},
                 {"num":"116","name":"LoadVoltage","address":"0216","type":"UInt16BE","rate":0.1,"format": 1,"unit":"V"},
                 {"num":"117","name":"LoadCurrent","address":"0219","type":"UInt16BE","rate":0.1,"format": 1,"unit":"A"},
