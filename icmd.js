@@ -9,7 +9,7 @@ const { Buffer } = require('buffer');
 function runscript(args) {
 
     var commands={};
-    let cdata=fs.readFileSync('commands.json',{encoding:'utf8', flag:'r'});
+    let cdata=fs.readFileSync(__dirname+'/commands.json',{encoding:'utf8', flag:'r'});
 
     try{ 
         commands=JSON.parse(cdata);
